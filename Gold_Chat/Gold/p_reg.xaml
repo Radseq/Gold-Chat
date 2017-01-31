@@ -1,0 +1,44 @@
+﻿<Window x:Class="Gold.p_reg"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rejestracja" Height="263" Width="299">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources\Skins\GlassButton.xaml"/>
+                <ResourceDictionary Source="Resources\Skins\skin.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Background="DarkBlue">
+        <Button Content="Register" Height="84" HorizontalAlignment="Left" Margin="207,140,-16,0" Name="registerButton" FontFamily="Tahoma" FontSize="18" FontWeight="Bold"  VerticalAlignment="Top" Width="100" Click="registerButton_Click" Style="{DynamicResource buttonTemplate2}" IsDefault="True">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
+                    <SkewTransform AngleX="0" AngleY="0" />
+                    <RotateTransform Angle="0" />
+                    <TranslateTransform X="0" Y="0" />
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <Button Content="Clean" Height="84" HorizontalAlignment="Left" Margin="148,139,0,0" Name="cleanButton" FontFamily="Tahoma" FontSize="18" FontWeight="Bold"  VerticalAlignment="Top" Width="100" Click="cleanButton_Click" Style="{DynamicResource buttonTemplate2}">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
+                    <SkewTransform AngleX="0" AngleY="0" />
+                    <RotateTransform Angle="0" />
+                    <TranslateTransform X="0" Y="0" />
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <TextBox Style="{DynamicResource TextBoxStyle}" Height="24" HorizontalAlignment="Left" Margin="170,12,0,0" Name="logTextbox" VerticalAlignment="Top" Width="96" />
+        <PasswordBox Height="24" HorizontalAlignment="Left" Margin="170,40,0,0" Name="passbox" VerticalAlignment="Top" Width="96" PasswordChar="*" MaxLength="10" />
+        <PasswordBox Height="24" HorizontalAlignment="Left" Margin="170,69,0,0" Name="rePassbox" VerticalAlignment="Top" Width="96" PasswordChar="*" MaxLength="10" />
+        <TextBox Style="{DynamicResource TextBoxStyle}" Height="24" HorizontalAlignment="Left" Margin="170,98,0,0" Name="emailTextbox" VerticalAlignment="Top" Width="96" />
+        <Label Foreground="{DynamicResource Yellow}" Content="  Login:" Height="24" HorizontalAlignment="Left" Margin="113,10,0,0" Name="logLabel" VerticalAlignment="Top" Width="57" VerticalContentAlignment="Top" />
+        <Label Foreground="{DynamicResource Yellow}" Content="Password:" Height="24" HorizontalAlignment="Left" Margin="101,38,0,0" Name="passLabel" VerticalAlignment="Top" VerticalContentAlignment="Top" Width="69" />
+        <Label Foreground="{DynamicResource Yellow}" Content="Re Password:" Height="37" HorizontalAlignment="Left" Margin="83,67,0,0" Name="repassLabel" VerticalAlignment="Top" VerticalContentAlignment="Top" Width="82" />
+        <Label Foreground="{DynamicResource Yellow}" Content="Email:" Height="24" HorizontalAlignment="Left" Margin="121,98,0,0" Name="emailLabel" VerticalAlignment="Top" VerticalContentAlignment="Top" Width="44" />
+
+    </Grid>
+</Window>

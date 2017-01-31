@@ -1,8 +1,9 @@
 # ignores following folders
-Gold_Chat\CommandClient\obj
-Gold_Chat\Gold\bin
-Gold_Chat\Gold\obj
-Gold_Chat\Server\obj
+Gold_Chat/CommandClient/obj
+Gold_Chat/Gold/bin
+Gold_Chat/Gold/obj
+Gold_Chat/Server/obj
+Gold_Chat/.vs
 *.dll
 *.pdb
 *.exe

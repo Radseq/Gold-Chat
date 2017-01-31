@@ -1,0 +1,159 @@
+﻿<Window x:Class="Gold.program"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib"
+		xmlns:mwt="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+		xmlns:local="clr-namespace:Gold"
+		Title="MainWindow" Height="370" Width="550" WindowStartupLocation="CenterScreen" Icon="/Gold;component/Resources/chat2.ico" Loaded="Window_Loaded" Closing="Window_Closing">
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Resources\Skins\GlassButton.xaml"/>
+				<ResourceDictionary Source="Resources\Skins\Skin.xaml"/>
+
+
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
+
+	<Grid>
+		<TabControl x:Name="tc" SelectedIndex="0"  Canvas.Left="4" Canvas.Top="28">
+			<TabItem Header="Chat">
+				<Canvas x:Name="DesignerCanvas"
+			ClipToBounds="True"
+			SnapsToDevicePixels="True" Margin="0,0,0,-5">
+
+					<TextBox Width="382" Height="184" Name="txtChatBox" Style="{DynamicResource TextBoxStyle}" TextWrapping="Wrap" Canvas.Left="10" Canvas.Top="31" />
+					<TextBox Height="48" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{DynamicResource TextBoxStyle}" Name="tb_message" VerticalAlignment="Top" Width="382" PreviewKeyDown="EnterClicked" Canvas.Left="10" Canvas.Top="220" />
+
+					<StackPanel Canvas.Left="397" Canvas.Top="26">
+						<Expander OverridesDefaultStyle="True" Header="Menu" VerticalAlignment="Top" Margin="0" Height="auto" Width="116">
+							<Grid>
+								<UniformGrid Columns="3">
+									<Button Name="control_panel_button" BorderBrush="Transparent" Height="32" Click="control_panel_button_Click">
+										<Button.ToolTip>
+											<ToolTip>Control Panel</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/preferences.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="create_room_buttom" BorderBrush="Transparent" Height="32" Click="create_room_buttom_Click">
+										<Button.ToolTip>
+											<ToolTip>Create Room</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/window.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="suggest_buttom" BorderBrush="Transparent" Height="32" Click="suggest_buttom_Click" VerticalAlignment="Top">
+										<Button.ToolTip>
+											<ToolTip>Suggestions</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/lamp-icon.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="abouse_buttom" BorderBrush="Transparent" Height="32" Click="abouse_buttom_Click">
+										<Button.ToolTip>
+											<ToolTip>Abouse User</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/intruder.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="s_buttom" BorderBrush="Transparent" Click="archive_Click" Height="32" />
+									<Button Name="contact_buttom" BorderBrush="Transparent" Height="32" Click="contact_buttom_Click">
+										<Button.ToolTip>
+											<ToolTip>Contact to as</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/Mail-Front-icon.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="settings_buttom" BorderBrush="Transparent" Height="32" Click="admin_settings">
+										<Button.ToolTip>
+											<ToolTip>Admin Tools</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/settings-icon.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="infor_buttom" BorderBrush="Transparent" Height="32" Click="infor_buttom_Click">
+										<Button.ToolTip>
+											<ToolTip>Information</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/alert-icon.png" />
+										</Button.Background>
+									</Button>
+									<Button Name="logout_buttom" BorderBrush="Transparent" Height="32" Click="logout_buttom_Click">
+										<Button.ToolTip>
+											<ToolTip>Logout</ToolTip>
+										</Button.ToolTip>
+										<Button.Background>
+											<ImageBrush ImageSource="/Gold;component/Resources/exit.png" />
+										</Button.Background>
+									</Button>
+								</UniformGrid>
+							</Grid>
+						</Expander>
+						<Expander Header="Everyone" Margin="0" OverridesDefaultStyle="True" Width="116">
+							<ListBox x:Name="lb_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="lb_users_MouseDoubleClick"/>
+						</Expander>
+						<Expander Header="Friends" Margin="0" OverridesDefaultStyle="True" Width="116">
+							<ListBox x:Name="lb_friend_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True"/>
+						</Expander>
+						<Expander Header="Ignored" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
+							<Grid></Grid>
+						</Expander>
+						<Expander Header="Lobbies" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
+							<Grid></Grid>
+						</Expander>
+					</StackPanel>
+				</Canvas>
+			</TabItem>
+			<!--<TabItem Header="Tab 4">
+				<Canvas Background="Cornsilk"/>
+			</TabItem>
+			<TabItem Header="Tab 5" x:Name="ti5">
+				<Canvas Background="WhiteSmoke"/>
+			</TabItem>-->
+		</TabControl>
+		<!--<Rectangle Height="15" HorizontalAlignment="Right" Margin="0" Name="bottomRight" VerticalAlignment="Bottom" Width="15" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize" Canvas.Left="86.866">
+				<Rectangle.Fill>
+					<RadialGradientBrush>
+						<GradientStop Color="#FF51E269" Offset="0" />
+						<GradientStop Color="#FF7982E2" Offset="1" />
+					</RadialGradientBrush>
+				</Rectangle.Fill>
+				<Rectangle.Effect>
+					<DropShadowEffect Color="Aqua"
+					  Opacity="1"
+					  BlurRadius="10"
+					  ShadowDepth="0" />
+				</Rectangle.Effect>
+				<Rectangle.ToolTip>
+					<ToolTip>Change Size</ToolTip>
+				</Rectangle.ToolTip>
+			</Rectangle>
+			<Rectangle Height="15" HorizontalAlignment="Right" Name="bottomRight2" VerticalAlignment="Bottom" Width="15" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Drag" Canvas.Left="139.262">
+				<Rectangle.Fill>
+					<RadialGradientBrush>
+						<GradientStop Color="#FF51E269" Offset="0" />
+						<GradientStop Color="#FF7982E2" Offset="1" />
+					</RadialGradientBrush>
+				</Rectangle.Fill>
+				<Rectangle.Effect>
+					<DropShadowEffect Color="Aqua"
+					  Opacity="1"
+					  BlurRadius="10"
+					  ShadowDepth="0" />
+				</Rectangle.Effect>
+				<Rectangle.ToolTip>
+					<ToolTip>Drag Window</ToolTip>
+				</Rectangle.ToolTip>
+			</Rectangle>-->
+
+	</Grid>
+</Window>
