@@ -4,6 +4,7 @@ Gold_Chat/Gold/bin
 Gold_Chat/Gold/obj
 Gold_Chat/Server/obj
 Gold_Chat/.vs
+/not_used
 *.dll
 *.pdb
 *.exe

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Input;
 
@@ -10,8 +9,8 @@ namespace Gold
     /// </summary>
     public partial class private_message : Window
     {
-        private Socket clientSocket = App.clientSocket;
-        public string friendName;
+        //private Socket clientSocket = App.clientSocket;
+        public string strMessage;
 
         private string text;
 
@@ -36,7 +35,7 @@ namespace Gold
         {
             InitializeComponent();
             //FriendSocket = program.
-            Title += friendName;
+            Title += strMessage;
 
         }
 

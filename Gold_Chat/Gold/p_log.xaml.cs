@@ -1,10 +1,6 @@
 ﻿using CommandClient;
-using MySql.Data.MySqlClient;// for mysql
 using System;
-using System.Net; //for md5
 using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
@@ -17,69 +13,84 @@ namespace Gold
     /// </summary>
     public partial class p_log : Window //typ
     {
-        MySqlConnection cn;
-        private string user_name;
-        private string user_password;
-        //private string userid;
 
+        public string userName;
         public Socket clientSocket;
         //public string strName;
+        public const int PORT = 5000;
+        public const string SERVER = "::1";
+
+        private byte[] byteData = new byte[1024];
 
         SpeechLib.SpVoice voice = new SpeechLib.SpVoice();
 
-        public static string str = "";
+        bool loginNotyfi;
 
-        public string Password
-        {
-            get { return user_password; } //pass dekodowany
-        }
+        ClientManager clientManager;
 
-        public string Client_Name
-        {
-            get { return loginTextBox.Text; }
-        }
-
-        /*public int Id
-        {
-            get { return int.Parse(userid); }
-        }*/
-
-        /*
-         `user_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-          `user_name` VARCHAR(255) NOT NULL,
-          `user_password` VARCHAR(40) NOT NULL,
-          `user_email` VARCHAR(255) NOT NULL,
-         */
-
-        private string server;
-        private string dbHost;
-        private string database;
-        private string uid;
-        private string password;
-        //private int port;
-        //private string s = "radseq.no-ip.org";
-        //private int p = 5000;
-        //private int t = 1000;
-
-        public p_log()
+        public p_log(ClientManager cm)
         {
             InitializeComponent();
             loginTextBox.Focus();
+            clientManager = cm;
 
-            //cn = new MySqlConnection("server=db4free.net;uid=a9256518;pwd=atlandb;database=a587644;port=3306;");
-            dbHost = Settings.DB_HOST;
-            server = Settings.SERVER;
-            database = Settings.DB;
-            uid = Settings.DB_ROOT;
-            password = Settings.DB_PASS;
-            //port = Settings.DB_PORT;
-            string connectionString = "SERVER=" + dbHost + ";" + "DATABASE=" +
-            database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
+            loginNotyfi = clientManager.config.loginEmailNotyfication;//load config value
 
-            cn = new MySqlConnection(connectionString);
-            //TestConnection(Settings.HOST_NAME, Settings.PORT, 1000);
-
+            clientManager.ClientLogin += (s, e) => MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information); //OnClientLogin;
+            clientManager.ClientSuccesLogin += OnClientSuccesLogin;
+            clientManager.ClientReSendEmail += OnClientReSendEmail;
+            clientManager.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Login except Information", MessageBoxButton.OK, MessageBoxImage.Error);
+            clientManager.ClientPing += OnClientPing;
         }
+
+        private void OnClientPing(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                /*
+                if (e.clientPingTime > 0)
+                {
+                    loginButton.IsEnabled = true;
+                    serverStatusLabel.Content = e.clientPingMessage;
+                    serverStatusLabel.Foreground = Brushes.Green;
+                }
+                else
+                {
+                    loginButton.IsEnabled = false;
+                    serverStatusLabel.Content = e.clientPingMessage;
+                    serverStatusLabel.Foreground = Brushes.Red;
+                }*/
+            }));
+        }
+
+        private void OnClientReSendEmail(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (e.clientReSendEmailMessage == "You must activate your account first.")
+                {
+                    MessageBoxResult result = MessageBox.Show(e.clientReSendEmailMessage, "Confirmation", MessageBoxButton.OK, MessageBoxImage.Question);
+                    register_code regCodeWindows;
+                    if (result == MessageBoxResult.OK)
+                    {
+                        regCodeWindows = new register_code(clientManager, userName);
+                        regCodeWindows.Show();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(e.clientReSendEmailMessage, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }));
+        }
+
+        //private void OnClientLogin(object sender, ClientEventArgs e)
+        //{
+        //    if (e.clientLoginMessage == "Wrong login or password")
+        //    {
+
+        //    }
+        //}
 
         private void move(object sender, MouseButtonEventArgs e)
         {
@@ -95,115 +106,56 @@ namespace Gold
             BeginAnimation(OpacityProperty, myDoubleAnimation1);
         }
 
-        //md5
-        private static string CalculateChecksum(string inputString)
-        {
-            var md5 = new MD5CryptoServiceProvider();
-            var hashbytes = md5.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-            var hashstring = "";
-            foreach (var hashbyte in hashbytes)
-                hashstring += hashbyte.ToString("x2");
-
-            return hashstring;
-        }
-
         private void loginButton_Click(object sender, RoutedEventArgs e)
         {
-            cn.Close();
             if (loginTextBox.Text != string.Empty && passwordBox.Password != string.Empty)
             {
                 try
                 {
+                    userName = loginTextBox.Text;
 
-                    /*user_name = loginTextBox.Text;
-                    user_password = CalculateChecksum(passwordBox.Password);
+                    //clientSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
-                                // '" + user_name + "'  ' <-- musi byc na koncu... innaczej error
-                    String Query = "SELECT * FROM users WHERE user_name = '" + user_name + "' and user_password = '" + user_password + "' ;";
-
-                    MySqlCommand cmd = new MySqlCommand(Query, cn);
-                    cn.Open();
-                    
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            //uid = String.Format("{0}", reader[0]);
-                            uid = reader.GetString(0);
-                            name_from_db = reader.GetString(1);
-                            password_from_db = reader.GetString(2);
-                            //name_from_db = String.Format("{1}", reader[1]);
-                            //password_from_db = String.Format("{2}", reader[2]);
-                        }
-                    }*/
-
-                    user_name = loginTextBox.Text;
-                    user_password = CalculateChecksum(passwordBox.Password);
-
-                    // '" + user_name + "'  ' <-- musi byc na koncu... innaczej error
-                    string Query = "SELECT register_id FROM users WHERE login = @userName AND password = @password ;";
-
-                    MySqlCommand cmd = new MySqlCommand(Query, cn);
-                    cmd.Parameters.AddWithValue("@userName", user_name);
-                    cmd.Parameters.AddWithValue("@password", user_password);
-                    cn.Open();
-
-
-                    //MessageBox.Show("ServerVersion: " + cn.ServerVersion + "\nState: " + cn.State.ToString());
-
-                    //object result = cmd.ExecuteScalar();
-
-
-                    MySqlDataReader mySqlReader = null;
-                    mySqlReader = cmd.ExecuteReader();
-
-                    string registerCode = "";
-
-                    if (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
-                    {
-                        registerCode = mySqlReader.GetString(0);
-                    }
-                    mySqlReader.Close();
-                    cn.Close();
-
-                    //lepiej tak a wyjatki zostawic jak rzeczywiscie bedzie wyjatek (np brak polaczenia z baza)
-                    if (registerCode != "")
-                    {
-                        //voice.Speak("wrong username Or password", SpeechLib.SpeechVoiceSpeakFlags.SVSFDefault);
-                        //MessageBox.Show("Wrong login or password", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                        register_code regCodeWindow = new register_code();
-                        regCodeWindow.userName = Client_Name;
-                        regCodeWindow.ShowDialog();
-
-                        return;
-                    }
-                    else
-                    {
-                        // voice.Speak("Welcome back " + Client_Name.ToString(), SpeechLib.SpeechVoiceSpeakFlags.SVSFDefault);
-                    }
-
-                    //userid = result.ToString();
-
-                    //masz id i jest zweryfikowane wiec ok
-
-
-
-
-                    clientSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-
-                    //IPHostEntry ihe = Dns.GetHostEntry(Settings.HOST_NAME);
-                    //IPAddress myself = ihe.AddressList[0];
-                    //Server is listening on port 5000
-                    // IPEndPoint ipEndPoint = new IPEndPoint(myself, 5000);
-                    IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(server), Settings.PORT);
+                    //IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(SERVER), PORT);
 
                     //Connect to the server
-                    clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
+                    //clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
 
+                    //byteData = new byte[1024];
+                    //Start listening to the data asynchronously
+                    //clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(/*clientManager.*/OnReceive), null);
 
-                    //cn.Close();
-                    //this.DialogResult = true;
-                    //cn.Close();
+                    //DataLogin msgToSend = new DataLogin();
+
+                    //msgToSend.loginName = userName;
+                    //msgToSend.passChecksum = CalculateChecksum(passwordBox.Password);
+                    // msgToSend.cmdCommand = CommandLogin.Login;
+
+                    //byte[] byteData = msgToSend.ToByte();
+
+                    clientManager.userName = userName;
+                    //clientManager.clientPassword = CalculateChecksum(passwordBox.Password);
+
+                    clientManager.BeginConnect();
+
+                    Data msgToSend = new Data();
+
+                    msgToSend.strName = userName;
+                    msgToSend.strMessage = clientManager.CalculateChecksum(passwordBox.Password);
+                    if (loginNotyfi)
+                        msgToSend.strMessage2 = "1";
+                    msgToSend.cmdCommand = Command.Login;
+
+                    byte[] byteData = msgToSend.ToByte();
+
+                    //Send it to the server
+                    clientManager.BeginSend(byteData);
+
+                    //clientManager.BeginConnect(userName, CalculateChecksum(passwordBox.Password));
+                    //cm.BeginSend(byteData);
+
+                    //byteData = new byte[1024];
+
                 }
                 catch (Exception ex)
                 {
@@ -213,54 +165,143 @@ namespace Gold
             else
                 MessageBox.Show("Fill in the fields", "Error validation", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
-        private void OnSend(IAsyncResult ar)
+        /*
+        private void OnReceiveLogExcep(object sender, ClientEventArgs e)
         {
-            try
-            {
-
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    clientSocket.EndSend(ar);
-                    //Client_Name = tb_clientName.Text;
-                    var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
-                    anim.Completed += (s, _) => DialogResult = true;
-                    BeginAnimation(OpacityProperty, anim);
-                    //DialogResult = true;
-
-                }));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MessageBox.Show(e.receiveLogExpceMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void OnConnect(IAsyncResult ar)
+        private void OnClientLogin(object sender, ClientEventArgs e)
         {
-            try
+            MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }*/
+
+        private void OnClientSuccesLogin(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
             {
-                //We are connected so we login into the server
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    clientSocket.EndConnect(ar);
-
-                    Data msgToSend = new Data();
-                    msgToSend.cmdCommand = Command.Login;
-                    msgToSend.strName = Client_Name;
-                    msgToSend.strMessage = null;
-
-                    byte[] bMessage = msgToSend.ToByte();
-
-                    //Send the message to the server
-                    clientSocket.BeginSend(bMessage, 0, bMessage.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
-                }));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
+                anim.Completed += (s, _) => DialogResult = true;
+                BeginAnimation(OpacityProperty, anim);
+                clientSocket = e.clientSocket;
+            }));
         }
+
+        /*
+
+                public void OnSend(IAsyncResult ar)
+                {
+                    try
+                    {
+                        clientSocket.EndSend(ar);
+                    }
+                    catch (ObjectDisposedException)
+                    { }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Gold Chat: " + userName, MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+
+                private void OnConnect(IAsyncResult ar)
+                {
+                    try
+                    {
+                        //We are connected so we login into the server
+                        Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            clientSocket.EndConnect(ar);
+
+                            DataLogin msgToSend = new DataLogin();
+
+                            msgToSend.loginName = userName;
+                            msgToSend.passChecksum = CalculateChecksum(passwordBox.Password);
+                            msgToSend.cmdCommand = CommandLogin.Login;
+
+                            byte[] byteData = msgToSend.ToByte();
+
+                            //Send it to the server
+                            clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+
+                            /*total wasted time here 5h, cuse 
+
+                            byteData = new byte[1024];
+                                //Start listening to the data asynchronously
+                                clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+
+                            MUST BE AFTER ON CONNECT, OnReceive wont get full message
+                            *//*
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+
+                public void OnReceive(IAsyncResult ar)
+                {
+                    try
+                    {
+                        clientSocket.EndReceive(ar);
+                        // clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                        //Dispatcher.BeginInvoke((Action)(() =>
+                        //{
+                        DataLogin msgReceived = new DataLogin(byteData);
+                        //Accordingly process the message received
+                        switch (msgReceived.cmdCommand)
+                        {
+                            case CommandLogin.Login:
+                                MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
+                                break;
+
+                            case CommandLogin.Reg:
+                                if (msgReceived.strMessage == "Your login exists, try other one" || msgReceived.strMessage == "Your email exists, try other one"
+                                || msgReceived.strMessage == "You have already register, go to login windows and paste register key"
+                                || msgReceived.strMessage == "You has been registered")
+                                {
+                                    //p_reg panelRegistration = new p_reg(this);
+                                    //panelRegistration.ShowDialog();
+                                    MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                                break;
+
+                            case CommandLogin.ReSendEmail:
+                                if (msgReceived.strMessage == "Activation code not match." || msgReceived.strMessage == "You must activate an account.")
+                                {
+                                    register_code regCodeWindow = new register_code(this);
+                                    regCodeWindow.ShowDialog();
+                                    MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                                break;
+
+                            case CommandLogin.Message:
+                                break;
+
+                        }
+
+                        byteData = new byte[1024];
+                        if (msgReceived.strMessage != "You are succesfully Log in" && msgReceived.loginName != userName)
+                            clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                        else
+                        {
+                            Dispatcher.BeginInvoke((Action)(() =>
+                            {
+                                var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
+                                anim.Completed += (s, _) => DialogResult = true;
+                                BeginAnimation(OpacityProperty, anim);
+                            }));
+                        }
+                        //                }));
+                    }
+                    catch (ObjectDisposedException)
+                    { }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Gold Chat: " + userName, MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                */
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("Do you want to close Aplication?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -280,8 +321,16 @@ namespace Gold
 
         private void registerButton_Click(object sender, RoutedEventArgs e)
         {
-            p_reg reg = new p_reg();
+            p_reg reg = new p_reg(clientManager);
             reg.ShowDialog();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            /*
+            var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
+            anim.Completed += (s, _) => DialogResult = true;
+            BeginAnimation(OpacityProperty, anim);*/
         }
     }
 }

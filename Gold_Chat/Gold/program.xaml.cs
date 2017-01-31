@@ -6,7 +6,6 @@ using System.ComponentModel;
 //chat
 //using Gold.Utils;
 //voice
-using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -22,7 +21,7 @@ namespace Gold
     public partial class program : Window
     {
 
-        public static Socket clientSocket = App.clientSocket;   //The main client socket
+        //public static Socket clientSocket = App.clientSocket;   //The main client socket
         public static string strName = App.clientName;          //Name by which the user logs into the room
 
         private byte[] byteData = new byte[1024];
@@ -33,9 +32,92 @@ namespace Gold
 
         private System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
 
-        public program()
+        private static ClientManager clientManager;
+
+        public program(ClientManager cm)
         {
             InitializeComponent();
+            clientManager = cm;
+            clientManager.ClientLogin += OnClientLogin;
+            clientManager.ClientLogout += OnClientLogout;
+            clientManager.ClientList += OnClientList;
+            clientManager.ClientMessage += OnClientMessage;
+            clientManager.ClientPrivMessage += OnClientPrivMessage;
+            clientManager.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            //clientManager.ReceiveLogExcep += OnReceiveLogExcep;
+            //clientManager.SendException += OnSendException;
+            //OR by lambda - dont work with unsubscribers
+            // or use that EventHandler handler = (s, e) => MessageBox.Show("Woho"); then += handler; or -= handler;
+            clientManager.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            clientManager.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void OnClientLogin(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientList.Add(e.clientLoginName);
+                lb_users.Items.Refresh();
+            }));
+        }
+
+        /*
+private void OnSendException(object sender, ClientEventArgs e)
+{
+   MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+}
+
+private void OnReceiveLogExcep(object sender, ClientEventArgs e)
+{
+   MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+}*/
+
+        private void OnClientPrivMessage(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                if (pm != null)
+                {
+                    pm.showPrivMessageTb.Text += e.clientPrivMessage;
+                }
+                else
+                {
+                    pm = new private_message();
+                    pm.Show();
+                    pm.Title += e.clientFriendName;
+                    //pm.showPrivMessageTb.Text += e.clientPrivMessage;
+                    pm.strMessage = e.clientFriendName;
+                }
+            }));
+        }
+
+        private void OnClientMessage(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                txtChatBox.Text += e.clientMessage;
+            }));
+        }
+
+        private void OnClientList(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientList.AddRange(e.clientListMessage.Split('*'));
+                clientList.RemoveAt(clientList.Count - 1);
+                lb_users.ItemsSource = clientList;
+
+                txtChatBox.Text += "<<<" + strName + " has joined the room>>>\r\n";
+            }));
+        }
+
+        private void OnClientLogout(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientList.Remove(e.clientLogoutMessage);
+                lb_users.Items.Refresh();
+            }));
         }
 
         /// <summary>
@@ -75,28 +157,13 @@ namespace Gold
 
                 byte[] byteData = msgToSend.ToByte();
 
-                //Send it to the server
-                clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+                clientManager.BeginSend(byteData);
 
                 tb_message.Text = null;
             }
             catch (Exception)
             {
                 MessageBox.Show("Unable to send message to the server.", "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private static void OnSend(IAsyncResult ar)
-        {
-            try
-            {
-                clientSocket.EndSend(ar);
-            }
-            catch (ObjectDisposedException)
-            { }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -108,7 +175,7 @@ namespace Gold
                 Data msgToSend = new Data();
 
                 msgToSend.strName = strName;
-                msgToSend.friendName = pm.friendName;
+                msgToSend.strMessage = pm.strMessage;
                 msgToSend.strMessage = pm.sendPrivMessageTb.Text;
                 msgToSend.cmdCommand = Command.privMessage;
 
@@ -118,83 +185,13 @@ namespace Gold
                 pm.showPrivMessageTb.Text += strName + ": " + pm.sendPrivMessageTb.Text + "\r\n";
 
                 //Send it to the server
-                clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+                clientManager.BeginSend(byteData);
 
                 pm.sendPrivMessageTb.Text = null;
             }
             catch (Exception)
             {
                 MessageBox.Show("Unable to send message to the server.", "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void OnReceive(IAsyncResult ar)
-        {
-            try
-            {
-                clientSocket.EndReceive(ar);
-                Dispatcher.BeginInvoke((Action)(() =>
-                {
-                    Data msgReceived = new Data(byteData);
-                    //Accordingly process the message received
-                    switch (msgReceived.cmdCommand)
-                    {
-                        case Command.Login:
-                            clientList.Add(msgReceived.strName);
-                            lb_users.Items.Refresh();
-                            break;
-
-                        case Command.Logout:
-                            clientList.Remove(msgReceived.strName);
-                            lb_users.Items.Refresh();
-                            break;
-
-                        case Command.Message:
-                            break;
-
-                        case Command.privMessage:
-                            break;
-
-                        case Command.List:
-                            clientList.AddRange(msgReceived.strMessage.Split('*'));
-                            clientList.RemoveAt(clientList.Count - 1);
-                            lb_users.ItemsSource = clientList;
-
-                            txtChatBox.Text += "<<<" + strName + " has joined the room>>>\r\n";
-                            break;
-                        case Command.Life:
-                            break;
-                    }
-                    // Procedure listening for server messages.
-                    if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
-                        txtChatBox.Text += msgReceived.strMessage + "\r\n";
-                    else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List && msgReceived.friendName != null)
-                    {
-                        if (pm != null)
-                        {
-                            pm.showPrivMessageTb.Text += msgReceived.strMessage + "\r\n";
-                        }
-                        else
-                        {
-                            pm = new private_message();
-                            pm.Show();
-                            pm.Title += msgReceived.strName;
-                            pm.showPrivMessageTb.Text += msgReceived.strMessage + "\r\n";
-                            pm.friendName = msgReceived.strName;
-                        }
-
-                    }
-
-                    byteData = new byte[1024];
-
-                    clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                }));
-            }
-            catch (ObjectDisposedException)
-            { }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -216,7 +213,7 @@ namespace Gold
         #region --- tabs ---
         private void control_panel_button_Click(object sender, RoutedEventArgs e)
         {
-            tab_windows.p_user ctrl_panel = new tab_windows.p_user();
+            tab_windows.p_user ctrl_panel = new tab_windows.p_user(clientManager);
 
             var header = new TextBlock { Text = "Control Panel" };
             // Create the tab
@@ -328,7 +325,7 @@ namespace Gold
         private void logout_buttom_Click(object sender, RoutedEventArgs e)
         {
             Close();
-            p_log log = new p_log();
+            p_log log = new p_log(clientManager);
             log.Show();
         }
 
@@ -355,11 +352,7 @@ namespace Gold
 
             byteData = msgToSend.ToByte();
 
-            clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
-
-            byteData = new byte[1024];
-            //Start listening to the data asynchronously
-            clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+            clientManager.BeginSend(byteData);
         }
 
         #region Functions
@@ -390,7 +383,6 @@ namespace Gold
                 e.Cancel = true;
                 return;
             }
-
             try
             {
                 //Send a message to logout of the server
@@ -400,30 +392,70 @@ namespace Gold
                 msgToSend.strMessage = null;
 
                 byte[] logoutMessage = msgToSend.ToByte();
-                clientSocket.Send(logoutMessage, 0, logoutMessage.Length, SocketFlags.None);
-                clientSocket.Close();
+
+                //clientManager.ClientLogin -= OnClientLogin; //unsubscribe
+
+                clientManager.LogoutSend(logoutMessage);
+
+
+                clientManager.config.SaveConfig(clientManager.config);// when user exit from program, we save configuration
+
+                clientManager = null;
+
                 var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
                 anim.Completed += (s, _) => Close();
                 BeginAnimation(OpacityProperty, anim);
             }
-            catch (ObjectDisposedException)
-            { }
+            catch (ObjectDisposedException ex)
+            {
+                MessageBox.Show(ex.Message, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void lb_users_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void AddFriendItem(object sender, RoutedEventArgs e)
         {
-            string friendName = lb_users.SelectedItem.ToString();
-            if (clientList.Contains(friendName) && lb_users.SelectedItem.ToString() != App.clientName)
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
+            {
+                //there is send information to server that i add someone to friend list
+            }
+        }
+
+        private void MessageItem(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
             {
                 pm = new private_message();
                 pm.Show();
-                pm.friendName = friendName;
-                pm.Title += friendName;
+                pm.strMessage = strMessage;
+                pm.Title += strMessage;
             }
         }
+
+        private void Delete_Friend(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage))
+            {
+                //delete friend
+            }
+        }
+
+        /*private void lb_users_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
+            {
+                pm = new private_message();
+                pm.Show();
+                pm.strMessage = strMessage;
+                pm.Title += strMessage;
+            }
+        }*/
     }
 }

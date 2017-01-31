@@ -99,10 +99,47 @@
 							</Grid>
 						</Expander>
 						<Expander Header="Everyone" Margin="0" OverridesDefaultStyle="True" Width="116">
-							<ListBox x:Name="lb_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="lb_users_MouseDoubleClick"/>
+							<ListBox x:Name="lb_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+								<!-- MouseDoubleClick="lb_users_MouseDoubleClick" --> 
+								<ListBox.Resources>
+									<Style x:Key="AddFriendItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="AddFriendItem"/>
+										<EventSetter Event="Click" Handler="MessageItem"/>
+									</Style>
+								</ListBox.Resources>
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem">
+										<Setter Property="ContextMenu">
+											<Setter.Value>
+												<ContextMenu>
+													<MenuItem Header="Add to Friend List" Style="{StaticResource AddFriendItemContextMenuStyle}"/>
+													<MenuItem Header="Private Message" Style="{StaticResource AddFriendItemContextMenuStyle}"/>
+												</ContextMenu>
+											</Setter.Value>
+										</Setter>
+									</Style>
+								</ListBox.ItemContainerStyle>
+							</ListBox>
 						</Expander>
 						<Expander Header="Friends" Margin="0" OverridesDefaultStyle="True" Width="116">
-							<ListBox x:Name="lb_friend_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True"/>
+							<ListBox x:Name="lb_friend_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
+								<ListBox.Resources>
+									<Style x:Key="DeleteItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="Delete_Friend"/>
+									</Style>
+								</ListBox.Resources>
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem">
+										<Setter Property="ContextMenu">
+											<Setter.Value>
+												<ContextMenu>
+													<MenuItem Header="Delete Friend" Style="{StaticResource DeleteItemContextMenuStyle}"/>
+												</ContextMenu>
+											</Setter.Value>
+										</Setter>
+									</Style>
+								</ListBox.ItemContainerStyle>
+							</ListBox>
 						</Expander>
 						<Expander Header="Ignored" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
 							<Grid></Grid>

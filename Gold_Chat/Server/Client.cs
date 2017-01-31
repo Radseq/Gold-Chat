@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 namespace Server
 {
@@ -6,6 +7,8 @@ namespace Server
     {
         public bool KeepProcessing { get; set; }
         public Socket cSocket { get; set; }
+        public int id { get; set; }
+        public IPEndPoint addr { get; set; }
         public string strName;  //Name by which the user logged into the chat room
     }
 }

@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using CommandClient;
+using System;
 using System.Windows;
 
 namespace Gold
@@ -8,116 +9,61 @@ namespace Gold
     /// </summary>
     public partial class register_code : Window
     {
-        MySqlConnection mySqlConn;
 
-        private string regCode;
-        public string userName;
-        private string userEmail;
+        ClientManager clientManager;
+        private string userName;
 
-        private string server;
-        private string database;
-        private string uid;
-        private string password;
-
-        public register_code()
+        public register_code(ClientManager cm, string userNameP_log)
         {
             InitializeComponent();
-            server = Settings.DB_HOST;
-            database = Settings.DB;
-            uid = Settings.DB_ROOT;
-            password = Settings.DB_PASS;
-            string connectionString = "SERVER=" + server + ";" + "DATABASE=" +
-            database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
-            mySqlConn = new MySqlConnection(connectionString);
+            clientManager = cm;
+            userName = userNameP_log;
+            clientManager.ClientReSendEmail += OnClientReSendEmail;
+        }
+
+        private void OnClientReSendEmail(object sender, ClientEventArgs e)
+        {
+            if (e.clientReSendEmailMessage == "Now you can login in to application")
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    MessageBoxResult result = MessageBox.Show(e.clientReSendEmailMessage, "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (result == MessageBoxResult.OK)
+                    {
+                        Close();
+                    }
+                }));
+            }
         }
 
         private void endReg(object sender, RoutedEventArgs e)
         {
-            string userRegisterCode = registerCode.Text;
+            Data msgToSend = new Data();
 
-            if (userRegisterCode == "")
-            {
-                MessageBox.Show("Write your Activation code to text box", "Error, Empty Activation Code", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            msgToSend.strName = userName;
+            msgToSend.strMessage = registerCode.Text;
+            msgToSend.cmdCommand = Command.ReSendEmail;
 
-            mySqlConn.Close();
-            mySqlConn.Open();
-            string selectQuery = "SELECT register_id, email FROM users WHERE register_id = @register_id AND login = @login ;";
-            MySqlCommand mySqlComm = new MySqlCommand(selectQuery, mySqlConn);
-            mySqlComm.Parameters.AddWithValue("@register_id", userRegisterCode);
-            mySqlComm.Parameters.AddWithValue("@login", userName);
+            byte[] byteData = msgToSend.ToByte();
 
-            MySqlDataReader mySqlReader = null;
-            mySqlReader = mySqlComm.ExecuteReader();
+            clientManager.BeginSend(byteData);
 
-            //string registerCode = "";
-
-            if (mySqlReader.Read())
-            {
-                regCode = mySqlReader.GetString(0);
-                userEmail = mySqlReader.GetString(1);
-            }
-            mySqlReader.Close();
-
-            if (regCode == userRegisterCode)
-            {
-                string updateQuery = "UPDATE users SET register_id = @reg_id WHERE email = @email ;";
-                MySqlCommand mySqlCommUpdate = new MySqlCommand(updateQuery, mySqlConn);
-
-                mySqlCommUpdate.Parameters.AddWithValue("@reg_id", "");
-                mySqlCommUpdate.Parameters.AddWithValue("@email", userEmail);
-
-                if (mySqlCommUpdate.ExecuteNonQuery() > 0)
-                {
-                    MessageBox.Show("Now you can login in to application", "Close", MessageBoxButton.OK);
-                }
-                else
-                {
-                    MessageBox.Show("Unknow Error.", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                mySqlConn.Close();
-                Close();
-            }
-            else
-            {
-                MessageBox.Show("Activation code not match.", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            mySqlConn.Close();
+            //Send it to the server
+            //pLogin.clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(pLogin.OnSend), null);
         }
 
         private void resendCode(object sender, RoutedEventArgs e)
         {
-            mySqlConn.Close();
-            mySqlConn.Open();
-            string selectQuery = "SELECT register_id, id_user, email FROM users WHERE login = @login ;";
-            MySqlCommand mySqlComm = new MySqlCommand(selectQuery, mySqlConn);
-            mySqlComm.Parameters.AddWithValue("@login", userName);
+            Data msgToSend = new Data();
 
-            MySqlDataReader mySqlReader = null;
-            mySqlReader = mySqlComm.ExecuteReader();
+            msgToSend.strName = userName;
+            msgToSend.strMessage = "";
+            msgToSend.cmdCommand = Command.ReSendEmail;
 
-            //string registerCode = "";
-
-            if (mySqlReader.Read())
-            {
-                regCode = mySqlReader.GetString(0);
-                userEmail = mySqlReader.GetString(2);
-                if (regCode != "")
-                {
-                    var emailSender = new EmailSender();
-                    emailSender.EmailSended += OnEmaiSended;
-                    emailSender.SendEmail(userEmail, "Gold Chat: Resended Register Code", "Here is your activation code: " + regCode);
-                }
-            }
-            mySqlReader.Close();
-            mySqlConn.Close();
-        }
-
-        private void OnEmaiSended(object source, EmailSenderEventArgs args)
-        {
-            MessageBox.Show("Register Code resended to your email", "Close", MessageBoxButton.OK);
+            byte[] byteData = msgToSend.ToByte();
+            clientManager.BeginSend(byteData);
+            //Send it to the server
+            // pLogin.clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(pLogin.OnSend), null);
         }
     }
 }

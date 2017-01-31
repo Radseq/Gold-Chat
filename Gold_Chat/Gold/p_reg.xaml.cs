@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;// for mysql
+﻿using CommandClient;
 //for hash
 using System.Security.Cryptography;
 using System.Text;
@@ -13,27 +13,14 @@ namespace Gold
     {
         int error;
 
-        private MySqlConnection mySqlConn;
+        ClientManager clientManager;
 
-        private string server;
-        private string database;
-        private string uid;
-        private string password;
-        //private int port;
-
-        public p_reg()
+        public p_reg(ClientManager cm)
         {
+            clientManager = cm;
             InitializeComponent();
-            server = Settings.DB_HOST;
-            database = Settings.DB;
-            uid = Settings.DB_ROOT;
-            password = Settings.DB_PASS;
-            //port = Settings.DB_PORT;
-            string connectionString = "SERVER=" + server + ";" + "DATABASE=" +
-            database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
-            //cn = new MySqlConnection("server=db4free.net;uid=a9256518;pwd=atlandb;database=a587644;port=3306;");
-            mySqlConn = new MySqlConnection(connectionString);
         }
+
         //md5
         private static string CalculateChecksum(string inputString)
         {
@@ -102,96 +89,27 @@ namespace Gold
 
             if (error == 0)
             {
-                MySqlCommand mySqlComm = new MySqlCommand("", mySqlConn);
-                mySqlConn.Open();
-                mySqlComm.CommandText = "SELECT login, email, register_id FROM users WHERE login = @login and email = @email";
-                mySqlComm.Parameters.AddWithValue("@login", logTextbox.Text);
-                mySqlComm.Parameters.AddWithValue("@email", emailTextbox.Text);
+                Data msgToSend = new Data();
 
-                MySqlDataReader mySqlReader = null;
-                mySqlReader = mySqlComm.ExecuteReader();
+                msgToSend.strName = logTextbox.Text;
+                msgToSend.strMessage = CalculateChecksum(passbox.Password);
+                msgToSend.strMessage2 = emailTextbox.Text;
+                msgToSend.cmdCommand = Command.Reg;
 
-                string loginExsist = "";
-                string emailExsist = "";
-                string registerCode = "";
+                byte[] byteData = msgToSend.ToByte();
 
-                while (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
-                {
-                    loginExsist = mySqlReader.GetString(0);
-                    emailExsist = mySqlReader.GetString(1);
-                    registerCode = mySqlReader.GetString(2);
-                }
-                mySqlConn.Close();
+                clientManager.BeginConnect();
 
+                clientManager.BeginSend(byteData);
 
-                if (loginExsist == logTextbox.Text)
-                {
-                    MessageBox.Show("Your login exists, try other one", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                    logTextbox.Focus();
-                }
-                else if (emailExsist == emailTextbox.Text)
-                {
-                    MessageBox.Show("Your email exists, try other one", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                    emailTextbox.Focus();
-                }
-                else if (registerCode != "")
-                {
-                    MessageBox.Show("You have already register, go to login windows and paste register key", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-
-                    mySqlComm.CommandText = "INSERT INTO users (login, password, email, register_id) " + "VALUES (@user_name, @user_password, @user_email, @register_id)";
-
-                    string calcPassword = CalculateChecksum(passbox.Password);
-                    string registrationCode = CalculateChecksum(emailTextbox.Text);
-
-                    mySqlComm.Parameters.AddWithValue("@user_name", logTextbox.Text);
-                    mySqlComm.Parameters.AddWithValue("@user_password", calcPassword);
-                    mySqlComm.Parameters.AddWithValue("@user_email", emailTextbox.Text);
-                    mySqlComm.Parameters.AddWithValue("@register_id", registrationCode);
-
-                    mySqlConn.Open();
-                    if (mySqlComm.ExecuteNonQuery() > 0)
-                    {
-                        var emailSender = new EmailSender();
-                        emailSender.EmailSended += OnEmaiSended;
-
-                        string emailMessage2 = @"< p >
-< strong >
-< span style = 'color: #ff0000;' > Pamiętaj by dokłanie skopiować KOD.</ span >
-</ strong >
-</ p >
-< p >Dziękujemy < br /> administracja Gold Chat.</ p >";
-
-                        string emailMessage = string.Format(@"
-<p>Witaj <strong>{0}</strong>.
-    <br />Dziękujemy za rejestrację w aplikacji <strong>Gold Chat</strong>.
-    <br />Zanim będziesz mógł kożystać z aplikacji, musisz wykonać ostatnia operacje.
-    <br />Pamiętaj - musisz to zrobić zanim staniesz sie w pełni zarejestrowanym użytkownikiem.<br />
-    <span style='text-decoration: underline;'>
-        <em>Jedyne co musisz zrobić to skopiować kod aktywacyjny, oraz wkleić go w oknie <strong>Register Code</strong> okno to pojawi się gdy wpiszesz swój login i hasło w <strong>Oknie Logowania!.</strong>
-        </em></span></p><p><br />A o to twój kod aktywacyjny : <span style='color: #ff0000;' ><strong>{1}</strong></span></ p >{2}", logTextbox.Text, registrationCode, emailMessage2);
-
-
-                        emailSender.SendEmail(emailTextbox.Text, "Gold Chat: Registration", emailMessage);
-
-                        MessageBox.Show("You has been registered", "Congratulation", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                        mySqlConn.Close();
-
-                        Close();
-                    }
-                    else
-                        MessageBox.Show("Account NOT created with unknown reason.", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                clientManager.ClientRegistration += OnClientRegistration;
             }
         }
-        //catch (Exception ex)
-        //{
-        //MessageBox.Show("Cannot Register.  Contact administrator", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
-        //}
-        //}
+
+        private void OnClientRegistration(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         private void cleanButton_Click(object sender, RoutedEventArgs e)
         {
@@ -199,11 +117,6 @@ namespace Gold
             passbox.Password = "";
             rePassbox.Password = "";
             emailTextbox.Text = "";
-        }
-
-        private void OnEmaiSended(object source, EmailSenderEventArgs args)
-        {
-            MessageBox.Show("Activation Code has been send to your email", "Close", MessageBoxButton.OK);
         }
     }
 }

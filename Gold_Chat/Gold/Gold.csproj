@@ -36,7 +36,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>..\..\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -50,7 +50,7 @@
     <OutputPath>..\..\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>3</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -60,7 +60,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <CodeAnalysisLogFile>bin\Debug\Atlantiss.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
@@ -73,7 +73,7 @@
     <CodeAnalysisRuleDirectories>;E:\visual\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <Prefer32Bit>false</Prefer32Bit>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -93,10 +93,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Interop.SpeechLib, Version=5.0.0.0, Culture=neutral, PublicKeyToken=14a89f21efe9c134">
+    <Reference Include="CommandClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\CommandClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.SpeechLib">
+      <HintPath>.\Interop.SpeechLib.DLL</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>..\..\Interop.SpeechLib.DLL</HintPath>
     </Reference>
     <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
@@ -130,8 +133,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ClientManager.cs" />
     <Compile Include="CloseableTabItem.cs" />
-    <Compile Include="EmailSender.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="private_message.xaml.cs">
       <DependentUpon>private_message.xaml</DependentUpon>
     </Compile>
@@ -144,7 +148,6 @@
     <Compile Include="register_code.xaml.cs">
       <DependentUpon>register_code.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="tab windows\p_archive.xaml.cs">
       <DependentUpon>p_archive.xaml</DependentUpon>
     </Compile>
@@ -321,13 +324,6 @@
     <Resource Include="Resources\up_arrow.png" />
     <Resource Include="Resources\Users.ico" />
     <Resource Include="Resources\window.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CommandClient\CommandClient.csproj">
-      <Project>{db1545a9-7f10-401f-8dbe-c2751db2e2d3}</Project>
-      <Name>CommandClient</Name>
-      <Private>False</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
