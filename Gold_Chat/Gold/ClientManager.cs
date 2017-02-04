@@ -5,7 +5,6 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
-using System.Timers;
 
 namespace Gold
 {
@@ -72,12 +71,9 @@ namespace Gold
         //lets use config
         public Configuration config = new Configuration();
 
-        private static ManualResetEvent connectDone =
-        new ManualResetEvent(false);
-        private static ManualResetEvent sendDone =
-            new ManualResetEvent(false);
-        private static ManualResetEvent receiveDone =
-            new ManualResetEvent(false);
+        private static ManualResetEvent connectDone = new ManualResetEvent(false);
+        private static ManualResetEvent sendDone = new ManualResetEvent(false);
+        private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         public ClientManager()
         {
@@ -85,14 +81,15 @@ namespace Gold
 
             socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
-            pingTimer = new System.Timers.Timer(); //Tworzenie obiektu
-            pingTimer.Interval = 5000; //Ustawienie przerywania na 1000ms (1s)
-            pingTimer.Elapsed += new ElapsedEventHandler(this.pingServer); //Przypisanie metody
-            pingTimer.Start(); //Start timera
-            //messageTimer = new System.Timers.Timer(); //Tworzenie obiektu
-            //messageTimer.Interval = 1000; //Ustawienie przerywania na 1000ms (1s)
-            //messageTimer.Elapsed += new ElapsedEventHandler(this.pingServer); //Przypisanie metody
-            //messageTimer.Start(); //Start timera
+            //pingTimer = new System.Timers.Timer();
+            //pingTimer.Interval = 5000;
+            //pingTimer.Elapsed += new ElapsedEventHandler(this.pingServer);
+            //pingTimer.Start();
+
+            //messageTimer = new System.Timers.Timer();
+            //messageTimer.Interval = 1000;
+            //messageTimer.Elapsed += new ElapsedEventHandler(this.pingServer);
+            //messageTimer.Start();
         }
 
         private void pingServer(object sender, EventArgs e)
@@ -169,14 +166,6 @@ namespace Gold
             //socket.Close();
         }
 
-        /*public void BeginReceiveLogin()
-        {
-            byteData = new byte[1024];
-            socket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceiveLogin), null);
-
-            receiveDone.WaitOne();
-        }*/
-
         public void BeginReceive()
         {
             byteData = new byte[1024];
@@ -204,6 +193,7 @@ namespace Gold
                     clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
 
                 MUST BE AFTER ON CONNECT, OnReceive wont get full message
+                or use connectDone.Set();
                 */
                 //}));
             }
@@ -212,69 +202,6 @@ namespace Gold
                 OnConnectExcep(ex.Message);
             }
         }
-        /*
-        private void OnReceiveLogin(IAsyncResult ar)
-        {
-            try
-            {
-                socket.EndReceive(ar);
-
-                Data msgReceived = new Data(byteData);
-                //Accordingly process the message received
-                switch (msgReceived.cmdCommand)
-                {
-                    case Command.Login:
-                        OnClientLogin(msgReceived.strMessage2);
-                        break;
-
-                    case Command.Reg:
-                        if (msgReceived.strMessage2 == "Your login exists, try other one" || msgReceived.strMessage2 == "Your email exists, try other one"
-                        || msgReceived.strMessage2 == "You have already register, go to login windows and paste register key"
-                        || msgReceived.strMessage2 == "You has been registered")
-                        {
-                            OnClientRegister(msgReceived.strMessage2);
-                            //MessageBox.Show(msgReceived.strMessage2, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        break;
-
-                    case Command.ReSendEmail:
-                        if (msgReceived.strMessage2 == "Activation code not match." || msgReceived.strMessage2 == "You must activate an account.")
-                        {
-                            OnClientReSendEmail(msgReceived.strMessage2);
-
-                            //register_code regCodeWindow = new register_code(this);
-                            //regCodeWindow.ShowDialog();
-                            //MessageBox.Show(msgReceived.strMessage2, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        break;
-
-                    case Command.Message:
-                        break;
-
-                }
-                receiveDone.Set();
-                byteData = new byte[1024];
-
-                if (msgReceived.strMessage2 != "You are succesfully Log in") // && msgReceived.loginName != userName
-                {
-                    socket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceiveLogin), null);
-                }
-                else
-                {
-                    OnClientSuccesLogin(true, socket);
-                }
-
-            }
-            catch (ObjectDisposedException ex)
-            {
-                OnReceiveLogExcep(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                OnReceiveLogExcep(ex.Message);
-                //MessageBox.Show(ex.Message, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }*/
 
         private void OnReceive(IAsyncResult ar)
         {
@@ -410,9 +337,9 @@ namespace Gold
             ClientMessage?.Invoke(this, new ClientEventArgs() { clientMessage = Message });
         }
 
-        protected virtual void OnClientPrivMessage(string Message, string strMessage)
+        protected virtual void OnClientPrivMessage(string Message, string friendName)
         {
-            ClientPrivMessage?.Invoke(this, new ClientEventArgs() { clientPrivMessage = Message, clientFriendName = strMessage });
+            ClientPrivMessage?.Invoke(this, new ClientEventArgs() { clientPrivMessage = Message, clientFriendName = friendName });
         }
 
         protected virtual void OnClientPing(int time, string message)

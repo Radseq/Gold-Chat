@@ -36,7 +36,7 @@ namespace Gold
 
             loginNotyfi = clientManager.config.loginEmailNotyfication;//load config value
 
-            clientManager.ClientLogin += (s, e) => MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information); //OnClientLogin;
+            clientManager.ClientLogin += /*(s, e) => MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);*/ OnClientLogin;
             clientManager.ClientSuccesLogin += OnClientSuccesLogin;
             clientManager.ClientReSendEmail += OnClientReSendEmail;
             clientManager.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Login except Information", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -84,13 +84,13 @@ namespace Gold
             }));
         }
 
-        //private void OnClientLogin(object sender, ClientEventArgs e)
-        //{
-        //    if (e.clientLoginMessage == "Wrong login or password")
-        //    {
-
-        //    }
-        //}
+        private void OnClientLogin(object sender, ClientEventArgs e)
+        {
+            if (e.clientLoginName == userName)//i dont want to see msgBox when other users log in
+            {
+                MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
 
         private void move(object sender, MouseButtonEventArgs e)
         {
@@ -114,27 +114,7 @@ namespace Gold
                 {
                     userName = loginTextBox.Text;
 
-                    //clientSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-
-                    //IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(SERVER), PORT);
-
-                    //Connect to the server
-                    //clientSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
-
-                    //byteData = new byte[1024];
-                    //Start listening to the data asynchronously
-                    //clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(/*clientManager.*/OnReceive), null);
-
-                    //DataLogin msgToSend = new DataLogin();
-
-                    //msgToSend.loginName = userName;
-                    //msgToSend.passChecksum = CalculateChecksum(passwordBox.Password);
-                    // msgToSend.cmdCommand = CommandLogin.Login;
-
-                    //byte[] byteData = msgToSend.ToByte();
-
                     clientManager.userName = userName;
-                    //clientManager.clientPassword = CalculateChecksum(passwordBox.Password);
 
                     clientManager.BeginConnect();
 
@@ -142,7 +122,7 @@ namespace Gold
 
                     msgToSend.strName = userName;
                     msgToSend.strMessage = clientManager.CalculateChecksum(passwordBox.Password);
-                    if (loginNotyfi)
+                    if (loginNotyfi) //if server need to notyfice you that you log in, value get form config.xml
                         msgToSend.strMessage2 = "1";
                     msgToSend.cmdCommand = Command.Login;
 
@@ -150,12 +130,6 @@ namespace Gold
 
                     //Send it to the server
                     clientManager.BeginSend(byteData);
-
-                    //clientManager.BeginConnect(userName, CalculateChecksum(passwordBox.Password));
-                    //cm.BeginSend(byteData);
-
-                    //byteData = new byte[1024];
-
                 }
                 catch (Exception ex)
                 {
@@ -187,121 +161,6 @@ namespace Gold
             }));
         }
 
-        /*
-
-                public void OnSend(IAsyncResult ar)
-                {
-                    try
-                    {
-                        clientSocket.EndSend(ar);
-                    }
-                    catch (ObjectDisposedException)
-                    { }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Gold Chat: " + userName, MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-
-                private void OnConnect(IAsyncResult ar)
-                {
-                    try
-                    {
-                        //We are connected so we login into the server
-                        Dispatcher.BeginInvoke((Action)(() =>
-                        {
-                            clientSocket.EndConnect(ar);
-
-                            DataLogin msgToSend = new DataLogin();
-
-                            msgToSend.loginName = userName;
-                            msgToSend.passChecksum = CalculateChecksum(passwordBox.Password);
-                            msgToSend.cmdCommand = CommandLogin.Login;
-
-                            byte[] byteData = msgToSend.ToByte();
-
-                            //Send it to the server
-                            clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
-
-                            /*total wasted time here 5h, cuse 
-
-                            byteData = new byte[1024];
-                                //Start listening to the data asynchronously
-                                clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-
-                            MUST BE AFTER ON CONNECT, OnReceive wont get full message
-                            *//*
-                        }));
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-
-                public void OnReceive(IAsyncResult ar)
-                {
-                    try
-                    {
-                        clientSocket.EndReceive(ar);
-                        // clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                        //Dispatcher.BeginInvoke((Action)(() =>
-                        //{
-                        DataLogin msgReceived = new DataLogin(byteData);
-                        //Accordingly process the message received
-                        switch (msgReceived.cmdCommand)
-                        {
-                            case CommandLogin.Login:
-                                MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
-                                break;
-
-                            case CommandLogin.Reg:
-                                if (msgReceived.strMessage == "Your login exists, try other one" || msgReceived.strMessage == "Your email exists, try other one"
-                                || msgReceived.strMessage == "You have already register, go to login windows and paste register key"
-                                || msgReceived.strMessage == "You has been registered")
-                                {
-                                    //p_reg panelRegistration = new p_reg(this);
-                                    //panelRegistration.ShowDialog();
-                                    MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
-                                break;
-
-                            case CommandLogin.ReSendEmail:
-                                if (msgReceived.strMessage == "Activation code not match." || msgReceived.strMessage == "You must activate an account.")
-                                {
-                                    register_code regCodeWindow = new register_code(this);
-                                    regCodeWindow.ShowDialog();
-                                    MessageBox.Show(msgReceived.strMessage, "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
-                                break;
-
-                            case CommandLogin.Message:
-                                break;
-
-                        }
-
-                        byteData = new byte[1024];
-                        if (msgReceived.strMessage != "You are succesfully Log in" && msgReceived.loginName != userName)
-                            clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                        else
-                        {
-                            Dispatcher.BeginInvoke((Action)(() =>
-                            {
-                                var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
-                                anim.Completed += (s, _) => DialogResult = true;
-                                BeginAnimation(OpacityProperty, anim);
-                            }));
-                        }
-                        //                }));
-                    }
-                    catch (ObjectDisposedException)
-                    { }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Gold Chat: " + userName, MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                */
         private void closeButton_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("Do you want to close Aplication?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);

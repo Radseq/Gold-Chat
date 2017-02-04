@@ -78,15 +78,15 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             {
                 if (pm != null)
                 {
-                    pm.showPrivMessageTb.Text += e.clientPrivMessage;
+                    pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
                 }
                 else
                 {
-                    pm = new private_message();
+                    pm = new private_message(e.clientFriendName);
                     pm.Show();
-                    pm.Title += e.clientFriendName;
-                    //pm.showPrivMessageTb.Text += e.clientPrivMessage;
-                    pm.strMessage = e.clientFriendName;
+                    // pm.Title += e.clientFriendName;
+                    pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
+                    // pm.strMessage = e.clientFriendName;
                 }
             }));
         }
@@ -107,7 +107,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
                 clientList.RemoveAt(clientList.Count - 1);
                 lb_users.ItemsSource = clientList;
 
-                txtChatBox.Text += "<<<" + strName + " has joined the room>>>\r\n";
+                //txtChatBox.Text += "<<<" + strName + " has joined the room>>>\r\n";
             }));
         }
 
@@ -175,19 +175,14 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
                 Data msgToSend = new Data();
 
                 msgToSend.strName = strName;
-                msgToSend.strMessage = pm.strMessage;
                 msgToSend.strMessage = pm.sendPrivMessageTb.Text;
+                msgToSend.strMessage2 = pm.strMessage; //friend name
                 msgToSend.cmdCommand = Command.privMessage;
 
                 byte[] byteData = msgToSend.ToByte();
 
-                //give own message to showed windows of private message
-                pm.showPrivMessageTb.Text += strName + ": " + pm.sendPrivMessageTb.Text + "\r\n";
-
                 //Send it to the server
                 clientManager.BeginSend(byteData);
-
-                pm.sendPrivMessageTb.Text = null;
             }
             catch (Exception)
             {
@@ -427,13 +422,13 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
         private void MessageItem(object sender, RoutedEventArgs e)
         {
-            string strMessage = lb_users.SelectedItem.ToString();
-            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
+            string friendName = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(friendName) && lb_users.SelectedItem.ToString() != App.clientName)
             {
-                pm = new private_message();
+                pm = new private_message(friendName);
+                //pm.strMessage = friendName;
                 pm.Show();
-                pm.strMessage = strMessage;
-                pm.Title += strMessage;
+                //pm.Title += strMessage;
             }
         }
 
@@ -445,17 +440,5 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
                 //delete friend
             }
         }
-
-        /*private void lb_users_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            string strMessage = lb_users.SelectedItem.ToString();
-            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
-            {
-                pm = new private_message();
-                pm.Show();
-                pm.strMessage = strMessage;
-                pm.Title += strMessage;
-            }
-        }*/
     }
 }

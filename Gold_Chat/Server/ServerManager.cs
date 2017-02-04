@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace Server
 {
@@ -42,7 +43,10 @@ namespace Server
         private string database;
         private string uid;
         private string password;
+
         MySqlConnection cn;
+
+        private static ManualResetEvent allDone = new ManualResetEvent(false);
 
         //for  user
         //private string userName;
@@ -52,9 +56,10 @@ namespace Server
         //private string userEmail;
 
         //list of all users
-        //List<Client> clientList;
+        private List<Client> clientList = new List<Client>();
 
         ServerLogger servLogger;
+        byte[] byteData = new byte[1024];
 
         public ServerManager(ServerLogger servLogg)
         {
@@ -69,20 +74,60 @@ namespace Server
 
             cn = new MySqlConnection(connectionString);
             servLogger = servLogg;
+
         }
 
-        byte[] message;
+        internal void acceptCallback(IAsyncResult ar)
+        {
+            // Signal the main thread to continue.  
+            allDone.Set();
 
-        //public Client clientInfo;
+            // Get the socket that handles the client request.  
+            Socket listener = (Socket)ar.AsyncState;
+            Socket handler = listener.EndAccept(ar);
 
-        public void chnageUserPassword(Client clientInfo, Data msgReceived, ref Data msgToSend)
+            // Create the state object.  
+            //conClient = new Client();
+            Client conClient = new Client();
+            conClient.cSocket = handler;
+            conClient.addr = (IPEndPoint)handler.RemoteEndPoint;
+
+            string acceptConnectrion = " >> Accept connection from client: " + conClient.addr.Address + " on Port: " + conClient.addr.Port;// + " Users Connected: " + clientList.Count;
+            Console.WriteLine(acceptConnectrion);
+            servLogger.msgLog(acceptConnectrion);
+            clientList.Add(conClient); //When a user logs in to the server then we add her to our list of clients
+
+            handler.BeginReceive(byteData, 0, byteData.Length, 0, new AsyncCallback(OnReceive), conClient);
+        }
+
+        internal void getConnection(Socket sock)
+        {
+            allDone.Reset();
+            sock.BeginAccept(new AsyncCallback(acceptCallback), sock);
+            allDone.WaitOne();
+        }
+
+        public void OnSend(IAsyncResult ar)
+        {
+            try
+            {
+                Socket client = (Socket)ar.AsyncState;
+                client.EndSend(ar);
+            }
+            catch (Exception ex)
+            {
+                servLogger.msgLog(ex.Message);
+            }
+        }
+
+        private void chnageUserPassword(ref Client conClient, Data msgReceived, ref Data msgToSend)
         {
             string oldPassword = "";
             string newPassword = msgReceived.strMessage;
             string Query = "SELECT password FROM users WHERE login = @userName ;";
 
             MySqlCommand cmd = new MySqlCommand(Query, cn);
-            cmd.Parameters.AddWithValue("@userName", clientInfo.strName);
+            cmd.Parameters.AddWithValue("@userName", conClient.strName);
             cn.Open();
 
             MySqlDataReader mySqlReader = null;
@@ -99,7 +144,7 @@ namespace Server
                         MySqlCommand mySqlCommUpdate = new MySqlCommand(updateQuery, cn);
 
                         mySqlCommUpdate.Parameters.AddWithValue("@pass", newPassword);
-                        mySqlCommUpdate.Parameters.AddWithValue("@login", clientInfo.strName);
+                        mySqlCommUpdate.Parameters.AddWithValue("@login", conClient.strName);
                         mySqlCommUpdate.Parameters.AddWithValue("@oldPass", oldPassword);
 
                         if (mySqlCommUpdate.ExecuteNonQuery() > 0)
@@ -125,16 +170,13 @@ namespace Server
             cn.Close();
         }
 
-        public void clientLogin(ref Client clientInfo, Data msgReceived, ref Data msgToSend)
+        private void clientLogin(ref Client conClient, Data msgReceived, ref Data msgToSend)
         {
             string userName = msgReceived.strName;
             string userPassword = msgReceived.strMessage;
             string loginNotyfiUser = msgReceived.strMessage2;
 
-            clientInfo.strName = userName;
-
-            string clientIpAdress = "";
-            string clientPort = "";
+            conClient.strName = userName;
 
             string Query = "SELECT register_id, email FROM users WHERE login = @userName AND password = @password ;";
 
@@ -155,13 +197,13 @@ namespace Server
                 userEmail = mySqlReader.GetString(1);
                 if (registerCode != "")
                 {
-                    // no i urzytkownik nie wyslal kodu aktywacji
+                    // user wont send activation code
                     msgToSend.cmdCommand = Command.ReSendEmail;
                     msgToSend.strMessage = "You must activate your account first.";
                 }
                 else
                 {
-                    //wszystko jest dobrze wiec urzytkownik powinien korzytacj z aplikacji
+                    //all is correct so user can use app
                     msgToSend.strMessage = "You are succesfully Log in";
 
                     if (loginNotyfiUser == "1") //user wants to be notyficated when login on account
@@ -171,8 +213,7 @@ namespace Server
                         emailSender.SendEmail(userName, userEmail, "Gold Chat: Login Notyfication", "You have login: " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " To Gold Chat Account.");
                     }
 
-                    clientIpAdress = ((IPEndPoint)clientInfo.cSocket.RemoteEndPoint).Address.ToString();
-                    clientPort = ((IPEndPoint)clientInfo.cSocket.RemoteEndPoint).Port.ToString();
+                    OnClientLogin(userName, conClient.addr.Address.ToString(), conClient.addr.Port.ToString()); //server OnClientLogin occur only when succes program.cs -> OnClientLogin
                 }
             }
             else
@@ -181,10 +222,9 @@ namespace Server
             }
             mySqlReader.Close();
             cn.Close();
-            OnClientLogin(userName, clientIpAdress, clientPort);
         }
 
-        public void clientRegistration(Data msgReceived, ref Data msgToSend)
+        private void clientRegistration(Data msgReceived, ref Data msgToSend)
         {
             string userName = msgReceived.strName;
             string userPassword = msgReceived.strMessage;
@@ -275,7 +315,7 @@ namespace Server
             OnClientRegistration(userName, userEmail);
         }
 
-        public void clientReSendActivCode(Data msgReceived, ref Data msgToSend)
+        private void clientReSendActivCode(Data msgReceived, ref Data msgToSend)
         {
             string userName = msgReceived.strName;
             string userEmail = "";
@@ -312,19 +352,15 @@ namespace Server
                     mySqlCommUpdate.Parameters.AddWithValue("@email", userEmail);
 
                     if (mySqlCommUpdate.ExecuteNonQuery() > 0)
-                    {
                         msgToSend.strMessage = "Now you can login in to application";
-                    }
                     else
-                    {
                         msgToSend.strMessage = "Error when Activation contact to support";
-                    }
+
                     cn.Close();
                 }
                 else
-                {
                     msgToSend.strMessage = "Activation code not match.";
-                }
+
                 cn.Close();
             }
             else
@@ -362,14 +398,14 @@ namespace Server
 
         //using as logout and when client crash/internet disconect etc
         //return name to use with client crashed
-        public string clientLogout(ref List<Client> clientList, ref Client clientInfo, /*Data msgReceived,*/ Data msgToSend, bool isClientCrash = false)
+        private string clientLogout(ref Client conClient, Data msgToSend, bool isClientCrash = false)
         {
             //When a user wants to log out of the server then we search for her 
             //in the list of clients and close the corresponding connection
             int nIndex = 0;
             foreach (Client client in clientList)
             {
-                if (client.cSocket == clientInfo.cSocket)
+                if (client.cSocket == conClient.cSocket)
                 {
                     clientList.RemoveAt(nIndex);
                     if (isClientCrash) msgToSend.strName = client.strName;
@@ -378,20 +414,21 @@ namespace Server
                 ++nIndex;
             }
 
-            clientInfo.cSocket.Close();
+            msgToSend.strMessage = "<<<" + conClient.strName + " has left the room>>>";
+            OnClientLogout(conClient.strName, conClient.cSocket);
 
-            msgToSend.strMessage = "<<<" + clientInfo.strName + " has left the room>>>";
-            OnClientLogout(clientInfo.strName, clientInfo.cSocket);
-            return clientInfo.strName;
+            conClient.cSocket.Close();
+
+            return conClient.strName;
         }
 
-        public void clientMessage(Data msgReceived, Data msgToSend)
+        private void clientMessage(Data msgReceived, Data msgToSend)
         {
             msgToSend.strMessage = msgReceived.strName + ": " + msgReceived.strMessage;
             OnClientMessage(msgToSend.strMessage, msgReceived.strName + ": " + msgReceived.strMessage);
         }
 
-        public void sendClientList(List<Client> clientList, Client clientInfo, Data msgToSend)
+        private void sendClientList(ref Client conClient, Data msgToSend)
         {
             msgToSend.cmdCommand = Command.List;
             msgToSend.strName = null;
@@ -404,56 +441,152 @@ namespace Server
                 msgToSend.strMessage += client.strName + "*";
             }
 
-            message = msgToSend.ToByte();
+            byte[] message = msgToSend.ToByte();
 
             //Send the name of the users in the chat room
-            clientInfo.cSocket.Send(message, 0, message.Length, SocketFlags.None);
+            conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
             OnClientList(msgToSend.strMessage);
         }
 
-        public void SendMessage(List<Client> clientList, Client clientInfo, Data msgReceived, Data msgToSend, bool isPrivateMessage = false)
+        private void OnReceive(IAsyncResult ar)
         {
-            message = msgToSend.ToByte();
+            // Retrieve the client and the handler socket  
+            // from the asynchronous client.  
+            Client client = (Client)ar.AsyncState; // bad idea but catch need to see client
+
+            try
+            {
+                //Transform the array of bytes received from the user into an
+                //intelligent form of object Data
+                Data msgReceived = new Data(byteData);
+
+                //We will send this object in response the users request
+                Data msgToSend = new Data();
+
+                //If the message is to login, logout, or simple text message
+                //then when send to others the type of the message remains the same
+                msgToSend.cmdCommand = msgReceived.cmdCommand;
+                msgToSend.strName = msgReceived.strName;
+                msgToSend.strMessage = msgReceived.strMessage;
+
+                switch (msgReceived.cmdCommand)
+                {
+                    case Command.Login:
+                        clientLogin(ref client, msgReceived, ref msgToSend);
+                        byte[] message = msgToSend.ToByte();
+                        SendMessageLogin(ref client, message);
+                        break;
+
+                    case Command.Reg:
+                        clientRegistration(msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.changePassword:
+                        chnageUserPassword(ref client, msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.ReSendEmail:
+                        clientReSendActivCode(msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.Logout:
+                        clientLogout(ref client, msgToSend);
+                        break;
+
+                    case Command.Message: //Text of the message that we will broadcast to all users
+                        clientMessage(msgReceived, msgToSend);
+                        break;
+
+                    case Command.privMessage:
+                        SendPrivMessage(ref client, msgReceived, msgToSend);
+                        break;
+
+                    case Command.List:  //Send the names of all users in the chat room to the new user
+                        sendClientList(ref client, msgToSend);
+                        break;
+                }
+
+                if (msgToSend.cmdCommand != Command.List && msgToSend.cmdCommand != Command.privMessage) //List messages are not broadcasted
+                {
+                    SendMessage(ref client, msgReceived, msgToSend);
+                }
+
+                ReceivedMessage(ref client, msgReceived, byteData);
+                //receiveDone.Set();
+            }
+            catch (Exception ex)
+            {
+                //so we make sure that client with got crash or internet close, server will send log out message
+
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.Logout;
+
+                string exMessage = ("client: " + clientLogout(ref client, msgToSend, true) + " " + ex.Message);
+                Console.WriteLine(exMessage);
+                servLogger.msgLog(exMessage);
+
+                SendMessage(ref client, null, msgToSend);
+            }
+        }
+
+        private void SendMessageLogin(ref Client conClient, byte[] message)
+        {
+            conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
+            //OnClientSendMessage(msgToSend.strMessage);
+        }
+
+        private void SendMessage(ref Client conClient, Data msgReceived, Data msgToSend)
+        {
+            byte[] message = msgToSend.ToByte();
+
 
             foreach (Client cInfo in clientList)
             {
                 //if (isPrivateMessage ? cInfo.strName == msgReceived.strMessage : cInfo.cSocket != clientInfo.cSocket || msgToSend.cmdCommand != Command.Login)
                 //{
-                //Send the message to all users, or to friend
-                //if (isPrivateMessage && cInfo.strName == msgReceived.strMessage)
-                cInfo.cSocket.Send(message, 0, message.Length, SocketFlags.None);
-                //if (isPrivateMessage == true && cInfo.strName == msgReceived.strMessage)
-                //   break;
-                //}
+
+                if (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login)
+                {
+                    //Send the message to all users
+                    if (msgToSend.strMessage == "You are succesfully Log in") //if we got msg from other users thats they login as user (conClient) will see this msg below
+                    {
+                        msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
+                        message = msgToSend.ToByte();
+                    }
+                    cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
+                }
+
             }
-            if (isPrivateMessage == false)
-                OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
+            //if (isPrivateMessage == false)
+            OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
+
         }
 
-        /*public void SendMessage(Client clientInfo, DataLogin msgReceived, DataLogin msgToSend)
+        private void SendPrivMessage(ref Client conClient, Data msgReceived, Data msgToSend)
         {
-            message = msgToSend.ToByte();
-            clientInfo.cSocket.Send(message, 0, message.Length, SocketFlags.None);
-            OnClientSendMessage(msgToSend.strMessage);
-        }*/
+            byte[] message = msgToSend.ToByte();
 
-        public void ReceivedMessage(Client clientInfo, Data msgReceived, byte[] byteData)
+            foreach (Client cInfo in clientList)
+            {
+                if (cInfo.strName == msgReceived.strMessage2 || msgReceived.strName == cInfo.strName)
+                {
+                    cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
+                }
+            }
+        }
+
+        private void ReceivedMessage(ref Client conClient, Data msgReceived, byte[] byteData)
         {
             if (msgReceived.cmdCommand != Command.Logout)
             {
-                clientInfo.cSocket.Receive(byteData, byteData.Length, SocketFlags.None);
+                // conClient.cSocket.Receive(byteData, byteData.Length, SocketFlags.None);
+                conClient.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), conClient);
             }
             else if (msgReceived.strMessage != null)// i want to see messages, messages will be null on login/logout
             {
                 OnClientReceiMessage((int)msgReceived.cmdCommand, msgReceived.strName, msgReceived.strMessage, msgReceived.strMessage);
             }
         }
-        /*
-        public void ReceivedMessage(Client clientInfo, DataLogin msgReceived, byte[] byteData)
-        {
-            clientInfo.cSocket.Receive(byteData, byteData.Length, SocketFlags.None);
-            OnClientReceiMessage((int)msgReceived.cmdCommand, msgReceived.strMessage, msgReceived.strMessage, msgReceived.loginName);
-        }*/
 
         protected virtual void OnClientLogin(string cName, string cIpadress, string cPort)
         {

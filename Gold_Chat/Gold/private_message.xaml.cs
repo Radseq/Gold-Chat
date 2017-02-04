@@ -10,33 +10,32 @@ namespace Gold
     public partial class private_message : Window
     {
         //private Socket clientSocket = App.clientSocket;
-        public string strMessage;
+        public string strMessage;//name of friend
 
-        private string text;
+        //private string text;
 
         private byte[] byteData = new byte[1024];
 
-        public string Text
-        {
-            get
-            {
-                return text;
-                //textBox.Text = text;
-            }
+        //public string Text
+        //{
+        //    get
+        //    {
+        //        return text;
+        //        //textBox.Text = text;
+        //    }
 
-            set
-            {
-                text = value;
-                sendPrivMessageTb.Text = text;
-            }
-        }
+        //    set
+        //    {
+        //        text = value;
+        //        sendPrivMessageTb.Text = text;
+        //    }
+        //}
 
-        public private_message()
+        public private_message(string friendName)
         {
             InitializeComponent();
-            //FriendSocket = program.
-            Title += strMessage;
-
+            strMessage = friendName;
+            Title += friendName;
         }
 
         void EnterClicked(object sender, KeyEventArgs e)
