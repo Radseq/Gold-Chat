@@ -16,8 +16,9 @@ namespace CommandClient
         Reg,            //Registration 
         ReSendEmail,    //Resend activation name to client
 
-        changePassword,//when client want to change password
-        //loginNotyfi,//when client want to be notificated on login
+        changePassword, //when client want to change password
+
+        //id_channel,     //we can use this to manage channel(like create/delete/join), and send message to channel, like privMessage
 
         Null            //No command
     }

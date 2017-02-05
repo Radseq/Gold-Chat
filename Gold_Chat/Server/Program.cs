@@ -129,7 +129,7 @@ namespace Server
             //todo when server start check for there is mysql connection to server
             //and port is in use
 
-            server serv = new server();
+            server serv = new server(); //after changes on this and ServerManager i think this class can be deleted
 
             Console.ReadLine();
             serv.Stop();

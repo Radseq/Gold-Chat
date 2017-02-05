@@ -17,14 +17,14 @@
         <Label Content="Room Name" Height="23" HorizontalAlignment="Left" Name="label1" VerticalAlignment="Top" Width="99" Margin="12,0,0,0" />
         <Label Content="Enterence Password" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="label2" VerticalAlignment="Top" Width="119" />
         <Label Content="Confim Enterence Password" Height="23" HorizontalAlignment="Left" Margin="12,93,0,0" Name="label3" VerticalAlignment="Top" Width="162" />
-        <Label Content="Administrator Password" Height="23" HorizontalAlignment="Left" Margin="12,142,0,0" Name="label4" VerticalAlignment="Top" Width="162" />
-        <Label Content="Confim Administrator Password" Height="23" HorizontalAlignment="Left" Margin="10,188,0,0" Name="label5" VerticalAlignment="Top" Width="189" />
-        <Label Content="Welcome Messege" Height="23" HorizontalAlignment="Left" Margin="12,244,0,0" Name="label6" VerticalAlignment="Top" Width="99" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,20,0,0" Name="textBox1" VerticalAlignment="Top" Width="476" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,70,0,0" Name="textBox2" VerticalAlignment="Top" Width="476" />
+        <Label Content="Administrator Password" Height="23" HorizontalAlignment="Left" Margin="12,140,0,0" Name="label4" VerticalAlignment="Top" Width="162" />
+        <Label Content="Confim Administrator Password" Height="23" HorizontalAlignment="Left" Margin="12,188,0,0" Name="label5" VerticalAlignment="Top" Width="189" />
+        <Label Content="Welcome Messege" Height="28" HorizontalAlignment="Left" Margin="12,240,0,0" Name="label6" VerticalAlignment="Top" Width="119" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,26,0,0" Name="textBox1" VerticalAlignment="Top" Width="476" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,72,0,0" Name="textBox2" VerticalAlignment="Top" Width="476" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="12,117,0,0" Name="textBox3" VerticalAlignment="Top" Width="476" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="12,165,0,0" Name="textBox4" VerticalAlignment="Top" Width="476" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,215,0,0" Name="textBox5" VerticalAlignment="Top" Width="476" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="14,212,0,0" Name="textBox5" VerticalAlignment="Top" Width="476" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="12,268,0,0" Name="textBox6" VerticalAlignment="Top" Width="476" />
         <Button Style="{DynamicResource buttonTemplate}" Content="Create Looby" Height="23" HorizontalAlignment="Left" Margin="190,297,0,0" Name="button1" VerticalAlignment="Top" Width="101" />
     </Grid>

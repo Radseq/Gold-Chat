@@ -452,7 +452,7 @@ namespace Server
         {
             // Retrieve the client and the handler socket  
             // from the asynchronous client.  
-            Client client = (Client)ar.AsyncState; // bad idea but catch need to see client
+            Client client = (Client)ar.AsyncState; // bad idea but catch need to see client, or maybe not bad idea because object is created and catch will not occur on constructor of class
 
             try
             {
@@ -498,7 +498,7 @@ namespace Server
                         break;
 
                     case Command.privMessage:
-                        SendPrivMessage(ref client, msgReceived, msgToSend);
+                        SendMessage(ref client, msgReceived, msgToSend, true);
                         break;
 
                     case Command.List:  //Send the names of all users in the chat room to the new user
@@ -512,12 +512,10 @@ namespace Server
                 }
 
                 ReceivedMessage(ref client, msgReceived, byteData);
-                //receiveDone.Set();
             }
             catch (Exception ex)
             {
                 //so we make sure that client with got crash or internet close, server will send log out message
-
                 Data msgToSend = new Data();
                 msgToSend.cmdCommand = Command.Logout;
 
@@ -526,28 +524,26 @@ namespace Server
                 servLogger.msgLog(exMessage);
 
                 SendMessage(ref client, null, msgToSend);
+
+                //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
         }
 
         private void SendMessageLogin(ref Client conClient, byte[] message)
         {
             conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
-            //OnClientSendMessage(msgToSend.strMessage);
         }
 
-        private void SendMessage(ref Client conClient, Data msgReceived, Data msgToSend)
+        private void SendMessage(ref Client conClient, Data msgReceived, Data msgToSend, bool isPrivateMessage = false)
         {
             byte[] message = msgToSend.ToByte();
 
-
             foreach (Client cInfo in clientList)
             {
-                //if (isPrivateMessage ? cInfo.strName == msgReceived.strMessage : cInfo.cSocket != clientInfo.cSocket || msgToSend.cmdCommand != Command.Login)
-                //{
-
-                if (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login)
+                if (isPrivateMessage ? (cInfo.strName == msgReceived.strMessage2 || msgReceived.strName == cInfo.strName)
+                    : (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login))
                 {
-                    //Send the message to all users
+                    //Send the message to all users, if private message send to sender and friend
                     if (msgToSend.strMessage == "You are succesfully Log in") //if we got msg from other users thats they login as user (conClient) will see this msg below
                     {
                         msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
@@ -555,24 +551,9 @@ namespace Server
                     }
                     cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
                 }
-
             }
-            //if (isPrivateMessage == false)
-            OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
-
-        }
-
-        private void SendPrivMessage(ref Client conClient, Data msgReceived, Data msgToSend)
-        {
-            byte[] message = msgToSend.ToByte();
-
-            foreach (Client cInfo in clientList)
-            {
-                if (cInfo.strName == msgReceived.strMessage2 || msgReceived.strName == cInfo.strName)
-                {
-                    cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
-                }
-            }
+            if (isPrivateMessage == false)
+                OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
         }
 
         private void ReceivedMessage(ref Client conClient, Data msgReceived, byte[] byteData)

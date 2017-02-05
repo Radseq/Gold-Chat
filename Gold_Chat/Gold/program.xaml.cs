@@ -84,9 +84,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
                 {
                     pm = new private_message(e.clientFriendName);
                     pm.Show();
-                    // pm.Title += e.clientFriendName;
                     pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
-                    // pm.strMessage = e.clientFriendName;
                 }
             }));
         }
@@ -426,9 +424,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             if (clientList.Contains(friendName) && lb_users.SelectedItem.ToString() != App.clientName)
             {
                 pm = new private_message(friendName);
-                //pm.strMessage = friendName;
                 pm.Show();
-                //pm.Title += strMessage;
             }
         }
 

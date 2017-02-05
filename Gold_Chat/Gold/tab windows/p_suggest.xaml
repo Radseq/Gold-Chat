@@ -14,11 +14,11 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Label Content="Topic:" Height="23" HorizontalAlignment="Left" Margin="10,12,0,0" Name="label1" VerticalAlignment="Top" Width="41" HorizontalContentAlignment="Right" />
+        <Label Content="Topic:" Height="25" HorizontalAlignment="Left" Margin="8,10,0,0" Name="label1" VerticalAlignment="Top" Width="41" />
         <TextBox Height="23" HorizontalAlignment="Left" Margin="49,12,0,0" Name="topicTextBox" VerticalAlignment="Top" Width="439" />
-        <Label Content="Massage:" Height="23" HorizontalAlignment="Left" Margin="12,41,0,0" Name="label2" VerticalAlignment="Top" Width="94" HorizontalContentAlignment="Right" />
+        <Label Content="Massage:" Height="27" HorizontalAlignment="Left" Margin="8,35,0,0" Name="label2" VerticalAlignment="Top" Width="94" />
         <TextBox Height="204" HorizontalAlignment="Left" Margin="12,62,0,0" Name="messegeTextBox" VerticalAlignment="Top" Width="476" />
-        <Button Style="{DynamicResource buttonTemplate}" Content="Send" Height="27" HorizontalAlignment="Left" Margin="141,0,0,12" Name="sendMail" VerticalAlignment="Bottom" Width="70" Click="sendmail_click" />
-        <Button Style="{DynamicResource buttonTemplate}" Content="Cancel" Height="27" HorizontalAlignment="Left" Margin="330,0,0,12" Name="cancelButton" Click="cancelButton_Click" VerticalAlignment="Bottom" Width="86" />
+        <Button Style="{DynamicResource buttonTemplate}" Content="Send" Height="27" HorizontalAlignment="Left" Margin="112,0,0,12" Name="sendMail" VerticalAlignment="Bottom" Width="70" Click="sendmail_click" />
+        <Button Style="{DynamicResource buttonTemplate}" Content="Cancel" Height="27" HorizontalAlignment="Left" Margin="311,0,0,10" Name="cancelButton" Click="cancelButton_Click" VerticalAlignment="Bottom" Width="86" />
     </Grid>
 </UserControl>
