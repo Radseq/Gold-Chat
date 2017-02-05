@@ -8,7 +8,7 @@ Gold_Chat/.vs
 *.dll
 *.pdb
 *.exe
-*.config
+*.exe.config
 *.manifest
 *.xml
 *.txt
