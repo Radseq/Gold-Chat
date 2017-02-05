@@ -31,7 +31,7 @@ namespace Gold
         {
             try
             {
-                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "config.xml");
+                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
                 //FormToConfig();
                 XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
                 FileStream fStream = new FileStream(m_ConfigFileName, FileMode.Create);
@@ -51,7 +51,7 @@ namespace Gold
             Configuration conf;
             try
             {
-                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "config.xml");
+                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
                 //If file exists
                 if (File.Exists(m_ConfigFileName))
                 {
