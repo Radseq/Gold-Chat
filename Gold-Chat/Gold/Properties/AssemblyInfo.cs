@@ -1,16 +1,18 @@
 ﻿using System.Reflection;
+using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Chat")]
-[assembly: AssemblyDescription("Chat application")]
+[assembly: AssemblyTitle("Gold")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Radseq")]
-[assembly: AssemblyProduct("Gold Chat Client")]
-[assembly: AssemblyCopyright("Copyright © Radseq 2014")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Gold")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

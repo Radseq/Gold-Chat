@@ -1,13 +1,16 @@
 # ignores following folders
-Gold_Chat/CommandClient/obj
-Gold_Chat/Gold/bin
-Gold_Chat/Gold/obj
-Gold_Chat/Server/obj
-Gold_Chat/.vs
+Gold-Chat/CommandClient/obj
+Gold-Chat/Gold/bin
+Gold-Chat/Gold/obj
+Gold-Chat/Server/obj
+Gold-Chat/.vs
 /not_used
+*.csproj.user
 *.pdb
 *.exe
 *.exe.config
 *.manifest
 *.xml
 *.txt
+CommandClient.dll
+MySql.Data.dll

@@ -58,7 +58,7 @@ namespace Gold
         //public string clientPassword;
         public string userName;
 
-        private System.Timers.Timer pingTimer;
+        //private System.Timers.Timer pingTimer;
         //private System.Timers.Timer messageTimer;
 
         public const int PORT = 5000;
