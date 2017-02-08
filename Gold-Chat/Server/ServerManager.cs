@@ -21,6 +21,8 @@ namespace Server
         public string clientEmail { get; set; }
         public int clientCommand { get; set; }
         public string clientFriendName { get; set; }
+        public string clientChannelName { get; set; }
+        public string clientNameChannel { get; set; } //client name with joined to chanel
 
         //or just give this object public ServerManager ServerManager { get; set; }
     }
@@ -36,6 +38,11 @@ namespace Server
         public event EventHandler<ClientEventArgs> ClientList;
         public event EventHandler<ClientEventArgs> ClientSendMessage;
         public event EventHandler<ClientEventArgs> ClientReceiMessage;
+        public event EventHandler<ClientEventArgs> ClientCreateChannel;
+        public event EventHandler<ClientEventArgs> ClientJoinChannel;
+        public event EventHandler<ClientEventArgs> ClientDeleteChannel;
+        public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
+        public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
 
         //For Database
         //private string server;
@@ -120,7 +127,7 @@ namespace Server
             }
         }
 
-        private void chnageUserPassword(ref Client conClient, Data msgReceived, ref Data msgToSend)
+        private void chnageUserPassword(Client conClient, Data msgReceived, ref Data msgToSend)
         {
             string oldPassword = "";
             string newPassword = msgReceived.strMessage;
@@ -178,7 +185,7 @@ namespace Server
 
             conClient.strName = userName;
 
-            string Query = "SELECT register_id, email FROM users WHERE login = @userName AND password = @password ;";
+            string Query = "SELECT register_id, email, id_user FROM users WHERE login = @userName AND password = @password ;";
 
             MySqlCommand cmd = new MySqlCommand(Query, cn);
             cmd.Parameters.AddWithValue("@userName", userName);
@@ -191,7 +198,7 @@ namespace Server
             string registerCode = "";
             string userEmail = ""; //used for send email notyfication on login to user 
 
-            if (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
+            if (mySqlReader.Read()) //Expecting only one line
             {
                 registerCode = mySqlReader.GetString(0);
                 userEmail = mySqlReader.GetString(1);
@@ -205,6 +212,7 @@ namespace Server
                 {
                     //all is correct so user can use app
                     msgToSend.strMessage = "You are succesfully Log in";
+                    conClient.id = mySqlReader.GetInt16(2); //give id from db
 
                     if (loginNotyfiUser == "1") //user wants to be notyficated when login on account
                     {
@@ -325,7 +333,6 @@ namespace Server
 
             if (userRegisterCode != null)
             {
-
                 cn.Close();
                 cn.Open();
                 string selectQuery = "SELECT register_id, email FROM users WHERE register_id = @register_id AND login = @login ;";
@@ -386,9 +393,7 @@ namespace Server
                         msgToSend.strMessage = "Activation code resended.";
                     }
                     else
-                    {
                         msgToSend.strMessage = "You must activate an account.";
-                    }
                 }
                 mySqlReader.Close();
                 cn.Close();
@@ -482,7 +487,7 @@ namespace Server
                         break;
 
                     case Command.changePassword:
-                        chnageUserPassword(ref client, msgReceived, ref msgToSend);
+                        chnageUserPassword(client, msgReceived, ref msgToSend);
                         break;
 
                     case Command.ReSendEmail:
@@ -499,6 +504,22 @@ namespace Server
 
                     case Command.privMessage:
                         SendMessage(ref client, msgReceived, msgToSend, true);
+                        break;
+
+                    case Command.createChannel:
+                        channelCreate(client, msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.joinChannel:
+                        channelJoin(client, msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.exitChannel:
+                        channelExit(client, msgReceived, ref msgToSend);
+                        break;
+
+                    case Command.deleteChannel:
+                        channelDelete(client, msgReceived, ref msgToSend);
                         break;
 
                     case Command.List:  //Send the names of all users in the chat room to the new user
@@ -527,6 +548,222 @@ namespace Server
 
                 //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
+        }
+
+        private void channelDelete(Client client, Data msgReceived, ref Data msgToSend)
+        {
+            string channelName = msgReceived.strMessage;
+            string adminPass = msgReceived.strMessage2;
+
+            string Query = "SELECT admin_password FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUserFounder ;";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@channelName", channelName);
+            mySqlComm.Parameters.AddWithValue("@idUserFounder", client.id);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            string admPass = "";
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                admPass = mySqlReader.GetString(0);
+                if (adminPass == admPass)
+                {
+                    string delChannelQuery = "DELETE FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUser";
+                    MySqlCommand mySqlDelComm = new MySqlCommand(delChannelQuery, cn);
+
+                    mySqlDelComm.Parameters.AddWithValue("@channelName", channelName);
+                    mySqlDelComm.Parameters.AddWithValue("@idUser", client.id);
+
+                    if (mySqlDelComm.ExecuteNonQuery() > 0)
+                    {
+                        msgToSend.strMessage = "You are deleted your channel: " + msgReceived.strMessage;
+                        //message to others users witch are in channel that has deleted by creator
+                    }
+                    else msgToSend.strMessage = "You cannot delete your channel by exit with unknown reason (error).";
+
+                    OnClientDeleteChannel(channelName, client.strName);
+                }
+                else
+                    msgToSend.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
+            }
+            else
+                msgToSend.strMessage = "You cannot delete channel that you not own";
+            mySqlReader.Close();
+            cn.Close();
+        }
+
+        ///todo test, event OnClientExitChannel, inform user that he cant delete channel, because he need use option delete
+        ///check if admin try left first, message him to do delete
+        private void channelExit(Client client, Data msgReceived, ref Data msgToSend)
+        {
+            string channelName = msgReceived.strMessage;
+            string adminPass = msgReceived.strMessage2;
+
+            string Query = "SELECT uc.id_channel FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user_founder != @idUser;";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@channelName", channelName);
+            mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int id_channel_db = 0;
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                id_channel_db = mySqlReader.GetInt16(0);
+
+                string DelQuery = "DELETE FROM user_channel WHERE id_user = @idUsed AND id_channel = @idChannel";
+                MySqlCommand mySqlDelComm = new MySqlCommand(DelQuery, cn);
+                mySqlDelComm.Parameters.AddWithValue("@idUser", client.id);
+                mySqlDelComm.Parameters.AddWithValue("@idChannel", id_channel_db);
+
+                if (mySqlComm.ExecuteNonQuery() > 0)
+                {
+                    msgToSend.strMessage = "You are exit from the channel " + channelName + ".";
+                }
+                else msgToSend.strMessage = "You connot exit: " + channelName + " because you are not join to."; //???
+
+                OnClientExitChannel(channelName, client.strName);
+            }
+            else msgToSend.strMessage = "You must use delete option to left(and delete) this channel.";
+
+            mySqlReader.Close();
+            cn.Close();
+        }
+        ///todo test
+        private void channelJoin(Client client, Data msgReceived, ref Data msgToSend)
+        {
+            int clientId = client.id;
+            string channelName = msgReceived.strMessage;
+            string channelPass = msgReceived.strMessage2;
+
+            string Query = "SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @channelName AND enter_password = @enterPassword ;";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@channelName", channelName);
+            mySqlComm.Parameters.AddWithValue("@enterPassword", channelPass);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int id_channel_db = 0;
+            string welcomeMsg = ""; //used for send email notyfication on login to user 
+            string enterPassword = "";
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                id_channel_db = mySqlReader.GetInt16(0);
+                welcomeMsg = mySqlReader.GetString(1);
+                enterPassword = mySqlReader.GetString(2);
+
+                mySqlReader.Close();
+
+                if (channelPass != enterPassword)
+                    msgToSend.strMessage = "Wrong Password";
+                else
+                {
+                    mySqlComm.CommandText = "INSERT INTO user_channel (id_user, id_channel, join_date) " +
+                           "VALUES (@idUser, @idChannel, @joinDate)";
+
+                    DateTime theDate = DateTime.Now;
+                    theDate.ToString("dd-MM-yyyy HH:mm");
+
+                    mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+                    mySqlComm.Parameters.AddWithValue("@idChannel", id_channel_db);
+                    mySqlComm.Parameters.AddWithValue("@joinDate", theDate);
+
+                    if (mySqlComm.ExecuteNonQuery() > 0)
+                    {
+                        //all is correct so user can join to channel
+                        if (msgToSend.strMessage == null)
+                            msgToSend.strMessage = "You are joined to channel + channelName +.";// this will not send when user create and join channel
+                        msgToSend.strMessage2 = welcomeMsg;
+                        //there should be message to channel that new user is joined
+                    }
+                    else
+                    {
+                        msgToSend.strMessage2 = "cannot join to " + channelName + " with unknown reason.";
+                    }
+                    OnClientJoinChannel(channelName, msgReceived.strName);
+                }
+            }
+            else msgToSend.strMessage = "There is no channel that you want to join.";
+
+            cn.Close();
+        }
+
+        ///todo test
+        private void channelCreate(Client client, Data msgReceived, ref Data msgToSend)
+        {
+            string userName = msgReceived.strName;
+            string roomName = msgReceived.strMessage;
+            string enterPassword = msgReceived.strMessage2;
+            string adminPassword = msgReceived.strMessage3;
+            string welcomeMsg = msgReceived.strMessage4;
+
+            string Query = "SELECT id_user_founder, channel_name FROM channel WHERE id_user_founder = @id_user_f AND channel_name = @channel_n ;";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@id_user_f", client.id);
+            mySqlComm.Parameters.AddWithValue("@channel_n", roomName);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int idOfFounderDB = 0;
+            string channelNameDB = "";
+
+            msgToSend.cmdCommand = Command.createChannel;
+
+            if (mySqlReader.Read()) //expecting only one line
+            {
+                idOfFounderDB = mySqlReader.GetInt16(0);
+                channelNameDB = mySqlReader.GetString(1);
+            }
+            mySqlReader.Close();
+            if (channelNameDB == roomName)
+                msgToSend.strMessage = "Channel Name is in Use, try other.";
+            else if (idOfFounderDB != 0)
+                msgToSend.strMessage = "You are create channel before, you can have one channel at time";
+            else //user not have channel and name is free
+            {
+                ///TODO
+                mySqlComm.CommandText = "INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
+                    "VALUES (@idUser, @channelName, @enterPass, @adminPass, @maxUsers, @createDate, @welcomeMessage)";
+
+                DateTime theDate = DateTime.Now;
+                theDate.ToString("dd-MM-yyyy HH:mm");
+
+                mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+                mySqlComm.Parameters.AddWithValue("@channelName", roomName);
+                mySqlComm.Parameters.AddWithValue("@enterPass", enterPassword);
+                mySqlComm.Parameters.AddWithValue("@adminPass", adminPassword);
+                mySqlComm.Parameters.AddWithValue("@maxUsers", 5); ///todo
+                mySqlComm.Parameters.AddWithValue("@createDate", theDate);
+                mySqlComm.Parameters.AddWithValue("@welcomeMessage", welcomeMsg);
+
+                if (mySqlComm.ExecuteNonQuery() > 0)
+                {
+                    msgToSend.strMessage = "You are create channel (" + roomName + ")";
+                    cn.Close(); //is must be close, because join have open, makes problem at last line of this fuction
+                    channelJoin(client, msgReceived, ref msgToSend); //after user create channel we want to make him join
+                }
+                else
+                    msgToSend.strMessage = "Channel NOT created with unknown reason.";
+
+                OnClientCreateChannel(roomName);
+            }
+
+            cn.Close();
         }
 
         private void SendMessageLogin(ref Client conClient, byte[] message)
@@ -604,6 +841,26 @@ namespace Server
         protected virtual void OnClientReceiMessage(int command, string cName, string cMessage, string cFriendName)
         {
             ClientReceiMessage?.Invoke(this, new ClientEventArgs() { clientCommand = command, clientName = cName, clientMessageReciv = cMessage, clientFriendName = cFriendName });// tu jeszcze nie wiem
+        }
+        protected virtual void OnClientCreateChannel(string channelName)
+        {
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+        }
+        protected virtual void OnClientJoinChannel(string channelName, string userName)
+        {
+            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
+        }
+        protected virtual void OnClientDeleteChannel(string channelName, string userName)
+        {
+            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
+        }
+        protected virtual void OnClientExitChannel(string channelName, string userName)
+        {
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
+        }
+        protected virtual void OnClientEditChannel(string channelName, string userName)
+        {
+            ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
         }
 
         private void OnEmaiSended(object source, EmailSenderEventArgs args)

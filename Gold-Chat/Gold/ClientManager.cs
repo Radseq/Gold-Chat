@@ -31,6 +31,9 @@ namespace Gold
         public int clientPingTime { get; set; }
         public string clientPingMessage { get; set; }
         public string clientChangePassMessage { get; set; }
+        //for channel
+        public string clientChannelName { get; set; }
+        //public string clientNameChannel { get; set; } //client name with joined to chanel
     }
 
     public class ClientManager
@@ -50,8 +53,14 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientPrivMessage;
         //ping
         public event EventHandler<ClientEventArgs> ClientPing;
-
         public event EventHandler<ClientEventArgs> ClientChangePass;
+
+        //channel
+        public event EventHandler<ClientEventArgs> ClientCreateChannel;
+        public event EventHandler<ClientEventArgs> ClientJoinChannel;
+        public event EventHandler<ClientEventArgs> ClientDeleteChannel;
+        public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
+        public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
 
         Socket socket;
         //object msgS;
@@ -241,9 +250,27 @@ namespace Gold
                         break;
 
                     case Command.Message:
+                        OnClientMessage(msgReceived.strMessage + "\r\n");
                         break;
 
                     case Command.privMessage:
+                        OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                        break;
+
+                    case Command.createChannel:
+                        OnClientCreateChannel(msgReceived.strMessage);
+                        break;
+
+                    case Command.joinChannel:
+                        OnClientJoinChannel(msgReceived.strMessage);
+                        break;
+
+                    case Command.exitChannel:
+                        OnClientExitChannel(msgReceived.strMessage);
+                        break;
+
+                    case Command.deleteChannel:
+                        OnClientDeleteChannel(msgReceived.strMessage);
                         break;
 
                     case Command.List:
@@ -251,12 +278,12 @@ namespace Gold
                         break;
                 }
                 // Procedure listening for server messages.
-                if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
-                    OnClientMessage(msgReceived.strMessage + "\r\n");
-                else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List && msgReceived.strMessage != null)
-                {
-                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
-                }
+                //if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
+                //    OnClientMessage(msgReceived.strMessage + "\r\n");
+                //else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List)
+                //{
+                //    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                //}
 
                 byteData = new byte[1024];
                 receiveDone.Set();
@@ -350,6 +377,27 @@ namespace Gold
         protected virtual void OnClientChangePass(string message)
         {
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
+        }
+        //channel todo
+        protected virtual void OnClientCreateChannel(string channelName)
+        {
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+        }
+        protected virtual void OnClientJoinChannel(string channelName)
+        {
+            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+        }
+        protected virtual void OnClientDeleteChannel(string channelName)
+        {
+            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+        }
+        protected virtual void OnClientExitChannel(string channelName)
+        {
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+        }
+        protected virtual void OnClientEditChannel(string channelName)
+        {
+            ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
         }
     }
 }

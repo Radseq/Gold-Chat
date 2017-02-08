@@ -50,6 +50,40 @@ namespace Gold
             // or use that EventHandler handler = (s, e) => MessageBox.Show("Woho"); then += handler; or -= handler;
             clientManager.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             clientManager.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            //channels
+            clientManager.ClientCreateChannel += OnClientCreateChannel;
+            clientManager.ClientDeleteChannel += OnClientDeleteChannel;
+            clientManager.ClientEditChannel += OnClientEditChannel;
+            clientManager.ClientJoinChannel += OnClientJoinChannel;
+            clientManager.ClientExitChannel += OnClientExitChannel;
+        }
+
+        private void OnClientJoinChannel(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                //todo
+            }));
+        }
+
+        private void OnClientExitChannel(object sender, ClientEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnClientEditChannel(object sender, ClientEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnClientDeleteChannel(object sender, ClientEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnClientCreateChannel(object sender, ClientEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void OnClientLogin(object sender, ClientEventArgs e)
@@ -220,7 +254,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
         private void create_room_buttom_Click(object sender, RoutedEventArgs e)
         {
-            tab_windows.p_create_room create_room = new tab_windows.p_create_room();
+            tab_windows.p_create_room create_room = new tab_windows.p_create_room(clientManager);
 
             var header = new TextBlock { Text = "Create Room" };
 
