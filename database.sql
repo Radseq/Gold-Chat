@@ -17,14 +17,14 @@ CREATE TABLE IF NOT EXISTS `user_friend` (
   `id_user` bigint(20) NOT NULL,
   `id_friend` bigint(20) NOT NULL,
   FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE,
-  FOREIGN KEY (id_friend) REFERENCES friend(id_friend) ON UPDATE CASCADE,
+  FOREIGN KEY (id_friend) REFERENCES users(id_user) ON UPDATE CASCADE,
   PRIMARY KEY (id_user_friend)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
+/*'
 CREATE TABLE IF NOT EXISTS `friend` (
   `id_friend` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (id_friend)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'*/
 
 /*''*/
 CREATE TABLE IF NOT EXISTS `message_archivum` (
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `admin_password` varchar(255) NOT NULL,
   `max_users` int(2) NOT NULL,
   `create_date` DATETIME NOT NULL,
-  `welcome_Message` varchar(255) NOT NULL,
+  `welcome_message` varchar(255) NOT NULL,
   FOREIGN KEY (id_user_founder) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE,
   PRIMARY KEY (id_channel)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;'*/

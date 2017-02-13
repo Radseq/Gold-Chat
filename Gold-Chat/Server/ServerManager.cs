@@ -38,11 +38,16 @@ namespace Server
         public event EventHandler<ClientEventArgs> ClientList;
         public event EventHandler<ClientEventArgs> ClientSendMessage;
         public event EventHandler<ClientEventArgs> ClientReceiMessage;
+        //channel
         public event EventHandler<ClientEventArgs> ClientCreateChannel;
         public event EventHandler<ClientEventArgs> ClientJoinChannel;
         public event EventHandler<ClientEventArgs> ClientDeleteChannel;
         public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
         public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
+        public event EventHandler<ClientEventArgs> ClientChannelMessage;
+        //friend
+        public event EventHandler<ClientEventArgs> ClientAddFriend;
+        public event EventHandler<ClientEventArgs> ClientDeleteFriend;
 
         //For Database
         //private string server;
@@ -452,6 +457,44 @@ namespace Server
             conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
             OnClientList(msgToSend.strMessage);
         }
+        /// <summary>
+        /// Sending to the user the list of channels whom access to
+        /// </summary>
+        /// <param name="conClient">User</param>
+        /// <param name="msgToSend">List of channels</param>
+        private void sendChannelList(Client conClient, ref Data msgToSend)
+        {
+            msgToSend.cmdCommand = Command.List;
+            msgToSend.strName = null;
+            msgToSend.strMessage = "Channel";
+
+            //select user channels
+            string Query = "SELECT c.channel_name FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND uc.id_user = @idUser";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@idUser", conClient.id);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int numberOfChannels = 0;
+
+            while (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
+            {
+                msgToSend.strMessage2 += mySqlReader.GetString(numberOfChannels) + "*";
+                numberOfChannels++;
+            }
+
+            mySqlReader.Close();
+            cn.Close();
+
+            byte[] message = msgToSend.ToByte();
+
+            //Send the name of the users in the chat room
+            conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
+            OnClientList(msgToSend.strMessage2);
+        }
 
         private void OnReceive(IAsyncResult ar)
         {
@@ -499,7 +542,14 @@ namespace Server
                         break;
 
                     case Command.Message: //Text of the message that we will broadcast to all users
-                        clientMessage(msgReceived, msgToSend);
+                        if (msgReceived.strMessage2 == null)
+                            clientMessage(msgReceived, msgToSend);
+                        else
+                        {
+                            msgToSend.strMessage = msgReceived.strName + ": " + msgReceived.strMessage;
+                            msgToSend.strMessage2 = msgReceived.strMessage2;
+                            OnClientChannelMessage(msgToSend.strMessage, msgReceived.strName + ": " + msgReceived.strMessage + " On:" + msgReceived.strMessage2);
+                        }
                         break;
 
                     case Command.privMessage:
@@ -523,7 +573,18 @@ namespace Server
                         break;
 
                     case Command.List:  //Send the names of all users in the chat room to the new user
-                        sendClientList(ref client, msgToSend);
+                        if (msgReceived.strMessage != "Channel")
+                            sendClientList(ref client, msgToSend);
+                        else
+                            sendChannelList(client, ref msgToSend);
+                        break;
+
+                    case Command.addFriend:
+                        AddFriend(client, msgReceived, msgToSend);
+                        break;
+
+                    case Command.deleteFriend:
+                        DeleteFriend(client, msgReceived, msgToSend);
                         break;
                 }
 
@@ -548,6 +609,95 @@ namespace Server
 
                 //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
+        }
+        //i think this fuction is to delete and create fun like ManagmentFriend and there make delete/add friend
+        //todo change msgsend as friend name and  msgsend2 as message
+        private void DeleteFriend(Client client, Data msgReceived, Data msgToSend)
+        {
+            string friendName = msgReceived.strMessage;
+            //string channelPass = msgReceived.strMessage2;
+
+            string Query = "SELECT id_user FROM users WHERE login = @FriendName";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@FriendName", friendName);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int friend_id = 0;
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                friend_id = mySqlReader.GetInt16(0);
+
+                mySqlReader.Close();
+
+                mySqlComm.CommandText = "DELETE FROM user_friend WHERE id_user = @idUser AND id_friend = @idFriend";
+
+                mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+                mySqlComm.Parameters.AddWithValue("@idFriend", friend_id);
+
+                if (mySqlComm.ExecuteNonQuery() > 0)
+                {
+                    msgToSend.strMessage = "Deleted" + friendName + " from your friend list";
+                }
+                else
+                {
+                    msgToSend.strMessage = "Cannot delete " + friendName + " contact with support";
+                }
+                OnClientDeleteFriend(client.strName, friendName);
+
+            }
+            else msgToSend.strMessage = "There is no friend that you want to delete.";
+
+            cn.Close();
+        }
+        //i think this fuction is to delete and create fun like ManagmentFriend and there make delete/add friend
+        //todo change msgsend as friend name and  msgsend2 as message
+        private void AddFriend(Client client, Data msgReceived, Data msgToSend)
+        {
+            string friendName = msgReceived.strMessage;
+            //string channelPass = msgReceived.strMessage2;
+
+            string Query = "SELECT id_user FROM users WHERE login = @FriendName";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@FriendName", friendName);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int friend_id = 0;
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                friend_id = mySqlReader.GetInt16(0);
+
+                mySqlReader.Close();
+
+                mySqlComm.CommandText = "INSERT INTO user_friend (id_user, id_friend) " +
+                       "VALUES (@idUser, @idFriend)";
+
+                mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+                mySqlComm.Parameters.AddWithValue("@idFriend", friend_id);
+
+                if (mySqlComm.ExecuteNonQuery() > 0)
+                {
+                    msgToSend.strMessage = "Added" + friendName + " to your friend list";
+                }
+                else
+                {
+                    msgToSend.strMessage = "cannot add " + friendName + " contact with support";
+                }
+                OnClientAddFriend(client.strName, friendName);
+
+            }
+            else msgToSend.strMessage = "There is no friend that you want to add.";
+
+            cn.Close();
         }
 
         private void channelDelete(Client client, Data msgReceived, ref Data msgToSend)
@@ -619,7 +769,7 @@ namespace Server
             {
                 id_channel_db = mySqlReader.GetInt16(0);
 
-                string DelQuery = "DELETE FROM user_channel WHERE id_user = @idUsed AND id_channel = @idChannel";
+                string DelQuery = "DELETE FROM user_channel WHERE id_user = @idUser AND id_channel = @idChannel";
                 MySqlCommand mySqlDelComm = new MySqlCommand(DelQuery, cn);
                 mySqlDelComm.Parameters.AddWithValue("@idUser", client.id);
                 mySqlDelComm.Parameters.AddWithValue("@idChannel", id_channel_db);
@@ -640,15 +790,13 @@ namespace Server
         ///todo test
         private void channelJoin(Client client, Data msgReceived, ref Data msgToSend)
         {
-            int clientId = client.id;
             string channelName = msgReceived.strMessage;
             string channelPass = msgReceived.strMessage2;
 
-            string Query = "SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @channelName AND enter_password = @enterPassword ;";
+            string Query = "SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @ChannelName";
 
             MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
-            mySqlComm.Parameters.AddWithValue("@channelName", channelName);
-            mySqlComm.Parameters.AddWithValue("@enterPassword", channelPass);
+            mySqlComm.Parameters.AddWithValue("@ChannelName", channelName);
             cn.Open();
 
             MySqlDataReader mySqlReader = null;
@@ -666,8 +814,12 @@ namespace Server
 
                 mySqlReader.Close();
 
-                if (channelPass != enterPassword)
-                    msgToSend.strMessage = "Wrong Password";
+                msgToSend.strMessage = channelName;
+
+                if (enterPassword != "")
+                    msgToSend.strMessage2 = "Send Password";
+                else if (channelPass != enterPassword)
+                    msgToSend.strMessage2 = "Wrong Password";
                 else
                 {
                     mySqlComm.CommandText = "INSERT INTO user_channel (id_user, id_channel, join_date) " +
@@ -683,16 +835,17 @@ namespace Server
                     if (mySqlComm.ExecuteNonQuery() > 0)
                     {
                         //all is correct so user can join to channel
-                        if (msgToSend.strMessage == null)
-                            msgToSend.strMessage = "You are joined to channel + channelName +.";// this will not send when user create and join channel
+                        //if (msgToSend.strMessage == null)
                         msgToSend.strMessage2 = welcomeMsg;
+                        //msgToSend.strMessage = "You are joined to channel + channelName +.";// this will not send when user create and join channel
+
                         //there should be message to channel that new user is joined
                     }
                     else
                     {
-                        msgToSend.strMessage2 = "cannot join to " + channelName + " with unknown reason.";
+                        msgToSend.strMessage = "cannot join to " + channelName + " with unknown reason.";
                     }
-                    OnClientJoinChannel(channelName, msgReceived.strName);
+                    OnClientJoinChannel(channelName, client.strName);
                 }
             }
             else msgToSend.strMessage = "There is no channel that you want to join.";
@@ -755,12 +908,16 @@ namespace Server
                 {
                     msgToSend.strMessage = "You are create channel (" + roomName + ")";
                     cn.Close(); //is must be close, because join have open, makes problem at last line of this fuction
+                                //so user create channel, send to him message and join to channel
+                    byte[] message = msgToSend.ToByte();
+                    client.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), client.cSocket);
+
                     channelJoin(client, msgReceived, ref msgToSend); //after user create channel we want to make him join
                 }
                 else
                     msgToSend.strMessage = "Channel NOT created with unknown reason.";
 
-                OnClientCreateChannel(roomName);
+                OnClientCreateChannel(roomName, client.strName);
             }
 
             cn.Close();
@@ -842,9 +999,10 @@ namespace Server
         {
             ClientReceiMessage?.Invoke(this, new ClientEventArgs() { clientCommand = command, clientName = cName, clientMessageReciv = cMessage, clientFriendName = cFriendName });// tu jeszcze nie wiem
         }
-        protected virtual void OnClientCreateChannel(string channelName)
+        //channel
+        protected virtual void OnClientCreateChannel(string channelName, string userName)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
         }
         protected virtual void OnClientJoinChannel(string channelName, string userName)
         {
@@ -861,6 +1019,19 @@ namespace Server
         protected virtual void OnClientEditChannel(string channelName, string userName)
         {
             ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientNameChannel = userName });
+        }
+        protected virtual void OnClientChannelMessage(string cMessageToSend, string cMessageRecev)
+        {
+            ClientChannelMessage?.Invoke(this, new ClientEventArgs() { clientMessageToSend = cMessageToSend, clientMessageReciv = cMessageRecev });
+        }
+        //friend
+        protected virtual void OnClientAddFriend(string ClientName, string ClientFriendName)
+        {
+            ClientAddFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientDeleteFriend(string ClientName, string ClientFriendName)
+        {
+            ClientDeleteFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
         }
 
         private void OnEmaiSended(object source, EmailSenderEventArgs args)

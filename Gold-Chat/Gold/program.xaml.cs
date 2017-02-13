@@ -27,6 +27,7 @@ namespace Gold
         private byte[] byteData = new byte[1024];
 
         ArrayList clientList = new ArrayList();
+        ArrayList clientChannelsList = new ArrayList();
 
         public static private_message pm; //private message window
 
@@ -56,34 +57,69 @@ namespace Gold
             clientManager.ClientEditChannel += OnClientEditChannel;
             clientManager.ClientJoinChannel += OnClientJoinChannel;
             clientManager.ClientExitChannel += OnClientExitChannel;
+            clientManager.ClientListChannel += OnClientListChannel;
         }
 
+        private void OnClientListChannel(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientChannelsList.AddRange(e.clientListChannelsMessage.Split('*'));
+                lbLobbies.ItemsSource = clientChannelsList;
+                lbLobbies.Items.Refresh();
+            }));
+        }
+
+        //i should do this in lambda but i may use another thinks
         private void OnClientJoinChannel(object sender, ClientEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                //todo
+                if (e.clientChannelMsg2 == "Send Password")
+                {
+                    serverAsk sa = new serverAsk();
+
+                    //todo send channel password to server, because server ask for
+                }
+                else
+                {
+                    //send pass to join
+                    MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(e.clientChannelMsg2, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }));
         }
 
         private void OnClientExitChannel(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }));
         }
 
         private void OnClientEditChannel(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }));
         }
 
         private void OnClientDeleteChannel(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }));
         }
 
         private void OnClientCreateChannel(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }));
         }
 
         private void OnClientLogin(object sender, ClientEventArgs e)
@@ -136,10 +172,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 clientList.AddRange(e.clientListMessage.Split('*'));
-                clientList.RemoveAt(clientList.Count - 1);
+                clientList.RemoveAt(clientList.Count - 1); //We dont want to see as name on list of users
                 lb_users.ItemsSource = clientList;
-
-                //txtChatBox.Text += "<<<" + strName + " has joined the room>>>\r\n";
             }));
         }
 
@@ -380,6 +414,16 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             byteData = msgToSend.ToByte();
 
             clientManager.BeginSend(byteData);
+
+            //the names of all channels that he have acces to
+            Data msgToSendChannel = new Data();
+            msgToSendChannel.cmdCommand = Command.List;
+            msgToSendChannel.strName = strName;
+            msgToSendChannel.strMessage = "Channel";
+
+            byteData = msgToSendChannel.ToByte();
+
+            clientManager.BeginSend(byteData);
         }
 
         #region Functions
@@ -469,6 +513,59 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             {
                 //delete friend
             }
+        }
+
+        private void EnterToLobbie(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage))
+            {
+                //delete friend
+            }
+        }
+        private void ExitFromLobbie(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage))
+            {
+                //delete friend
+            }
+        }
+        private void DeleteLobbie(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(strMessage))
+            {
+                //delete friend
+            }
+        }
+
+        private void lbLobbies_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            string strMessage = lbLobbies.SelectedItem.ToString();
+
+
+            Data msgToSend = new Data();
+
+            msgToSend.strName = clientManager.userName; //channel admin
+            msgToSend.strMessage = strMessage;
+            //msgToSend.strMessage2 = clientManager.CalculateChecksum(enterPass.Password); // haslo
+            msgToSend.cmdCommand = Command.joinChannel;
+
+            byte[] byteData = msgToSend.ToByte();
+            clientManager.BeginSend(byteData);
+
+            //to poniezej w evencie gdy odbierze sie skomunikat od servera
+            tab_windows.channelWindow channelPanel = new tab_windows.channelWindow(clientManager, strMessage);
+
+            var header = new TextBlock { Text = strMessage };
+            // Create the tab
+            var tab = new CloseableTabItem();
+            tab.SetHeader(header);
+            tab.Content = channelPanel;
+
+            // Add to TabControl
+            tc.Items.Add(tab);
         }
     }
 }

@@ -75,7 +75,13 @@
     <Compile Include="p_log.xaml.cs" />
     <Compile Include="p_reg.xaml.cs" />
     <Compile Include="register_code.xaml.cs" />
+    <Compile Include="serverAsk.xaml.cs">
+      <DependentUpon>serverAsk.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TabCloseButton.xaml.cs" />
+    <Compile Include="tab_windows\channelWindow.xaml.cs">
+      <DependentUpon>channelWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="tab_windows\p_abouse.xaml.cs" />
     <Compile Include="tab_windows\p_adm.xaml.cs" />
     <Compile Include="tab_windows\p_archive.xaml.cs" />
@@ -153,9 +159,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="serverAsk.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TabCloseButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="tab_windows\channelWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="tab_windows\p_abouse.xaml">
       <Generator>MSBuild:Compile</Generator>

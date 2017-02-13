@@ -145,7 +145,28 @@
 							<Grid></Grid>
 						</Expander>
 						<Expander Header="Lobbies" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
-							<Grid></Grid>
+							<ListBox x:Name="lbLobbies" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="lbLobbies_PreviewMouseLeftButtonDown">
+								<ListBox.Resources>
+									<Style x:Key="LobbiesItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="EnterToLobbie"/>
+										<EventSetter Event="Click" Handler="ExitFromLobbie"/>
+										<EventSetter Event="Click" Handler="DeleteLobbie"/>
+									</Style>
+								</ListBox.Resources>
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem">
+										<Setter Property="ContextMenu">
+											<Setter.Value>
+												<ContextMenu>
+													<MenuItem Header="Enter" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
+													<MenuItem Header="Exit" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
+													<MenuItem Header="Delete" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
+												</ContextMenu>
+											</Setter.Value>
+										</Setter>
+									</Style>
+								</ListBox.ItemContainerStyle>
+							</ListBox>
 						</Expander>
 					</StackPanel>
 				</Canvas>

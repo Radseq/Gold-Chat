@@ -1,7 +1,6 @@
 ﻿using CommandClient;
 using System;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
@@ -32,8 +31,12 @@ namespace Gold
         public string clientPingMessage { get; set; }
         public string clientChangePassMessage { get; set; }
         //for channel
-        public string clientChannelName { get; set; }
-        //public string clientNameChannel { get; set; } //client name with joined to chanel
+        public string clientChannelMsg { get; set; }
+        public string clientChannelMsg2 { get; set; }
+        public string clientListChannelsMessage { get; set; }
+        public string clientChannelMessage { get; set; }
+
+        public string clientName { get; set; } //for friend or i should use clientLoginName
     }
 
     public class ClientManager
@@ -61,6 +64,12 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientDeleteChannel;
         public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
         public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
+        public event EventHandler<ClientEventArgs> ClientListChannel;
+        public event EventHandler<ClientEventArgs> ClientChannelMessage;
+
+        //friend
+        public event EventHandler<ClientEventArgs> ClientAddFriend;
+        public event EventHandler<ClientEventArgs> ClientDeleteFriend;
 
         Socket socket;
         //object msgS;
@@ -101,22 +110,22 @@ namespace Gold
             //messageTimer.Start();
         }
 
-        private void pingServer(object sender, EventArgs e)
-        {
-            Ping pinger = new Ping();
-            try
-            {
-                PingReply reply = pinger.Send("127.0.0.1");
-                if (reply.Status == IPStatus.Success)
-                    OnClientPing((int)reply.RoundtripTime, "Server Online");
-                OnClientPing(0, "Server Offline");
+        //private void pingServer(object sender, EventArgs e)
+        //{
+        //    Ping pinger = new Ping();
+        //    try
+        //    {
+        //        PingReply reply = pinger.Send("127.0.0.1");
+        //        if (reply.Status == IPStatus.Success)
+        //            OnClientPing((int)reply.RoundtripTime, "Server Online");
+        //        OnClientPing(0, "Server Offline");
 
-            }
-            catch (PingException)
-            {
-                // Discard PingExceptions and return false;
-            }
-        }
+        //    }
+        //    catch (PingException)
+        //    {
+        //        // Discard PingExceptions and return false;
+        //    }
+        //}
 
         public void BeginConnect(/*string name, string password*/)
         {
@@ -250,7 +259,10 @@ namespace Gold
                         break;
 
                     case Command.Message:
-                        OnClientMessage(msgReceived.strMessage + "\r\n");
+                        if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
+                            OnClientMessage(msgReceived.strMessage + "\r\n");
+                        else
+                            OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
                         break;
 
                     case Command.privMessage:
@@ -262,7 +274,7 @@ namespace Gold
                         break;
 
                     case Command.joinChannel:
-                        OnClientJoinChannel(msgReceived.strMessage);
+                        OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
                     case Command.exitChannel:
@@ -274,7 +286,17 @@ namespace Gold
                         break;
 
                     case Command.List:
-                        OnClientList(msgReceived.strMessage);
+                        if (msgReceived.strMessage == "Channel" && msgReceived.strMessage2 != null) //if channel and msg is not empty (there is channels names)
+                            OnClientChannelList(msgReceived.strMessage2);
+                        else
+                            OnClientList(msgReceived.strMessage);
+                        break;
+                    case Command.addFriend:
+                        OnClientAddFriend(msgReceived.strName, msgReceived.strMessage);
+                        break;
+
+                    case Command.deleteFriend:
+                        OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage);
                         break;
                 }
                 // Procedure listening for server messages.
@@ -379,25 +401,42 @@ namespace Gold
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
         //channel todo
-        protected virtual void OnClientCreateChannel(string channelName)
+        protected virtual void OnClientCreateChannel(string channelMsg)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
         }
-        protected virtual void OnClientJoinChannel(string channelName)
+        protected virtual void OnClientJoinChannel(string channelMsg, string channelMsg2)
         {
-            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = channelMsg2 });
         }
-        protected virtual void OnClientDeleteChannel(string channelName)
+        protected virtual void OnClientDeleteChannel(string channelMsg)
         {
-            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
         }
-        protected virtual void OnClientExitChannel(string channelName)
+        protected virtual void OnClientExitChannel(string channelMsg)
         {
-            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
         }
-        protected virtual void OnClientEditChannel(string channelName)
+        protected virtual void OnClientEditChannel(string channelMsg)
         {
-            ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName });
+            ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+        }
+        protected virtual void OnClientChannelList(string channelNames)
+        {
+            ClientListChannel?.Invoke(this, new ClientEventArgs() { clientListChannelsMessage = channelNames });
+        }
+        protected virtual void OnClientChannelMessage(string channelMessage)
+        {
+            ClientChannelMessage?.Invoke(this, new ClientEventArgs() { clientChannelMessage = channelMessage });
+        }
+        //friend
+        protected virtual void OnClientAddFriend(string ClientName, string ClientFriendName)
+        {
+            ClientAddFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientDeleteFriend(string ClientName, string ClientFriendName)
+        {
+            ClientDeleteFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
         }
     }
 }

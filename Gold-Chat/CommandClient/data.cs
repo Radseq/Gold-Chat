@@ -23,6 +23,9 @@ namespace CommandClient
         exitChannel,
         deleteChannel,
         editChannel,
+
+        addFriend,
+        deleteFriend,
         //listChannels, //maybe i can use List 
 
         Null            //No command
