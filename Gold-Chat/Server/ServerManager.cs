@@ -496,6 +496,40 @@ namespace Server
             OnClientList(msgToSend.strMessage2);
         }
 
+        private void sendFriendList(Client conClient, ref Data msgToSend)
+        {
+            msgToSend.cmdCommand = Command.List;
+            msgToSend.strName = null;
+            msgToSend.strMessage = "Friends";
+
+            //select user channels
+            string Query = "SELECT u.login FROM users u, user_friend uf WHERE uf.id_friend = u.id_user AND uf.id_user = @idUser";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@idUser", conClient.id);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int numberOfFriends = 0;
+
+            while (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
+            {
+                msgToSend.strMessage2 += mySqlReader.GetString(numberOfFriends) + "*";
+                numberOfFriends++;
+            }
+
+            mySqlReader.Close();
+            cn.Close();
+
+            byte[] message = msgToSend.ToByte();
+
+            //Send the name of the users in the chat room
+            conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
+            OnClientList(msgToSend.strMessage2);
+        }
+
         private void OnReceive(IAsyncResult ar)
         {
             // Retrieve the client and the handler socket  
@@ -523,22 +557,27 @@ namespace Server
                         clientLogin(ref client, msgReceived, ref msgToSend);
                         byte[] message = msgToSend.ToByte();
                         SendMessageLogin(ref client, message);
+                        SendMessageToAll(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.Reg:
                         clientRegistration(msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.changePassword:
                         chnageUserPassword(client, msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.ReSendEmail:
                         clientReSendActivCode(msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.Logout:
                         clientLogout(ref client, msgToSend);
+                        SendMessageToAll(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.Message: //Text of the message that we will broadcast to all users
@@ -550,48 +589,52 @@ namespace Server
                             msgToSend.strMessage2 = msgReceived.strMessage2;
                             OnClientChannelMessage(msgToSend.strMessage, msgReceived.strName + ": " + msgReceived.strMessage + " On:" + msgReceived.strMessage2);
                         }
+                        SendMessageToAll(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.privMessage:
-                        SendMessage(ref client, msgReceived, msgToSend, true);
+                        SendMessageToSomeone(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.createChannel:
                         channelCreate(client, msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.joinChannel:
                         channelJoin(client, msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.exitChannel:
                         channelExit(client, msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.deleteChannel:
                         channelDelete(client, msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.List:  //Send the names of all users in the chat room to the new user
-                        if (msgReceived.strMessage != "Channel")
-                            sendClientList(ref client, msgToSend);
-                        else
+                        if (msgReceived.strMessage == "Channel")
                             sendChannelList(client, ref msgToSend);
+                        else if (msgReceived.strMessage == "Friends")
+                            sendFriendList(client, ref msgToSend);
+                        else
+                            sendClientList(ref client, msgToSend);
                         break;
 
-                    case Command.addFriend:
-                        AddFriend(client, msgReceived, msgToSend);
-                        break;
-
-                    case Command.deleteFriend:
-                        DeleteFriend(client, msgReceived, msgToSend);
+                    case Command.manageFriend:
+                        ManageUserFriend(client, msgReceived, msgToSend);
+                        //SendServerRespond(ref client, msgReceived, msgToSend);
                         break;
                 }
 
-                if (msgToSend.cmdCommand != Command.List && msgToSend.cmdCommand != Command.privMessage) //List messages are not broadcasted
-                {
-                    SendMessage(ref client, msgReceived, msgToSend);
-                }
+                //if (msgToSend.cmdCommand != Command.List && msgToSend.cmdCommand != Command.privMessage) //List messages are not broadcasted
+                // {
+                //    SendMessageToAll(ref client, msgReceived, msgToSend);
+                //}
 
                 ReceivedMessage(ref client, msgReceived, byteData);
             }
@@ -605,61 +648,55 @@ namespace Server
                 Console.WriteLine(exMessage);
                 servLogger.msgLog(exMessage);
 
-                SendMessage(ref client, null, msgToSend);
+                SendMessageToAll(ref client, null, msgToSend);
 
                 //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
         }
-        //i think this fuction is to delete and create fun like ManagmentFriend and there make delete/add friend
-        //todo change msgsend as friend name and  msgsend2 as message
-        private void DeleteFriend(Client client, Data msgReceived, Data msgToSend)
+        //used in ManageUserFriend function
+        private bool AddFriendToDb(MySqlConnection cn, int clientId, int friendId)
         {
-            string friendName = msgReceived.strMessage;
-            //string channelPass = msgReceived.strMessage2;
-
-            string Query = "SELECT id_user FROM users WHERE login = @FriendName";
+            string Query = "INSERT INTO user_friend (id_user, id_friend) " +
+                           "VALUES (@idUser, @idFriend)";
 
             MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
-            mySqlComm.Parameters.AddWithValue("@FriendName", friendName);
-            cn.Open();
 
-            MySqlDataReader mySqlReader = null;
-            mySqlReader = mySqlComm.ExecuteReader();
+            mySqlComm.Parameters.AddWithValue("@idUser", clientId);
+            mySqlComm.Parameters.AddWithValue("@idFriend", friendId);
 
-            int friend_id = 0;
-
-            if (mySqlReader.Read()) //Expecting only one line
+            if (mySqlComm.ExecuteNonQuery() > 0)
             {
-                friend_id = mySqlReader.GetInt16(0);
-
-                mySqlReader.Close();
-
-                mySqlComm.CommandText = "DELETE FROM user_friend WHERE id_user = @idUser AND id_friend = @idFriend";
-
-                mySqlComm.Parameters.AddWithValue("@idUser", client.id);
-                mySqlComm.Parameters.AddWithValue("@idFriend", friend_id);
-
-                if (mySqlComm.ExecuteNonQuery() > 0)
-                {
-                    msgToSend.strMessage = "Deleted" + friendName + " from your friend list";
-                }
-                else
-                {
-                    msgToSend.strMessage = "Cannot delete " + friendName + " contact with support";
-                }
-                OnClientDeleteFriend(client.strName, friendName);
-
+                return true;
             }
-            else msgToSend.strMessage = "There is no friend that you want to delete.";
-
-            cn.Close();
+            else
+            {
+                return false;
+            }
         }
-        //i think this fuction is to delete and create fun like ManagmentFriend and there make delete/add friend
-        //todo change msgsend as friend name and  msgsend2 as message
-        private void AddFriend(Client client, Data msgReceived, Data msgToSend)
+        //used in ManageUserFriend function
+        private bool DeleteFriendToDb(MySqlConnection cn, int clientId, int friendId)
         {
-            string friendName = msgReceived.strMessage;
-            //string channelPass = msgReceived.strMessage2;
+            string Query = "DELETE FROM user_friend WHERE id_user = @idUser AND id_friend = @idFriend";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+
+            mySqlComm.Parameters.AddWithValue("@idUser", clientId);
+            mySqlComm.Parameters.AddWithValue("@idFriend", friendId);
+
+            if (mySqlComm.ExecuteNonQuery() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void ManageUserFriend(Client client, Data msgReceived, Data msgToSend)
+        {
+            string type = msgReceived.strMessage;
+            string friendName = msgReceived.strMessage2;
 
             string Query = "SELECT id_user FROM users WHERE login = @FriendName";
 
@@ -678,22 +715,51 @@ namespace Server
 
                 mySqlReader.Close();
 
-                mySqlComm.CommandText = "INSERT INTO user_friend (id_user, id_friend) " +
-                       "VALUES (@idUser, @idFriend)";
-
-                mySqlComm.Parameters.AddWithValue("@idUser", client.id);
-                mySqlComm.Parameters.AddWithValue("@idFriend", friend_id);
-
-                if (mySqlComm.ExecuteNonQuery() > 0)
+                if (type == "Yes")
                 {
-                    msgToSend.strMessage = "Added" + friendName + " to your friend list";
+                    bool InserClientToDb = AddFriendToDb(cn, client.id, friend_id); //client add friend in db
+                    bool InserFriendToDb = AddFriendToDb(cn, friend_id, client.id); //friend add client in db
+                    //respond to client
+                    if (InserClientToDb && InserFriendToDb)
+                    {
+                        OnClientAddFriend(client.strName, friendName);
+                        msgToSend.strMessage = "Yes";
+                        msgToSend.strMessage2 = friendName;
+                        SendMessageToSomeone(ref client, msgReceived, msgToSend);
+                    }
+                    else
+                    {
+                        msgToSend.strMessage = "No";
+                        msgToSend.strMessage2 = friendName;
+                    }
                 }
-                else
+                else if (type == "Delete")
                 {
-                    msgToSend.strMessage = "cannot add " + friendName + " contact with support";
-                }
-                OnClientAddFriend(client.strName, friendName);
+                    bool userDeleteFriend = DeleteFriendToDb(cn, client.id, friend_id);
+                    bool friendDeleteUser = DeleteFriendToDb(cn, friend_id, client.id);
+                    if (userDeleteFriend && friendDeleteUser)
+                    {
+                        // so user delete friend, friend delete user
+                        //need to send to user and friend list of friends
+                    }
 
+
+                    OnClientDeleteFriend(client.strName, friendName);
+                    //todo in client side if receive delete then delete from friend list in user and friend friend_list
+                }
+                else if (type == "Add")
+                {
+                    //send to friend thats he want to be friend
+                    msgToSend.strMessage2 = friendName;
+                    SendMessageToNick(ref client, msgReceived, msgToSend);
+                }
+                else if (type == "No")
+                {
+                    //friend type no he dont want be as friend
+                    msgToSend.strMessage = "No";
+                    msgToSend.strMessage2 = friendName;
+                    SendMessageToSomeone(ref client, msgReceived, msgToSend);
+                }
             }
             else msgToSend.strMessage = "There is no friend that you want to add.";
 
@@ -793,7 +859,7 @@ namespace Server
             string channelName = msgReceived.strMessage;
             string channelPass = msgReceived.strMessage2;
 
-            string Query = "SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @ChannelName";
+            string Query = "SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @ChannelName;";
 
             MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
             mySqlComm.Parameters.AddWithValue("@ChannelName", channelName);
@@ -928,14 +994,13 @@ namespace Server
             conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
         }
 
-        private void SendMessage(ref Client conClient, Data msgReceived, Data msgToSend, bool isPrivateMessage = false)
+        private void SendMessageToAll(ref Client conClient, Data msgReceived, Data msgToSend)
         {
             byte[] message = msgToSend.ToByte();
 
             foreach (Client cInfo in clientList)
             {
-                if (isPrivateMessage ? (cInfo.strName == msgReceived.strMessage2 || msgReceived.strName == cInfo.strName)
-                    : (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login))
+                if (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login)
                 {
                     //Send the message to all users, if private message send to sender and friend
                     if (msgToSend.strMessage == "You are succesfully Log in") //if we got msg from other users thats they login as user (conClient) will see this msg below
@@ -946,8 +1011,46 @@ namespace Server
                     cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
                 }
             }
-            if (isPrivateMessage == false)
-                OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
+
+            OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
+        }
+        //send msg to cient and client target
+        private void SendMessageToSomeone(ref Client conClient, Data msgReceived, Data msgToSend)
+        {
+            byte[] message = msgToSend.ToByte();
+
+            foreach (Client cInfo in clientList)
+            {
+                if (cInfo.strName == msgReceived.strMessage2 || msgReceived.strName == cInfo.strName)
+                {
+                    if (msgToSend.strMessage == "You are succesfully Log in") //if we got msg from other users thats they login as user (conClient) will see this msg below
+                    {
+                        msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
+                        message = msgToSend.ToByte();
+                    }
+                    cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
+                }
+            }
+        }
+
+        private void SendMessageToNick(ref Client conClient, Data msgReceived, Data msgToSend)
+        {
+            byte[] message = msgToSend.ToByte();
+
+            foreach (Client cInfo in clientList)
+            {
+                if (cInfo.strName == msgReceived.strMessage2)
+                {
+                    cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
+                }
+            }
+        }
+
+        private void SendServerRespond(ref Client conClient, Data msgReceived, Data msgToSend)
+        {
+            byte[] message = msgToSend.ToByte();
+
+            conClient.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), conClient.cSocket);
         }
 
         private void ReceivedMessage(ref Client conClient, Data msgReceived, byte[] byteData)

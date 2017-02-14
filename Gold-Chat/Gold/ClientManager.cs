@@ -37,6 +37,8 @@ namespace Gold
         public string clientChannelMessage { get; set; }
 
         public string clientName { get; set; } //for friend or i should use clientLoginName
+        //friends
+        public string clientListFriendsMessage { get; set; }
     }
 
     public class ClientManager
@@ -69,7 +71,9 @@ namespace Gold
 
         //friend
         public event EventHandler<ClientEventArgs> ClientAddFriend;
+        public event EventHandler<ClientEventArgs> ClientAcceptFriend;
         public event EventHandler<ClientEventArgs> ClientDeleteFriend;
+        public event EventHandler<ClientEventArgs> ClientListFriends;
 
         Socket socket;
         //object msgS;
@@ -288,15 +292,16 @@ namespace Gold
                     case Command.List:
                         if (msgReceived.strMessage == "Channel" && msgReceived.strMessage2 != null) //if channel and msg is not empty (there is channels names)
                             OnClientChannelList(msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Friends" && msgReceived.strMessage2 != null)
+                            OnClientFriendsList(msgReceived.strMessage2);
                         else
                             OnClientList(msgReceived.strMessage);
                         break;
-                    case Command.addFriend:
-                        OnClientAddFriend(msgReceived.strName, msgReceived.strMessage);
-                        break;
-
-                    case Command.deleteFriend:
-                        OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage);
+                    case Command.manageFriend:
+                        if (msgReceived.strMessage == "Add")
+                            OnClientAddFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Yes")
+                            OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
                         break;
                 }
                 // Procedure listening for server messages.
@@ -434,9 +439,17 @@ namespace Gold
         {
             ClientAddFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
         }
+        protected virtual void OnClientAcceptFriend(string ClientName, string ClientFriendName)
+        {
+            ClientAcceptFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
         protected virtual void OnClientDeleteFriend(string ClientName, string ClientFriendName)
         {
             ClientDeleteFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientFriendsList(string friendNames)
+        {
+            ClientListFriends?.Invoke(this, new ClientEventArgs() { clientListFriendsMessage = friendNames });
         }
     }
 }

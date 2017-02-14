@@ -28,6 +28,7 @@ namespace Gold
 
         ArrayList clientList = new ArrayList();
         ArrayList clientChannelsList = new ArrayList();
+        ArrayList clientFriendsList = new ArrayList();
 
         public static private_message pm; //private message window
 
@@ -58,6 +59,58 @@ namespace Gold
             clientManager.ClientJoinChannel += OnClientJoinChannel;
             clientManager.ClientExitChannel += OnClientExitChannel;
             clientManager.ClientListChannel += OnClientListChannel;
+            clientManager.ClientAddFriend += OnClientAddFriend;
+            clientManager.ClientAcceptFriend += OnClientAcceptFriend;
+            clientManager.ClientListFriends += OnClientListFriends;
+        }
+
+        private void OnClientListFriends(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientFriendsList.AddRange(e.clientListFriendsMessage.Split('*'));
+                lb_friend_users.ItemsSource = clientFriendsList;
+                lb_friend_users.Items.Refresh();
+            }));
+        }
+
+        private void OnClientAcceptFriend(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show("You are now friend with: " + e.clientFriendName, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void OnClientAddFriend(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                MessageBoxResult result = MessageBox.Show("User: " + e.clientName + " want to be your friend Accept?", "Gold Chat", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No)
+                {
+                    Data msgToSend = new Data();
+
+                    msgToSend.strName = strName;
+                    msgToSend.strMessage = "No";
+                    msgToSend.strMessage2 = e.clientName;
+                    msgToSend.cmdCommand = Command.manageFriend;
+
+                    byte[] byteData = msgToSend.ToByte();
+
+                    clientManager.BeginSend(byteData);
+                }
+                else
+                {
+                    Data msgToSend = new Data();
+
+                    msgToSend.strName = strName;
+                    msgToSend.strMessage = "Yes";
+                    msgToSend.strMessage2 = e.clientName;
+                    msgToSend.cmdCommand = Command.manageFriend;
+
+                    byte[] byteData = msgToSend.ToByte();
+
+                    clientManager.BeginSend(byteData);
+                }
+            }));
         }
 
         private void OnClientListChannel(object sender, ClientEventArgs e)
@@ -172,7 +225,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 clientList.AddRange(e.clientListMessage.Split('*'));
-                clientList.RemoveAt(clientList.Count - 1); //We dont want to see as name on list of users
+                clientList.RemoveAt(clientList.Count - 1);
                 lb_users.ItemsSource = clientList;
             }));
         }
@@ -424,6 +477,16 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             byteData = msgToSendChannel.ToByte();
 
             clientManager.BeginSend(byteData);
+
+            //the names of all users that he have in friend list
+            Data msgToSendFriends = new Data();
+            msgToSendFriends.cmdCommand = Command.List;
+            msgToSendFriends.strName = strName;
+            msgToSendFriends.strMessage = "Friends";
+
+            byteData = msgToSendChannel.ToByte();
+
+            clientManager.BeginSend(byteData);
         }
 
         #region Functions
@@ -489,10 +552,19 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
         private void AddFriendItem(object sender, RoutedEventArgs e)
         {
-            string strMessage = lb_users.SelectedItem.ToString();
-            if (clientList.Contains(strMessage) && lb_users.SelectedItem.ToString() != App.clientName)
+            string friendName = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(friendName) && lb_users.SelectedItem.ToString() != App.clientName)
             {
                 //there is send information to server that i add someone to friend list
+                Data msgToSend = new Data();
+
+                msgToSend.strName = clientManager.userName; //channel admin
+                msgToSend.strMessage = "Add";
+                msgToSend.strMessage2 = friendName;
+                msgToSend.cmdCommand = Command.manageFriend;
+
+                byte[] byteData = msgToSend.ToByte();
+                clientManager.BeginSend(byteData);
             }
         }
 
