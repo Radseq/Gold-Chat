@@ -6,8 +6,6 @@ namespace Gold
     public partial class App : Application
     {
         public static string clientName;
-        //public static Socket clientSocket;
-        // public static ClientManager clientManager;
         static ClientManager cm = new ClientManager();
 
         /* to use main method like this we need to right click App.xaml and enter to properties select Build Action and check Page

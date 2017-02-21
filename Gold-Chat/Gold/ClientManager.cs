@@ -35,6 +35,7 @@ namespace Gold
         public string clientChannelMsg2 { get; set; }
         public string clientListChannelsMessage { get; set; }
         public string clientChannelMessage { get; set; }
+        public string clientChannelName { get; set; }
 
         public string clientName { get; set; } //for friend or i should use clientLoginName
         //friends
@@ -67,7 +68,10 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
         public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
         public event EventHandler<ClientEventArgs> ClientListChannel;
+        public event EventHandler<ClientEventArgs> ClientListChannelJoined;
         public event EventHandler<ClientEventArgs> ClientChannelMessage;
+        public event EventHandler<ClientEventArgs> ClientChannelEnter;
+        public event EventHandler<ClientEventArgs> ClientChannelLeave;
 
         //friend
         public event EventHandler<ClientEventArgs> ClientAddFriend;
@@ -83,6 +87,8 @@ namespace Gold
         //private System.Timers.Timer pingTimer;
         //private System.Timers.Timer messageTimer;
 
+        bool serverError = false;
+
         public const int PORT = 5000;
         public const string SERVER = "::1";
 
@@ -96,6 +102,8 @@ namespace Gold
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
+
+        public bool IsUserLogout { get; set; }
 
         public ClientManager()
         {
@@ -140,7 +148,7 @@ namespace Gold
             bool part2 = (socket.Available == 0);
             if ((part1 && part2) || !socket.Connected)
             {
-                //BeginConnect();
+                IsUserLogout = false;
                 socket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
                 connectDone.WaitOne();
             }
@@ -182,10 +190,9 @@ namespace Gold
         public void LogoutSend(byte[] byteData)
         {
             socket.Send(byteData, 0, byteData.Length, SocketFlags.None);
-            receiveDone.WaitOne();//must be, case we must wait till receive ends
             // Release the socket.
-            //socket.Shutdown(SocketShutdown.Both);
-            //socket.Close();
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         public void BeginReceive()
@@ -227,6 +234,9 @@ namespace Gold
 
         private void OnReceive(IAsyncResult ar)
         {
+            if (IsUserLogout == true || serverError == true)
+                return;
+
             try
             {
                 //var so = (StateObject)ar.AsyncState;
@@ -240,10 +250,11 @@ namespace Gold
                 switch (msgReceived.cmdCommand)
                 {
                     case Command.Login:
-                        //if (msgReceived.strName == userName)
-                        OnClientLogin(msgReceived.strMessage, msgReceived.strName);
                         if (msgReceived.strName == userName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
                             OnClientSuccesLogin(true, socket);
+                        else if (msgReceived.strMessage == null)
+                            serverError = true;
+                        else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                         break;
 
                     case Command.Reg:
@@ -294,6 +305,8 @@ namespace Gold
                             OnClientChannelList(msgReceived.strMessage2);
                         else if (msgReceived.strMessage == "Friends" && msgReceived.strMessage2 != null)
                             OnClientFriendsList(msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "ChannelsJoined")
+                            OnClientChannelJoinedList(msgReceived.strMessage2);
                         else
                             OnClientList(msgReceived.strMessage);
                         break;
@@ -302,6 +315,15 @@ namespace Gold
                             OnClientAddFriend(msgReceived.strName, msgReceived.strMessage2);
                         else if (msgReceived.strMessage == "Yes")
                             OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Delete")
+                            OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage2);
+                        break;
+                    case Command.enterChannel:
+                        OnClientEnterChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strName);
+                        //You must first join to channel if you want to enter.
+                        break;
+                    case Command.leaveChannel:
+                        OnClientLeaveChannel(msgReceived.strName, msgReceived.strMessage);
                         break;
                 }
                 // Procedure listening for server messages.
@@ -314,8 +336,8 @@ namespace Gold
 
                 byteData = new byte[1024];
                 receiveDone.Set();
+
                 socket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                //receiveDone.Set();
             }
             catch (ObjectDisposedException ex)
             {
@@ -433,6 +455,18 @@ namespace Gold
         protected virtual void OnClientChannelMessage(string channelMessage)
         {
             ClientChannelMessage?.Invoke(this, new ClientEventArgs() { clientChannelMessage = channelMessage });
+        }
+        protected virtual void OnClientEnterChannel(string channelName, string msg2, string userName)
+        {
+            ClientChannelEnter?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg2 = msg2, clientName = userName });
+        }
+        protected virtual void OnClientLeaveChannel(string userName, string channelName)
+        {
+            ClientChannelLeave?.Invoke(this, new ClientEventArgs() { clientName = userName, clientChannelMsg = channelName });
+        }
+        protected virtual void OnClientChannelJoinedList(string channelNames)
+        {
+            ClientListChannelJoined?.Invoke(this, new ClientEventArgs() { clientListChannelsMessage = channelNames });
         }
         //friend
         protected virtual void OnClientAddFriend(string ClientName, string ClientFriendName)

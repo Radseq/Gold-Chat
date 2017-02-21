@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using CommandClient;
+using System.Windows;
 
 namespace Gold
 {
@@ -7,14 +8,29 @@ namespace Gold
     /// </summary>
     public partial class serverAsk : Window
     {
-        public serverAsk()
+        private ClientManager clientManager;
+        private string message1;
+        private string message2;
+
+        public serverAsk(ClientManager cm, string msg, string msg2)
         {
             InitializeComponent();
+            clientManager = cm;
+            message1 = msg;
+            message2 = msg2;
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
+            Data msgToSend = new Data();
 
+            msgToSend.strName = clientManager.userName; //channel admin
+            msgToSend.strMessage = message1;
+            msgToSend.strMessage2 = clientManager.CalculateChecksum(answerTB.Text);
+            msgToSend.cmdCommand = Command.joinChannel;
+
+            byte[] byteData = msgToSend.ToByte();
+            clientManager.BeginSend(byteData);
         }
     }
 }

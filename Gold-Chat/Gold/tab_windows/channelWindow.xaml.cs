@@ -12,7 +12,9 @@ namespace Gold.tab_windows
     public partial class channelWindow : UserControl
     {
         ClientManager clientManager;
-        string channelName;
+        //string channelName;
+
+        public string channelName { get; set; }
 
         public channelWindow(ClientManager cm, string tabChannelName)
         {
@@ -24,7 +26,10 @@ namespace Gold.tab_windows
 
         private void OnClientChannelMessage(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                channelMessages.Text += e.clientChannelMessage;
+            }));
         }
 
         void EnterClicked(object sender, KeyEventArgs e)

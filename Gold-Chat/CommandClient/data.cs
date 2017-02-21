@@ -18,14 +18,15 @@ namespace CommandClient
 
         changePassword, //when client want to change password
 
-        createChannel,
-        joinChannel,
-        exitChannel,
-        deleteChannel,
-        editChannel,
+        createChannel,  //user want to create channel
+        joinChannel,    //Join to channel by new user need password
+        exitChannel,    //if user want definetly exit channel, he cant enter again untill use join again
+        deleteChannel,  //if owner want to delete
+        editChannel,    //if owner want to edit 
+        leaveChannel,   //inform other users that someone is leave from channel, user that join before
+        enterChannel,   //inform other users that someone is enter to channel, user that join before
 
         manageFriend,   //delete/add/accept_ask friend
-        //listChannels, //maybe i can use List 
 
         Null            //No command
     }
