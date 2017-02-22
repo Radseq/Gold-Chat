@@ -18,10 +18,7 @@ namespace Gold
 
         private void OnClick(object sender, RoutedEventArgs e)
         {
-            if (Click != null)
-            {
-                Click(sender, e);
-            }
+            Click?.Invoke(sender, e);
         }
     }
 }

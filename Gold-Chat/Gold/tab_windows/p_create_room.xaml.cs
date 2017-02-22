@@ -67,7 +67,7 @@ namespace Gold.tab_windows
                 {
                     Data msgToSend = new Data();
 
-                    msgToSend.strName = clientManager.userName; //channel admin
+                    msgToSend.strName = App.clientName; //channel admin
                     msgToSend.strMessage = roomNameTb.Text;
                     msgToSend.strMessage2 = clientManager.CalculateChecksum(enterPass.Password);
                     msgToSend.strMessage3 = clientManager.CalculateChecksum(amdinPass.Password);

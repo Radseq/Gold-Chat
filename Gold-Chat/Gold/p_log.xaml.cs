@@ -113,8 +113,7 @@ namespace Gold
                 try
                 {
                     userName = loginTextBox.Text;
-
-                    clientManager.userName = userName;
+                    App.clientName = userName;
 
                     clientManager.BeginConnect();
 

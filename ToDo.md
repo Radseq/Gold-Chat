@@ -1,9 +1,10 @@
-# To do
+## To do:
 - [ ] Sending/Recev files by users
 - [ ] Program don't receive 4 messages sended by progeam.cs(Window_Loaded)
-
-## To do:
+- [ ] Ban/Kick System
+- [x] Friend System
 - [ ] Channels
     - [ ] create(work)/delete/edit/exit/join(work)
     - [x] users talk in
     - [x] add do db/select from
+    - [ ] channel owner have kick/ban possibility

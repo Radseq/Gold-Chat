@@ -24,7 +24,7 @@ namespace Gold
         {
             Data msgToSend = new Data();
 
-            msgToSend.strName = clientManager.userName; //channel admin
+            msgToSend.strName = App.clientName; //channel admin
             msgToSend.strMessage = message1;
             msgToSend.strMessage2 = clientManager.CalculateChecksum(answerTB.Text);
             msgToSend.cmdCommand = Command.joinChannel;

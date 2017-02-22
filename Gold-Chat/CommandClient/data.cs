@@ -10,7 +10,7 @@ namespace CommandClient
         Login,          //Log into the server
         Logout,         //Logout of the server
         Message,        //Send a text message to all the chat clients
-        List,           //Get a list of users in the chat room from the server
+        List,           //Get a list of users/channels/joinedChannels/friends
         privMessage,    //Support private message from friend
 
         Reg,            //Registration 

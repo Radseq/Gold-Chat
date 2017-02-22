@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:Gold.tab_windows"
              mc:Ignorable="d" d:DesignWidth="500" Height="267.5">
     <Grid>
-        <TextBox x:Name="channelMessages" HorizontalAlignment="Left" Height="208" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="480"/>
+        <TextBox x:Name="channelMessages" HorizontalAlignment="Left" Height="208" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="375" IsEnabled="False"/>
         <TextBox x:Name="sendChannelMsg" HorizontalAlignment="Left" Height="35" Margin="10,223,0,0" TextWrapping="Wrap" PreviewKeyDown="EnterClicked" VerticalAlignment="Top" Width="480"/>
+        <ListBox x:Name="channelUsers" HorizontalAlignment="Left" Height="208" Margin="390,10,0,0" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </UserControl>

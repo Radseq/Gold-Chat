@@ -151,8 +151,6 @@
 								<ListBox.Resources>
 									<Style x:Key="LobbiesItemContextMenuStyle" TargetType="MenuItem">
 										<EventSetter Event="Click" Handler="JoinToLobbie"/>
-										<EventSetter Event="Click" Handler="ExitFromLobbie"/>
-										<EventSetter Event="Click" Handler="DeleteLobbie"/>
 									</Style>
 								</ListBox.Resources>
 								<ListBox.ItemContainerStyle>
@@ -161,8 +159,6 @@
 											<Setter.Value>
 												<ContextMenu>
 													<MenuItem Header="Join" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
-													<MenuItem Header="Exit" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
-													<MenuItem Header="Delete" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
 												</ContextMenu>
 											</Setter.Value>
 										</Setter>
@@ -176,6 +172,12 @@
 									<Style x:Key="JoinedLobbiesItemContextMenuStyle" TargetType="MenuItem">
 										<EventSetter Event="Click" Handler="LeaveJoinedChannel"/>
 									</Style>
+									<Style x:Key="DeleteLobbiesItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="DeleteChannel"/>
+									</Style>
+									<Style x:Key="ExitLobbieItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="ExitFromLobbie"/>
+									</Style>
 								</ListBox.Resources>
 								<ListBox.ItemContainerStyle>
 									<Style TargetType="ListBoxItem">
@@ -183,6 +185,8 @@
 											<Setter.Value>
 												<ContextMenu>
 													<MenuItem Header="Leave" Style="{StaticResource JoinedLobbiesItemContextMenuStyle}"/>
+													<MenuItem Header="Delete" Style="{StaticResource DeleteLobbiesItemContextMenuStyle}"/>
+													<MenuItem Header="Exit" Style="{StaticResource ExitLobbieItemContextMenuStyle}"/>
 												</ContextMenu>
 											</Setter.Value>
 										</Setter>
