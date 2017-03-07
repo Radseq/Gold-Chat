@@ -108,6 +108,9 @@
 									<Style x:Key="PrivMessageContextMenuStyle" TargetType="MenuItem">
 										<EventSetter Event="Click" Handler="PrivateMsgToUser"/>
 									</Style>
+									<Style x:Key="IgnoreMessageContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="IgnoreUser"/>
+									</Style>
 								</ListBox.Resources>
 								<ListBox.ItemContainerStyle>
 									<Style TargetType="ListBoxItem">
@@ -116,6 +119,7 @@
 												<ContextMenu>
 													<MenuItem Header="Add to Friend List" Style="{StaticResource AddFriendItemContextMenuStyle}"/>
 													<MenuItem Header="Private Message" Style="{StaticResource PrivMessageContextMenuStyle}"/>
+													<MenuItem Header="Ignore" Style="{StaticResource IgnoreMessageContextMenuStyle}"/>
 												</ContextMenu>
 											</Setter.Value>
 										</Setter>
@@ -144,7 +148,25 @@
 							</ListBox>
 						</Expander>
 						<Expander Header="Ignored" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
-							<Grid></Grid>
+							<ListBox x:Name="lb_ignored" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+								<!-- MouseDoubleClick="lb_users_MouseDoubleClick" -->
+								<ListBox.Resources>
+									<Style x:Key="DeleteIgnoredItemContextMenuStyle" TargetType="MenuItem">
+										<EventSetter Event="Click" Handler="DeleteFromIgnoreList"/>
+									</Style>
+								</ListBox.Resources>
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem">
+										<Setter Property="ContextMenu">
+											<Setter.Value>
+												<ContextMenu>
+													<MenuItem Header="Delete From List" Style="{StaticResource DeleteIgnoredItemContextMenuStyle}"/>
+												</ContextMenu>
+											</Setter.Value>
+										</Setter>
+									</Style>
+								</ListBox.ItemContainerStyle>
+							</ListBox>
 						</Expander>
 						<Expander Header="Lobbies" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
 							<ListBox x:Name="lbLobbies" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">

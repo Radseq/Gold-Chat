@@ -222,10 +222,44 @@ namespace Server
             }
             else
             {
-                msgToSend.strMessage = "Wrong login"; //????
+                msgToSend.strMessage = "Wrong login";
             }
             mySqlReader.Close();
             cn.Close();
+        }
+
+        private string CheckUserBan(int id_user)
+        {
+            string Query = "SELECT end_ban FROM user_bans WHERE id_user = @IdUser";
+
+            MySqlCommand cmd = new MySqlCommand(Query, cn);
+            cmd.Parameters.AddWithValue("@IdUser", id_user);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = cmd.ExecuteReader();
+
+            string endBanDateFromDB = "";
+
+            if (mySqlReader.Read()) //Expecting only one line
+            {
+                endBanDateFromDB = mySqlReader.GetString(0);
+
+                DateTime dt1 = DateTime.Parse(endBanDateFromDB);
+                DateTime dt2 = DateTime.Now;
+
+                if (dt1.Date > dt2.Date)
+                {
+                    return endBanDateFromDB;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            mySqlReader.Close();
+            cn.Close();
+            return null;
         }
 
         private void clientLogin(ref Client conClient, Data msgReceived, ref Data msgToSend)
@@ -234,9 +268,7 @@ namespace Server
             string userPassword = msgReceived.strMessage;
             string loginNotyfiUser = msgReceived.strMessage2;
 
-            conClient.strName = userName;
-
-            string Query = "SELECT register_id, email, id_user FROM users WHERE login = @userName AND password = @password ;";
+            string Query = "SELECT register_id, email, id_user, login, permission FROM users WHERE login = @userName AND password = @password";
 
             MySqlCommand cmd = new MySqlCommand(Query, cn);
             cmd.Parameters.AddWithValue("@userName", userName);
@@ -248,12 +280,16 @@ namespace Server
 
             string registerCode = "";
             string userEmail = ""; //used for send email notyfication on login to user 
+            string userLogin = ""; //used to eliminate username problem extample: login:radseq db: Radseq, i dont know why select working
 
             if (mySqlReader.Read()) //Expecting only one line
             {
                 registerCode = mySqlReader.GetString(0);
                 userEmail = mySqlReader.GetString(1);
-                if (registerCode != "")
+                userLogin = mySqlReader.GetString(3);
+                if (userName != userLogin)
+                    msgToSend.strMessage = "Wrong login or password";
+                else if (registerCode != "")
                 {
                     // user wont send activation code
                     msgToSend.cmdCommand = Command.ReSendEmail;
@@ -261,20 +297,30 @@ namespace Server
                 }
                 else
                 {
-                    //all is correct so user can use app
-                    msgToSend.strMessage = "You are succesfully Log in";
                     conClient.id = mySqlReader.GetInt16(2); //give id from db
+                    conClient.permission = mySqlReader.GetInt16(4);
+                    cn.Close();
 
-                    conClient.channels = new List<string>(); // init of channels whitch i joined
-
-                    if (loginNotyfiUser == "1") //user wants to be notyficated when login on account
+                    string ban = CheckUserBan(conClient.id);
+                    if (ban == null)
                     {
-                        var emailSender = new EmailSender();
-                        emailSender.EmailSended += OnEmaiNotyficationLoginSended;
-                        emailSender.SendEmail(userName, userEmail, "Gold Chat: Login Notyfication", "You have login: " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " To Gold Chat Account.");
-                    }
+                        //all is correct so user can use app
+                        conClient.strName = userLogin;
+                        msgToSend.strMessage = "You are succesfully Log in";
 
-                    OnClientLogin(userName, conClient.addr.Address.ToString(), conClient.addr.Port.ToString()); //server OnClientLogin occur only when succes program.cs -> OnClientLogin
+                        conClient.enterChannels = new List<string>(); // init of channels whitch i joined
+                        conClient.ignoredUsers = new List<string>(); // init of ignored users
+
+                        if (loginNotyfiUser == "1") //user wants to be notyficated when login on account
+                        {
+                            var emailSender = new EmailSender();
+                            emailSender.EmailSended += OnEmaiNotyficationLoginSended;
+                            emailSender.SendEmail(userName, userEmail, "Gold Chat: Login Notyfication", "You have login: " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " To Gold Chat Account.");
+                        }
+
+                        OnClientLogin(userName, conClient.addr.Address.ToString(), conClient.addr.Port.ToString()); //server OnClientLogin occur only when succes program.cs -> OnClientLogin
+                    }
+                    else msgToSend.strMessage = "You are banned untill " + ban;
                 }
             }
             else
@@ -327,7 +373,7 @@ namespace Server
             }
             else
             {
-                mySqlComm.CommandText = "INSERT INTO users (login, password, email, register_id) " + "VALUES (@user_name, @user_password, @user_email, @register_id)";
+                mySqlComm.CommandText = "INSERT INTO users (login, password, email, register_id, permission) " + "VALUES (@user_name, @user_password, @user_email, @register_id, @perm)";
 
                 string registrationCode = CalculateChecksum(userEmail);
 
@@ -335,6 +381,7 @@ namespace Server
                 mySqlComm.Parameters.AddWithValue("@user_password", userPassword);
                 mySqlComm.Parameters.AddWithValue("@user_email", userEmail);
                 mySqlComm.Parameters.AddWithValue("@register_id", registrationCode);
+                mySqlComm.Parameters.AddWithValue("@perm", 0); //give permission to 0 for all users
 
                 cn.Open();
                 if (mySqlComm.ExecuteNonQuery() > 0)
@@ -509,7 +556,8 @@ namespace Server
                 //To keep things simple we use asterisk as the marker to separate the user names
                 msgToSend.strMessage += client.strName + "*";
             }
-            OnClientList(msgToSend.strMessage, msgToSend.strMessage);
+            OnClientList(msgToSend.strMessage, ""); //second parameter used for diffrent lists
+            SendServerRespond(ref conClient, ref msgToSend);
         }
         /// <summary>
         /// Sending to the user the list of all channels
@@ -521,35 +569,15 @@ namespace Server
             msgToSend.cmdCommand = Command.List;
             msgToSend.strName = null;
             msgToSend.strMessage = "Channel";
-
-            ////select user channels
-            ////string Query = "SELECT c.channel_name FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND uc.id_user = @idUser";
-            //string Query = "SELECT channel_name FROM channel";
-            //MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
-            ////mySqlComm.Parameters.AddWithValue("@idUser", conClient.id);
-            //cn.Open();
-
-            //MySqlDataReader mySqlReader = null;
-            //mySqlReader = mySqlComm.ExecuteReader();
-
-            //int numberOfChannels = 0;
-
-            //while (mySqlReader.Read()) // If you're expecting only one line, change this to if(reader.Read()).
-            //{
-            //    msgToSend.strMessage2 += mySqlReader.GetString(numberOfChannels) + "*";
-            //    numberOfChannels++;
-            //}
-
-            //mySqlReader.Close();
-            //cn.Close();
-
+            msgToSend.strMessage2 = null;
+            msgToSend.strMessage3 = null;
+            msgToSend.strMessage4 = null;
 
             foreach (Channel ch in channels)
             {
                 msgToSend.strMessage2 += ch.ChannelName + "*";
             }
 
-            //todo? Send the name of the users in the chat room
             OnClientList(msgToSend.strMessage, msgToSend.strMessage2);
         }
 
@@ -576,7 +604,7 @@ namespace Server
             {
                 msgToSend.strMessage2 += mySqlReader.GetString(numberOfChannels) + "*";
                 /// if (!conClient.channels.Contains(mySqlReader.GetString(numberOfChannels)))
-                conClient.channels.Add(mySqlReader.GetString(numberOfChannels));
+                //conClient.channels.Add(mySqlReader.GetString(numberOfChannels));
                 numberOfChannels++;
             }
 
@@ -635,6 +663,9 @@ namespace Server
                 msgToSend.cmdCommand = msgReceived.cmdCommand;
                 msgToSend.strName = msgReceived.strName;
                 msgToSend.strMessage = msgReceived.strMessage;
+                msgToSend.strMessage2 = msgReceived.strMessage2;
+                msgToSend.strMessage3 = msgReceived.strMessage3;
+                msgToSend.strMessage4 = msgReceived.strMessage4;
 
                 switch (msgReceived.cmdCommand)
                 {
@@ -644,8 +675,8 @@ namespace Server
                         if (msgToSend.strMessage == "You are succesfully Log in") //if we got msg from other users thats they login as user (conClient) will see this msg below
                         {
                             msgToSend.strMessage = "<<<" + msgReceived.strName + " has joined the room>>>";
+                            SendMessageToAll(ref client, msgToSend);
                         }
-                        SendMessageToAll(ref client, msgReceived, msgToSend);
                         break;
 
                     case Command.Reg:
@@ -665,7 +696,7 @@ namespace Server
 
                     case Command.Logout:
                         clientLogout(ref client, msgToSend);
-                        SendMessageToAll(ref client, msgReceived, msgToSend);
+                        SendMessageToAll(ref client, msgToSend);
                         break;
 
                     case Command.Message: //Text of the message that we will broadcast to all users
@@ -677,7 +708,7 @@ namespace Server
                             msgToSend.strMessage2 = msgReceived.strMessage2;
                             OnClientChannelMessage(msgToSend.strMessage, msgReceived.strName + ": " + msgReceived.strMessage + " On:" + msgReceived.strMessage2);
                         }
-                        SendMessageToAll(ref client, msgReceived, msgToSend);
+                        SendMessageToAll(ref client, msgToSend);
                         break;
 
                     case Command.privMessage:
@@ -686,7 +717,8 @@ namespace Server
 
                     case Command.createChannel:
                         channelCreate(client, msgReceived, ref msgToSend);
-                        SendServerRespond(ref client, ref msgToSend);
+                        if (msgToSend.strMessage2 != "CreatedChannel")
+                            SendServerRespond(ref client, ref msgToSend);
                         break;
 
                     case Command.joinChannel:
@@ -705,12 +737,10 @@ namespace Server
                         break;
                     case Command.enterChannel:
                         channelEnter(client, msgReceived, ref msgToSend);
-                        //SendServerRespond(ref client, ref msgToSend); //dont need respond because we send information to all users in channels INCLUDE as
                         break;
                     case Command.leaveChannel:
-                        //todo
-                        channelLeave(ref client, msgReceived, ref msgToSend);
-                        SendServerRespond(ref client, ref msgToSend);
+                        channelLeave(ref client, msgReceived.strMessage, msgReceived.strName);
+                        SendMessageToChannel(ref client, msgReceived.strMessage, ref msgToSend);
                         break;
 
                     case Command.List:  //Send the names of all users in the chat room to the new user
@@ -720,16 +750,38 @@ namespace Server
                             sendFriendList(client, ref msgToSend);
                         else if (msgReceived.strMessage == "ChannelsJoined")
                             sendChannelListJoined(client, ref msgToSend);
-                        else if (msgReceived.strMessage == "ChannelUsers" && msgReceived.strMessage2 != null) //send user with enter to channel list of users
-                            sendClientListInChannel(client, ref msgToSend, ref msgReceived);
+                        else if (msgReceived.strMessage == "ChannelUsers") //send user with enter to channel list of users
+                            sendListUsersInChannel(client, ref msgToSend, ref msgReceived);
+                        else if (msgReceived.strMessage == "IgnoredUsers")
+                            sendListIgnoredUsers(client, ref msgToSend, ref msgReceived);
                         else
                             sendClientList(ref client, msgToSend);
-                        SendServerRespond(ref client, ref msgToSend);
+                        if (msgToSend.strMessage2 != null) SendServerRespond(ref client, ref msgToSend);
                         break;
 
                     case Command.manageFriend:
                         ManageUserFriend(client, msgReceived, msgToSend);
-                        //SendServerRespond(ref client, msgReceived, msgToSend);
+                        //SendServerRespond(ref client, msgToSend);
+                        break;
+                    case Command.ignoreUser:
+                        ManageIgnoreUser(client, msgReceived, msgToSend);
+                        SendServerRespond(ref client, ref msgToSend);
+                        break;
+                    case Command.kick:
+                        ClientKick(client, msgReceived, msgToSend);
+                        SendServerRespond(ref client, ref msgToSend);
+                        //msgToSend.strName = friendName;
+                        //SendMessageToNick(ref client, msgReceived, msgToSend);
+                        break;
+                    case Command.ban:
+                        ClientBan(ref client, msgReceived, msgToSend);
+                        SendServerRespond(ref client, ref msgToSend);
+                        break;
+                    case Command.kickUserChannel:
+                        ClientKickFromChannel(ref client, msgReceived, msgToSend);
+                        break;
+                    case Command.banUserChannel:
+                        ClientBanFromChannel(ref client, msgReceived, msgToSend);
                         break;
                 }
 
@@ -750,16 +802,235 @@ namespace Server
                 Console.WriteLine(exMessage);
                 servLogger.msgLog(exMessage);
 
-                SendMessageToAll(ref client, null, msgToSend);
+                SendMessageToAll(ref client, msgToSend);
 
                 //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
         }
 
-        //when user enter to channel, he send to server ask for users already in this channel
-        private void sendClientListInChannel(Client client, ref Data msgToSend, ref Data msgReceived)
+        private void ClientBanFromChannel(ref Client client, Data msgReceived, Data msgToSend)
         {
-            msgToSend.strMessage2 = msgReceived.strMessage2; // i should add this to begining of OnReceive
+            throw new NotImplementedException();
+        }
+
+        private void ClientKickFromChannel(ref Client client, Data msgReceived, Data msgToSend)
+        {
+            string userName = msgReceived.strMessage;       //nick of kicked user
+            string kickReason = msgReceived.strMessage2;    //Reason of kick
+            string channelName = msgReceived.strMessage3;
+
+            //todo select if user with want ban another is creator of channel, and/or know admin passowrd
+
+            //todo in client side get kick from channel ->
+            //todo make tab list in program cs and when user got kick, close channel from tab list
+
+            foreach (Channel ch in channels)
+            {
+                if (ch.ChannelName == channelName /*&& ch.FounderiD == client.id*/)
+                {
+                    if (ch.FounderiD == client.id)
+                    {
+                        if (ch.Users.Contains(userName))
+                        {
+                            SendMessageToChannel(ref client, channelName, ref msgToSend);
+                            ch.Users.Remove(userName);
+
+                            foreach (Client cInfo in clientList)
+                            {
+                                if (cInfo.strName == userName)
+                                    if (cInfo.enterChannels.Contains(channelName))
+                                    {
+                                        cInfo.enterChannels.Remove(userName);
+                                        //todo msg to client that got kicked form channel, when got this kind of message show msgbox
+                                    }
+                            }
+                        }
+                        else
+                            msgToSend.strMessage2 = "There no " + userName + " in your channel";
+                    }
+                    else
+                        msgToSend.strMessage2 = "Only channel founder can kick";
+                }
+                else
+                    msgToSend.strMessage2 = "Your Channel not exists";
+            }
+        }
+
+
+        private void ClientBan(ref Client client, Data msgReceived, Data msgToSend)
+        {
+            string userName = msgReceived.strMessage;
+            string time = msgReceived.strMessage2;
+            string banReason = msgReceived.strMessage3;
+
+            if (client.permission > 0)
+            {
+                foreach (Client c in clientList)
+                {
+                    if (c.strName == userName && c.permission == 0)
+                    {
+                        string addQuery = "INSERT INTO user_bans (id_user, reason, end_ban) " +
+       "VALUES (@idUser, @BanReason, @EndBanDateTime)";
+
+                        MySqlCommand mySqlCommAdd = new MySqlCommand(addQuery, cn);
+
+                        mySqlCommAdd.Parameters.AddWithValue("@idUser", c.id);
+                        mySqlCommAdd.Parameters.AddWithValue("@BanReason", banReason);
+                        mySqlCommAdd.Parameters.AddWithValue("@EndBanDateTime", time);
+                        cn.Open();
+
+                        if (mySqlCommAdd.ExecuteNonQuery() > 0)
+                        {
+                            SendMessageToAll(ref client, msgToSend);
+                            c.cSocket.Close();
+                        }
+                        else
+                            msgToSend.strMessage2 = "Cannot ban " + userName + " unknown reason";
+                        cn.Close();
+                    }
+                }
+            }
+            else msgToSend.strMessage = "You dont have permission to kick " + userName;
+        }
+
+        private void ClientKick(Client client, Data msgReceived, Data msgToSend)
+        {
+            string userName = msgReceived.strMessage;      //nick of kicked user
+            string kickReason = msgReceived.strMessage2;    //Reason of kick
+
+            //todo select if user with want ban another is creator of channel, and/or know admin passowrd
+
+            //todo in client side get kick from channel ->
+            //todo make tab list in program cs and when user got kick, close channel from tab list
+
+            if (client.permission > 0)
+            {
+                foreach (Client cInfo in clientList)
+                {
+                    if (cInfo.strName == userName && cInfo.permission == 0)
+                    {
+                        SendMessageToAll(ref client, msgToSend);
+                        cInfo.cSocket.Close();
+                    }
+                }
+            }
+            else msgToSend.strMessage = "You cannot kick " + userName + " because you dont have permissions";
+
+        }
+
+        //todo check if user is in our friend list
+        private void ManageIgnoreUser(Client client, Data msgReceived, Data msgToSend)
+        {
+            string type = msgReceived.strMessage;
+            msgToSend.strMessage = msgReceived.strMessage;
+            string userName = msgReceived.strMessage2;
+
+            string Query = "SELECT id_user FROM users WHERE login = @IgnoreName";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@IgnoreName", userName);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int idUser = 0;
+
+            if (mySqlReader.Read())
+            {
+                idUser = mySqlReader.GetInt16(0);
+
+                mySqlReader.Close();
+
+                msgToSend.strMessage3 = userName;
+
+                if (type == "AddIgnore")
+                {
+                    if (!client.ignoredUsers.Contains(userName))
+                    {
+                        string addQuery = "INSERT INTO user_ignored (id_user, id_user_ignored) " +
+                               "VALUES (@idUser, @idUserIgnored)";
+
+                        MySqlCommand mySqlCommAdd = new MySqlCommand(addQuery, cn);
+
+                        mySqlCommAdd.Parameters.AddWithValue("@idUser", client.id);
+                        mySqlCommAdd.Parameters.AddWithValue("@idUserIgnored", idUser);
+
+                        if (mySqlCommAdd.ExecuteNonQuery() > 0)
+                        {
+                            msgToSend.strMessage2 = "You are now ignore: " + userName;
+                            client.ignoredUsers.Add(userName);
+                            //OnClientIgnoreUser(client.strName, friendName);
+                        }
+                        else
+                            msgToSend.strMessage2 = "Cannot ignore " + userName + " unknown reason";
+                    }
+                    else
+                        msgToSend.strMessage2 = "Cannot ignore " + userName + " because already ignored!";
+                }
+                else if (type == "DeleteIgnore")
+                {
+                    if (client.ignoredUsers.Contains(userName))
+                    {
+                        string delQuery = "DELETE FROM user_ignored WHERE id_user = @idUser AND id_user_ignored = @idUserIgnored";
+
+                        MySqlCommand mySqlCommDel = new MySqlCommand(delQuery, cn);
+
+                        mySqlCommDel.Parameters.AddWithValue("@idUser", client.id);
+                        mySqlCommDel.Parameters.AddWithValue("@idUserIgnored", idUser);
+
+                        if (mySqlCommDel.ExecuteNonQuery() > 0)
+                        {
+                            msgToSend.strMessage2 = "You are delete from ignore list user: " + userName;
+                            client.ignoredUsers.Remove(userName);
+                        }
+                        else
+                            msgToSend.strMessage2 = "Cannot delete ignore from " + userName + " unknown reason";
+                    }
+                    else
+                        msgToSend.strMessage2 = "Cannot delete ignore from " + userName + " because not ignored!";
+                }
+                else msgToSend.strMessage2 = "There is only Add or Delete users option";
+
+            }
+            else msgToSend.strMessage2 = "There is no user that you want Add or Delete ignore.";
+            cn.Close();
+        }
+
+        private void sendListIgnoredUsers(Client client, ref Data msgToSend, ref Data msgReceived)
+        {
+            msgToSend.cmdCommand = Command.List;
+            msgToSend.strName = null;
+            msgToSend.strMessage = "IgnoredUsers";
+
+            string Query = "SELECT u.login FROM users u, user_ignored ui WHERE ui.id_user_ignored = u.id_user AND ui.id_user = @idUser";
+
+            MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
+            mySqlComm.Parameters.AddWithValue("@idUser", client.id);
+            cn.Open();
+
+            MySqlDataReader mySqlReader = null;
+            mySqlReader = mySqlComm.ExecuteReader();
+
+            int numberIgnored = 0;
+
+            while (mySqlReader.Read())
+            {
+                msgToSend.strMessage2 += mySqlReader.GetString(numberIgnored) + "*";
+                client.ignoredUsers.Add(mySqlReader.GetString(numberIgnored));
+                numberIgnored++;
+            }
+
+            mySqlReader.Close();
+            cn.Close();
+
+            OnClientList(msgToSend.strMessage, msgToSend.strMessage2);
+        }
+
+        //when user enter to channel, he send to server ask for users already in this channel
+        private void sendListUsersInChannel(Client client, ref Data msgToSend, ref Data msgReceived)
+        {
+            //msgToSend.strMessage2 = msgReceived.strMessage2; // i should add this to begining of OnReceive
 
             foreach (Channel ch in channels)
             {
@@ -773,21 +1044,20 @@ namespace Server
             }
         }
 
-        //todo
-        private void channelLeave(ref Client client, Data msgReceived, ref Data msgToSend)
+        private void channelLeave(ref Client client, string channelName, string userName)
         {
             //name of user and name of channel send to users in channels
-            client.channels.Remove(msgReceived.strMessage);
+            client.enterChannels.Remove(channelName);
             //remove user form channel users
             foreach (Channel ch in channels)
             {
-                if (ch.ChannelName == msgReceived.strMessage)
+                if (ch.ChannelName == channelName)
                 {
-                    ch.Users.Remove(msgReceived.strName);
+                    ch.Users.Remove(userName);
                 }
             }
 
-            SendMessageToChannel(ref client, msgReceived, ref msgToSend);
+            //OnClientLeaveChannel(channelName, client.strName); //todo
         }
 
         private void channelEnter(Client client, Data msgReceived, ref Data msgToSend)
@@ -814,25 +1084,40 @@ namespace Server
 
                 mySqlReader.Close();
 
-                msgToSend.strMessage = channelName;
-                msgToSend.strMessage2 = "enter";
-                msgToSend.strMessage3 = motd;
-                SendMessageToChannel(ref client, msgReceived, ref msgToSend);
+                //msgToSend.strMessage = channelName;
 
                 //add user to channel users
                 foreach (Channel ch in channels)
                 {
                     if (ch.ChannelName == channelName)
                     {
-                        if (!ch.Users.Contains(msgReceived.strName))
+                        if (!ch.Users.Contains(msgReceived.strName) && (!client.enterChannels.Contains(channelName)))
+                        {
                             ch.Users.Add(msgReceived.strName);
+                            client.enterChannels.Add(channelName);
+
+                            msgToSend.strMessage2 = "enter";
+                            msgToSend.strMessage3 = motd;
+
+                            SendMessageToChannel(ref client, channelName, ref msgToSend);
+                        }
+                        else
+                        {
+                            msgToSend.strMessage2 = "deny";
+                            msgToSend.strMessage3 = "Cannot enter Because you already entered to " + channelName;
+                            SendServerRespond(ref client, ref msgToSend);
+                        }
                     }
                 }
 
-                //OnClientJoinChannel(channelName, client.strName);
+                //OnClientEnterChannel(channelName, client.strName); //todo
             }
-            else msgToSend.strMessage2 = "deny";
-
+            else
+            {
+                msgToSend.strMessage2 = "deny";
+                msgToSend.strMessage3 = "Cannot Join Because you not join to " + channelName;
+                SendServerRespond(ref client, ref msgToSend);
+            }
             cn.Close();
         }
 
@@ -902,14 +1187,15 @@ namespace Server
                 {
                     bool InserClientToDb = AddFriendToDb(cn, client.id, friend_id); //client add friend in db
                     bool InserFriendToDb = AddFriendToDb(cn, friend_id, client.id); //friend add client in db
-                    //respond to client
+                                                                                    //respond to client
                     if (InserClientToDb && InserFriendToDb)
                     {
-                        //todo check
                         OnClientAddFriend(client.strName, friendName);
                         msgToSend.strMessage = "Yes";
                         msgToSend.strMessage2 = friendName;
                         SendServerRespond(ref client, ref msgToSend);
+                        msgToSend.strMessage2 = client.strName;
+                        msgToSend.strName = friendName;
                         SendMessageToNick(ref client, msgReceived, msgToSend);
                         //SendMessageToSomeone(ref client, msgReceived, msgToSend);
                     }
@@ -940,15 +1226,18 @@ namespace Server
                 else if (type == "Add")
                 {
                     //send to friend thats he want to be friend
-                    msgToSend.strMessage2 = friendName;
+                    msgToSend.strMessage2 = client.strName;
+                    msgToSend.strName = friendName;
                     SendMessageToNick(ref client, msgReceived, msgToSend);
                 }
                 else if (type == "No")
                 {
                     //friend type no he dont want be as friend
                     msgToSend.strMessage = "No";
-                    msgToSend.strMessage2 = friendName;
-                    SendMessageToSomeone(ref client, msgReceived, msgToSend);
+                    //msgToSend.strMessage2 = friendName;
+                    msgToSend.strMessage2 = client.strName;
+                    msgToSend.strName = friendName;
+                    SendMessageToNick(ref client, msgReceived, msgToSend);
                 }
             }
             else msgToSend.strMessage = "There is no friend that you want to add.";
@@ -978,7 +1267,8 @@ namespace Server
                 admPass = mySqlReader.GetString(0);
                 if (adminPass == admPass)
                 {
-                    string delChannelQuery = "DELETE FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUser";
+                    //now delete channel from db
+                    string delChannelQuery = "DELETE FROM channel c, user_channel uc WHERE c.id_channel = uc.id_channel AND c.channel_name = @channelName AND c.id_user_founder = @idUser";
                     MySqlCommand mySqlDelComm = new MySqlCommand(delChannelQuery, cn);
 
                     mySqlDelComm.Parameters.AddWithValue("@channelName", channelName);
@@ -986,15 +1276,17 @@ namespace Server
 
                     if (mySqlDelComm.ExecuteNonQuery() > 0)
                     {
-                        msgToSend.strMessage = "You are deleted your channel: " + msgReceived.strMessage;
+                        msgToSend.strMessage = "You are deleted your channel: " + channelName;
                         //if channels have channel that deleted
                         foreach (Channel ch in channels)
                         {
-                            if (ch.ChannelName == msgReceived.strMessage)
+                            if (ch.ChannelName == channelName)
                             {
                                 channels.Remove(ch);
                             }
                         }
+
+                        client.enterChannels.Remove(channelName);
 
                         // no needed -> getChannelsFromDB(); //update list of channels
                         //message to others users witch are in channel that has deleted by creator
@@ -1012,14 +1304,10 @@ namespace Server
             cn.Close();
         }
 
-        ///todo test, event OnClientExitChannel, inform user that he cant delete channel, because he need use option delete
-        ///check if admin try left first, message him to do delete
         private void channelExit(Client client, Data msgReceived, ref Data msgToSend)
         {
             string channelName = msgReceived.strMessage;
-            string adminPass = msgReceived.strMessage2;
-
-            string Query = "SELECT uc.id_channel FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND c.id_user_founder != @idUser;";
+            string Query = "SELECT uc.id_channel, c.id_user_founder FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser";
 
             MySqlCommand mySqlComm = new MySqlCommand(Query, cn);
             mySqlComm.Parameters.AddWithValue("@channelName", channelName);
@@ -1029,32 +1317,42 @@ namespace Server
             MySqlDataReader mySqlReader = null;
             mySqlReader = mySqlComm.ExecuteReader();
 
-            int id_channel_db = 0;
+            int idChannelDb = 0;
+            int adminId = 0;
 
-            if (mySqlReader.Read()) //Expecting only one line
+            if (mySqlReader.Read())
             {
-                id_channel_db = mySqlReader.GetInt16(0);
+                idChannelDb = mySqlReader.GetInt16(0);
+                adminId = mySqlReader.GetInt16(1);
 
-                string DelQuery = "DELETE FROM user_channel WHERE id_user = @idUser AND id_channel = @idChannel";
-                MySqlCommand mySqlDelComm = new MySqlCommand(DelQuery, cn);
-                mySqlDelComm.Parameters.AddWithValue("@idUser", client.id);
-                mySqlDelComm.Parameters.AddWithValue("@idChannel", id_channel_db);
-
-                if (mySqlComm.ExecuteNonQuery() > 0)
+                mySqlReader.Close();
+                if (adminId != client.id)
                 {
-                    msgToSend.strMessage = "You are exit from the channel " + channelName + ".";
+                    string DelQuery = "DELETE FROM user_channel WHERE id_user = @idUser AND id_channel = @idChannel";
+                    MySqlCommand mySqlDelComm = new MySqlCommand(DelQuery, cn);
+                    mySqlDelComm.Parameters.AddWithValue("@idUser", client.id);
+                    mySqlDelComm.Parameters.AddWithValue("@idChannel", idChannelDb);
+
+                    if (mySqlDelComm.ExecuteNonQuery() > 0)
+                    {
+                        msgToSend.strMessage = "You are exit from the channel " + channelName + ".";
+                        client.enterChannels.Remove(channelName);
+                    }
+                    else msgToSend.strMessage = "You connot exit: " + channelName + " contact to admin.";
+
+                    OnClientExitChannel(channelName, client.strName);
                 }
-                else msgToSend.strMessage = "You connot exit: " + channelName + " because you are not join to."; //???
-
-                OnClientExitChannel(channelName, client.strName);
+                else msgToSend.strMessage = "You cannot exit channel that you created";
             }
-            else msgToSend.strMessage = "You must use delete option to left(and delete) this channel.";
+            else msgToSend.strMessage = "You cannot exit this channel because you not joined";
 
-            mySqlReader.Close();
+            msgToSend.strMessage2 = channelName;
+
+            //mySqlReader.Close();
             cn.Close();
         }
 
-        private void channelJoin(Client client, Data msgReceived, ref Data msgToSend)
+        private void channelJoin(Client client, Data msgReceived, ref Data msgToSend, bool afterCreate = false)
         {
             string channelName = msgReceived.strMessage;
             string channelPass = msgReceived.strMessage2;
@@ -1068,19 +1366,19 @@ namespace Server
             MySqlDataReader mySqlReader = null;
             mySqlReader = mySqlComm.ExecuteReader();
 
-            int id_channel_db = 0;
+            int idChannelDb = 0;
             string welcomeMsg = ""; //used for send email notyfication on login to user 
             string enterPassword = "";
 
             if (mySqlReader.Read()) //Expecting only one line
             {
-                id_channel_db = mySqlReader.GetInt16(0);
+                idChannelDb = mySqlReader.GetInt16(0);
                 welcomeMsg = mySqlReader.GetString(1);
                 enterPassword = mySqlReader.GetString(2);
 
                 mySqlReader.Close();
 
-                msgToSend.strMessage = channelName;
+                //msgToSend.strMessage = channelName;
 
                 if (enterPassword == "")
                     msgToSend.strMessage2 = "Send Password";
@@ -1095,21 +1393,47 @@ namespace Server
                     theDate.ToString("dd-MM-yyyy HH:mm");
 
                     mySqlComm.Parameters.AddWithValue("@idUser", client.id);
-                    mySqlComm.Parameters.AddWithValue("@idChannel", id_channel_db);
+                    mySqlComm.Parameters.AddWithValue("@idChannel", idChannelDb);
                     mySqlComm.Parameters.AddWithValue("@joinDate", theDate);
 
                     if (mySqlComm.ExecuteNonQuery() > 0)
                     {
-                        msgToSend.strMessage2 = welcomeMsg;
+                        if (!afterCreate)
+                        {
+                            msgToSend.strMessage2 = "You are joinet to channel " + channelName + ".";
+                            msgToSend.strMessage3 = "ChannelJoined";
+                        }
+                        else
+                        {
+                            //Send to all users new list of channels
+                            cn.Close(); //must be closed because function below open
+                                        //getChannelsFromDB();
+
+                            Channel channel = new Channel(channelName, client.id);
+                            channels.Add(channel);
+
+                            foreach (Client c in clientList)
+                            {
+                                sendChannelList(c, ref msgToSend);
+                            }
+
+                            SendMessageToAll(ref client, msgToSend); //ignored users wont get new channel list
+                                                                     //this below needed for SendServerRespond(ref client, ref msgToSend);
+                                                                     ///TODO CHCEK WHY SERVER NOT RESPOND SendServerRespond(ref client, ref msgToSend); AFTER channelJoin
+                            msgToSend.strMessage = channelName;
+                            msgToSend.strMessage2 = "You are create channel (" + channelName + ")";
+                            msgToSend.strMessage3 = "CreatedChannel";
+                            msgToSend.cmdCommand = msgReceived.cmdCommand;
+                        }
                     }
                     else
                     {
-                        msgToSend.strMessage = "cannot join to " + channelName + " with unknown reason.";
+                        msgToSend.strMessage2 = "cannot join to " + channelName + " with unknown reason.";
                     }
                     OnClientJoinChannel(channelName, client.strName);
                 }
             }
-            else msgToSend.strMessage = "There is no channel that you want to join.";
+            else msgToSend.strMessage2 = "There is no channel that you want to join.";
 
             cn.Close();
         }
@@ -1132,10 +1456,10 @@ namespace Server
             MySqlDataReader mySqlReader = null;
             mySqlReader = mySqlComm.ExecuteReader();
 
+            msgToSend.strMessage2 = "NotCreated";
+
             int idOfFounderDB = 0;
             string channelNameDB = "";
-
-            msgToSend.cmdCommand = Command.createChannel;
 
             if (mySqlReader.Read()) //expecting only one line
             {
@@ -1166,14 +1490,15 @@ namespace Server
                 if (mySqlComm.ExecuteNonQuery() > 0)
                 {
                     msgToSend.strMessage = "You are create channel (" + roomName + ")";
+                    msgToSend.strMessage2 = "CreatedChannel";
                     cn.Close(); //is must be close, because join have open, makes problem at last line of this fuction
                                 //so user create channel, send to him message and join to channel
-                    byte[] message = msgToSend.ToByte();
-                    client.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), client.cSocket);
+                                //byte[] message = msgToSend.ToByte();
+                                //client.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), client.cSocket);
 
                     getChannelsFromDB(); //update list of channels
 
-                    channelJoin(client, msgReceived, ref msgToSend); //after user create channel we want to make him join
+                    channelJoin(client, msgReceived, ref msgToSend, true); //after user create channel we want to make him join
                 }
                 else
                     msgToSend.strMessage = "Channel NOT created with unknown reason.";
@@ -1184,17 +1509,14 @@ namespace Server
             cn.Close();
         }
 
-        private void SendMessageToAll(ref Client conClient, Data msgReceived, Data msgToSend)
+        private void SendMessageToAll(ref Client conClient, Data msgToSend)
         {
             byte[] message = msgToSend.ToByte();
 
             foreach (Client cInfo in clientList)
             {
-                if (cInfo.cSocket != conClient.cSocket || msgToSend.cmdCommand != Command.Login)
-                {
-                    //Send the message to all users
+                if (!cInfo.ignoredUsers.Contains(conClient.strName)) //this user witch get ignored by someone, someone will not see when user: login,logout,msg,msg in channels
                     cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
-                }
             }
 
             OnClientSendMessage(msgToSend.strMessage); //server will not see private messages 
@@ -1219,21 +1541,21 @@ namespace Server
 
             foreach (Client cInfo in clientList)
             {
-                if (cInfo.strName == msgReceived.strMessage2)
+                if (cInfo.strName == /*msgReceived.strMessage2*/msgToSend.strName)
                 {
                     cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
                 }
             }
         }
 
-        private void SendMessageToChannel(ref Client client, Data msgReceived, ref Data msgToSend)
+        private void SendMessageToChannel(ref Client client, string channelName, ref Data msgToSend)
         {
             //first think was i woud serch EVERY user in db that he joined to channel HELL NO i do list of channels in client class 
             byte[] message = msgToSend.ToByte();
 
             foreach (Client cInfo in clientList)
             {
-                if (cInfo.channels.Contains(msgReceived.strMessage))
+                if (cInfo.enterChannels.Contains(channelName))
                 {
                     cInfo.cSocket.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(OnSend), cInfo.cSocket);
                 }

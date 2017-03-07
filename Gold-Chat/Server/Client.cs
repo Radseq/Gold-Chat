@@ -8,8 +8,10 @@ namespace Server
     {
         public Socket cSocket { get; set; }
         public int id { get; set; }
+        public int permission { get; set; }
         public IPEndPoint addr { get; set; }
         public string strName;  //Name by which the user logged into the chat room
-        public List<string> channels { get; set; } //on user login give him list of channel that he joined
+        public List<string> enterChannels { get; set; }
+        public List<string> ignoredUsers { get; set; }
     }
 }

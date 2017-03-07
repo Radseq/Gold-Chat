@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Gold.p_log"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Login"  WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Height="219" Width="307" Closing="Window_Closing">
+        Title="Login"  WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Height="219" Width="307">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

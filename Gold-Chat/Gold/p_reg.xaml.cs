@@ -21,7 +21,7 @@ namespace Gold
         {
             if (logTextbox.Text != string.Empty && passbox.Password != string.Empty && rePassbox.Password != string.Empty && emailTextbox.Text != string.Empty)
             {
-                if (logTextbox.Text.Length < 3 && logTextbox.Text.Length > 30)
+                if (logTextbox.Text.Length < 3 && logTextbox.Text.Length > 30 /* todo && !System.Text.RegularExpressions.Regex.IsMatch(logTextbox.Text, @"[a-z]{30}")*/)
                 {
 
                     MessageBox.Show("Your username must be between 4 and 29 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);

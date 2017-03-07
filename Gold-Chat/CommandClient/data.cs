@@ -25,8 +25,14 @@ namespace CommandClient
         editChannel,    //if owner want to edit 
         leaveChannel,   //inform other users that someone is leave from channel, user that join before
         enterChannel,   //inform other users that someone is enter to channel, user that join before
+        kickUserChannel,//using to kick user from channel by client founder
+        banUserChannel, //using to ban user from channel by client founder
 
         manageFriend,   //delete/add/accept_ask friend
+        ignoreUser,     //
+
+        kick,           //kick user from serwer by admin
+        ban,            //ban user from serwer by admin
 
         Null            //No command
     }

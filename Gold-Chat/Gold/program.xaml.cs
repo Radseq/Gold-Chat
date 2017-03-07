@@ -8,7 +8,6 @@ using System.ComponentModel;
 //voice
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 
@@ -25,7 +24,8 @@ namespace Gold
         private byte[] byteData = new byte[1024];
 
         ArrayList clientList = new ArrayList();
-        ArrayList clientChannelsList = new ArrayList();         //lust of all channels, required join
+        ArrayList clientIgnoredList = new ArrayList();         //list of ignored users
+        ArrayList clientChannelsList = new ArrayList();         //list of all channels
         ArrayList clientChannelsJoinedList = new ArrayList();   //list of channels that i joined
         ArrayList clientFriendsList = new ArrayList();          //list of friends thats i add
 
@@ -35,7 +35,9 @@ namespace Gold
 
         private static ClientManager clientManager;
 
-        tab_windows.channelWindow channelPanel = null;  //user channel window
+        //tab_windows.channelWindow channelPanel = null;  //user channel window
+
+        int second = 0;
 
         public program(ClientManager cm)
         {
@@ -61,13 +63,203 @@ namespace Gold
             clientManager.ClientExitChannel += OnClientExitChannel;
             clientManager.ClientListChannel += OnClientListChannel;
             clientManager.ClientChannelEnter += OnClientChannelEnter;
+            clientManager.ClientChannelEnterDeny += OnClientChannelEnterDeny;
             clientManager.ClientListChannelJoined += OnClientListChannelJoined;
             //friends
             clientManager.ClientAddFriend += OnClientAddFriend;
             clientManager.ClientAcceptFriend += OnClientAcceptFriend;
             clientManager.ClientListFriends += OnClientListFriends;
             clientManager.ClientDeleteFriend += OnClientDeleteFriend;
-            getFromServLists();
+            clientManager.ClientDenyFriend += OnClientDenyFriend;
+            clientManager.ClientIgnoreUser += OnClientIgnoreUser;
+            clientManager.ClientDeleteIgnoredUser += OnClientDeleteIgnoredUser;
+            clientManager.ClientListIgnored += OnClientListIgnored;
+            //ban/kick
+            clientManager.ClientKickFromSerwer += OnClientKickFromSerwer;
+            clientManager.ClientBanFromSerwer += OnClientBanFromSerwer;
+
+            getClientList();
+
+            dispatcherTimer.Tick += new EventHandler(getFromServLists);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+        }
+
+        private void OnClientBanFromSerwer(object sender, ClientEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnClientKickFromSerwer(object sender, ClientEventArgs e)
+        {
+            if (e.clientName == App.clientName)
+            {
+                MessageBox.Show("You are kicked reason: " + e.clientKickReason, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
+            }
+            else
+            {
+                clientList.Remove(e.clientName);
+                lb_users.Items.Refresh();
+                txtChatBox.Text += e.clientName + " has kicked reason: " + e.clientKickReason + "\r\n";
+            }
+        }
+
+        private void getClientList()
+        {
+            Data msgToSend = new Data();
+            msgToSend.cmdCommand = Command.List;
+            msgToSend.strName = strName;
+            msgToSend.strMessage = null;
+
+            byteData = msgToSend.ToByte();
+
+            clientManager.BeginSend(byteData);
+        }
+
+        private void OnClientChannelEnterDeny(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void getFromServLists(object sender, EventArgs e)
+        {
+            if (second == 0)
+            {
+                //The user has logged into the system so we now request the server to send
+                //the names of all users who are in the chat room
+
+            }
+            else if (second == 1)
+            {
+                //the names of all ignored users
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.List;
+                msgToSend.strName = strName;
+                msgToSend.strMessage = "IgnoredUsers";
+
+                byteData = msgToSend.ToByte();
+
+                clientManager.BeginSend(byteData);
+            }
+            else if (second == 2)
+            {
+                //the names of all channels that he have joined
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.List;
+                msgToSend.strName = strName;
+                msgToSend.strMessage = "ChannelsJoined";
+
+                byteData = msgToSend.ToByte();
+
+                clientManager.BeginSend(byteData);
+            }
+            else if (second == 3)
+            {
+                //the names of all users that he have in friend list
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.List;
+                msgToSend.strName = strName;
+                msgToSend.strMessage = "Friends";
+
+                byteData = msgToSend.ToByte();
+
+                clientManager.BeginSend(byteData);
+            }
+            else if (second == 4)
+            {
+                //the names of all channels that he have acces to
+                Data msgToSend = new Data();
+                msgToSend.cmdCommand = Command.List;
+                msgToSend.strName = strName;
+                msgToSend.strMessage = "Channel";
+
+                byteData = msgToSend.ToByte();
+
+                clientManager.BeginSend(byteData);
+            }
+            if (second > 4)
+                dispatcherTimer.Stop();
+            second = second + 1;
+        }
+
+        //private void getFromServLists()
+        //{
+        //    //The user has logged into the system so we now request the server to send
+        //    //the names of all users who are in the chat room
+        //    Data msgToSend = new Data();
+        //    msgToSend.cmdCommand = Command.List;
+        //    msgToSend.strName = strName;
+        //    msgToSend.strMessage = null;
+
+        //    byteData = msgToSend.ToByte();
+
+        //    clientManager.BeginSend(byteData);
+
+        //    //the names of all ignored users
+        //    Data msgToSendIgnoredUsers = new Data();
+        //    msgToSendIgnoredUsers.cmdCommand = Command.List;
+        //    msgToSendIgnoredUsers.strName = strName;
+        //    msgToSendIgnoredUsers.strMessage = "IgnoredUsers";
+
+        //    byteData = msgToSendIgnoredUsers.ToByte();
+
+        //    clientManager.BeginSend(byteData);
+
+        //    //the names of all channels that he have joined
+        //    Data msgToSendJoinedChannels = new Data();
+        //    msgToSendJoinedChannels.cmdCommand = Command.List;
+        //    msgToSendJoinedChannels.strName = strName;
+        //    msgToSendJoinedChannels.strMessage = "ChannelsJoined";
+
+        //    byteData = msgToSendJoinedChannels.ToByte();
+
+        //    clientManager.BeginSend(byteData);
+        //}
+
+        private void OnClientListIgnored(object sender, ClientEventArgs e)
+        {
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                clientIgnoredList.AddRange(e.clientListMessage.Split('*'));
+                clientIgnoredList.RemoveAt(clientIgnoredList.Count - 1);
+                lb_ignored.ItemsSource = clientIgnoredList;
+                lb_ignored.Items.Refresh();
+            }));
+        }
+
+        private void OnClientDeleteIgnoredUser(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientIgnoreMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            if (e.clientIgnoreOption == "DeleteIgnore")
+            {
+                //  Dispatcher.BeginInvoke((Action)(() =>
+                // {
+                clientIgnoredList.Remove(e.clientIgnoreName);
+                string removedName = e.clientIgnoreName;
+                lb_ignored.Items.Remove(removedName);
+                lb_ignored.Items.Refresh();
+                getClientList();
+                // }));
+            }
+        }
+
+        private void OnClientIgnoreUser(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientIgnoreMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            if (e.clientIgnoreOption == "AddIgnore")
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    clientIgnoredList.Add(e.clientIgnoreName);
+                    lb_ignored.Items.Add(e.clientIgnoreName);
+                    lb_ignored.Items.Refresh();
+                }));
+            }
+        }
+
+        private void OnClientDenyFriend(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show("User: " + e.clientFriendName + " doesnt accept your ask to be your friend", "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientListChannelJoined(object sender, ClientEventArgs e)
@@ -84,15 +276,15 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                if (e.clientName == App.clientName && e.clientChannelMsg2 == "enter")
+                if (e.clientName == App.clientName)
                 {
                     string channelName = e.clientChannelName;
-                    channelPanel = new tab_windows.channelWindow(clientManager, channelName);
+                    tab_windows.channelWindow channelPanel = new tab_windows.channelWindow(clientManager, channelName);
 
                     var header = new TextBlock { Text = channelName };
                     // Create the tab
-                    var tab = new CloseableTabItem();
-                    tab.SetHeader(header);
+                    var tab = new CloseableTabItem(clientManager);
+                    tab.SetHeader(header, channelName, true);
                     tab.Content = channelPanel;
 
                     // Add to TabControl
@@ -112,18 +304,7 @@ namespace Gold
                     //lets print motd 
                     channelPanel.channelMessages.Text += "<<< Welcome Message: " + e.clientChannelMsg + " >>>>" + "\r\n";
                 }
-                //else if (e.clientName != App.clientName && e.clientChannelMsg2 == "enter")
-                //{
-                //    //chect(name) if tab channel is opened 
-                //    //if yes,
-                //    //message to channel User .. enter to room 
-                //    if (channelPanel != null && channelPanel.channelName == e.clientChannelName)
-                //    {
-                //        channelPanel.channelMessages.Text += e.clientName + " Log into channel" + "\r\n";
-                //    }
 
-                //}
-                //else MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             }));
         }
 
@@ -141,6 +322,7 @@ namespace Gold
             clientManager.BeginSend(byteData);
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                clientFriendsList.Remove(e.clientFriendName == App.clientName ? e.clientName : e.clientFriendName);
                 lb_friend_users.Items.Remove(e.clientFriendName == App.clientName ? e.clientName : e.clientFriendName); //change in server side: send respoand and msg to nick
                 lb_friend_users.Items.Refresh();
             }));
@@ -173,14 +355,14 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                MessageBoxResult result = MessageBox.Show("User: " + e.clientName + " want to be your friend Accept?", "Gold Chat", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxResult result = MessageBox.Show("User: " + e.clientFriendName + " want to be your friend Accept?", "Gold Chat: " + strName, MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No)
                 {
                     Data msgToSend = new Data();
 
                     msgToSend.strName = strName;
                     msgToSend.strMessage = "No";
-                    msgToSend.strMessage2 = e.clientName;
+                    msgToSend.strMessage2 = e.clientFriendName;
                     msgToSend.cmdCommand = Command.manageFriend;
 
                     byte[] byteData = msgToSend.ToByte();
@@ -193,7 +375,7 @@ namespace Gold
 
                     msgToSend.strName = strName;
                     msgToSend.strMessage = "Yes";
-                    msgToSend.strMessage2 = e.clientName;
+                    msgToSend.strMessage2 = e.clientFriendName;
                     msgToSend.cmdCommand = Command.manageFriend;
 
                     byte[] byteData = msgToSend.ToByte();
@@ -207,9 +389,18 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                clientChannelsList.AddRange(e.clientListChannelsMessage.Split('*'));
+
+                string[] splitChannels = e.clientListChannelsMessage.Split('*');
+                foreach (string channel in splitChannels)
+                {
+                    if (!clientChannelsList.Contains(channel))
+                        clientChannelsList.Add(channel);
+                }
+
+                //clientChannelsList.AddRange(e.clientListChannelsMessage.Split('*'));
                 clientChannelsList.RemoveAt(clientChannelsList.Count - 1);
                 lbLobbies.ItemsSource = clientChannelsList;
+                lbLobbies.Items.Refresh();
             }));
         }
 
@@ -217,29 +408,41 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                if (e.clientChannelMsg2 == "Send Password" || e.clientChannelMsg2 == "Wrong Password")
+                if (e.clientChannelMsg == "Send Password" || e.clientChannelMsg == "Wrong Password")
                 {
                     //i need programmatically create window
+                    MessageBox.Show("Send Password to channel " + e.clientChannelName, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
 
-
-                    serverAsk sa = new serverAsk(clientManager, e.clientChannelMsg, e.clientChannelMsg2);
+                    serverAsk sa = new serverAsk(clientManager, e.clientChannelName, e.clientChannelMsg);
                     sa.Show();
                 }
+                else if (e.clientChannelMsg2 == "ChannelJoined" || e.clientChannelMsg2 == "CreatedChannel")
+                {
+                    clientChannelsJoinedList.Add(e.clientChannelName);
+                    lbJoinedChann.Items.Refresh();
+                    MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                //else if (e.clientChannelMsg2 == "CreatedChannel")
+                //{
+                //    MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                //}
                 else
                 {
                     MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
-                    MessageBox.Show(e.clientChannelMsg2, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
                 }
+
             }));
         }
-
 
         private void OnClientExitChannel(object sender, ClientEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                clientChannelsJoinedList.Remove(e.clientChannelName);
+                lbJoinedChann.Items.Refresh();
+
             }));
+            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientEditChannel(object sender, ClientEventArgs e)
@@ -260,32 +463,33 @@ namespace Gold
 
         private void OnClientCreateChannel(object sender, ClientEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
-            {
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            }));
+            //if (e.clientChannelMsg2 != "CreatedChannel")
+            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                //if (!clientList.Contains(e.clientLoginName))
+                //{
                 clientList.Add(e.clientLoginName);
                 lb_users.Items.Refresh();
                 txtChatBox.Text += e.clientLoginMessage + "\r\n";
+                //}
             }));
         }
 
         /*
-private void OnSendException(object sender, ClientEventArgs e)
-{
-   MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-}
+        private void OnSendException(object sender, ClientEventArgs e)
+        {
+        MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
 
-private void OnReceiveLogExcep(object sender, ClientEventArgs e)
-{
-   MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-}*/
+        private void OnReceiveLogExcep(object sender, ClientEventArgs e)
+        {
+        MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+        }*/
 
         private void OnClientPrivMessage(object sender, ClientEventArgs e)
         {
@@ -316,9 +520,16 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                clientList.AddRange(e.clientListMessage.Split('*'));
+                string[] splitNicks = e.clientListMessage.Split('*');
+                foreach (string nick in splitNicks)
+                {
+                    if (!clientList.Contains(nick))
+                        clientList.Add(nick);
+                }
+                //clientList.AddRange(e.clientListMessage.Split('*'));
                 clientList.RemoveAt(clientList.Count - 1);
                 lb_users.ItemsSource = clientList;
+                lb_users.Items.Refresh();
             }));
         }
 
@@ -327,33 +538,9 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 clientList.Remove(e.clientLogoutMessage);
-                txtChatBox.Text += "<<<" + e.clientLogoutMessage + " has left the room>>>";
+                txtChatBox.Text += "<<<" + e.clientLogoutMessage + " has left the room>>>" + "\r\n";
                 lb_users.Items.Refresh();
             }));
-        }
-
-        /// <summary>
-        /// Close tab window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void OnClick(object sender, RoutedEventArgs args)
-        {
-            CheckBox selectionCheckBox = sender as CheckBox;
-            if (selectionCheckBox != null && selectionCheckBox.IsChecked == true)
-            {
-                foreach (Control child in DesignerCanvas.Children)
-                {
-                    Selector.SetIsSelected(child, true);
-                }
-            }
-            else
-            {
-                foreach (Control child in DesignerCanvas.Children)
-                {
-                    Selector.SetIsSelected(child, false);
-                }
-            }
         }
 
         private void SendMessage()
@@ -424,8 +611,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
             var header = new TextBlock { Text = "Control Panel" };
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Control Panel");
             tab.Content = ctrl_panel;
 
             // Add to TabControl
@@ -439,8 +626,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Create Room" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Create Room");
             tab.Content = create_room;
 
             // Add to TabControl
@@ -453,8 +640,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Suggestions" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Suggestions");
             tab.Content = suggest;
 
             // Add to TabControl
@@ -477,8 +664,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Abouse" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Abouse");
             tab.Content = abouse;
 
             // Add to TabControl
@@ -492,8 +679,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Contact" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Contact");
             tab.Content = contact;
 
             // Add to TabControl
@@ -507,8 +694,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Admin Settings" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Admin Settings");
             tab.Content = adm_settings;
 
             // Add to TabControl
@@ -521,8 +708,8 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             var header = new TextBlock { Text = "Information" };
 
             // Create the tab
-            var tab = new CloseableTabItem();
-            tab.SetHeader(header);
+            var tab = new CloseableTabItem(clientManager);
+            tab.SetHeader(header, "Information");
             tab.Content = inform;
 
             // Add to TabControl
@@ -540,9 +727,6 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
         #endregion
 
-        //TODO client manager receive takes only list and channel
-        // friends and ChannelsJoined wont
-        // update work when i separate 2 into constructor and window loaded - maybe do some timer and send every 0.5 sec ? each
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             DoubleAnimation myDoubleAnimation1 = new DoubleAnimation();
@@ -553,74 +737,12 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
 
             Title = "Gold Chat: " + strName;
 
-            //the names of all users that he have in friend list
-            Data msgToSendFriends = new Data();
-            msgToSendFriends.cmdCommand = Command.List;
-            msgToSendFriends.strName = strName;
-            msgToSendFriends.strMessage = "Friends";
-
-            byteData = msgToSendFriends.ToByte();
-
-            clientManager.BeginSend(byteData);
-
-            //the names of all channels that he have acces to
-            Data msgToSendChannel = new Data();
-            msgToSendChannel.cmdCommand = Command.List;
-            msgToSendChannel.strName = strName;
-            msgToSendChannel.strMessage = "Channel";
-
-            byteData = msgToSendChannel.ToByte();
-
-            clientManager.BeginSend(byteData);
+            dispatcherTimer.Start();
         }
-
-        private void getFromServLists()
-        {
-            //The user has logged into the system so we now request the server to send
-            //the names of all users who are in the chat room
-            Data msgToSend = new Data();
-            msgToSend.cmdCommand = Command.List;
-            msgToSend.strName = strName;
-            msgToSend.strMessage = null;
-
-            byteData = msgToSend.ToByte();
-
-            clientManager.BeginSend(byteData);
-
-            //the names of all channels that he have joined
-            Data msgToSendJoinedChannels = new Data();
-            msgToSendJoinedChannels.cmdCommand = Command.List;
-            msgToSendJoinedChannels.strName = strName;
-            msgToSendJoinedChannels.strMessage = "ChannelsJoined";
-
-            byteData = msgToSendJoinedChannels.ToByte();
-
-            clientManager.BeginSend(byteData);
-        }
-
-        #region Functions
-
-        /// <summary>
-        /// Notify the user when receive the file completely.
-        /// </summary>
-        public void FileReceiveDone()
-        {
-            // MessageBox.Show(this, Properties.Resources.FileReceivedDoneMsg);
-        }
-
-        /// <summary>
-        /// Notify the user when connect to the server successfully.
-        /// </summary>
-        public void ConnectDone()
-        {
-            //MessageBox.Show(this, Properties.Resources.ConnectionMsg);
-        }
-
-        #endregion
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure you want to leave the chat room?", "Gold Chat", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to leave the chat room?", "Gold Chat: " + strName, MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.No)
             {
                 e.Cancel = true;
@@ -661,7 +783,7 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
         private void AddFriend(object sender, RoutedEventArgs e)
         {
             string friendName = lb_users.SelectedItem.ToString();
-            if (clientList.Contains(friendName) && lb_users.SelectedItem.ToString() != App.clientName)
+            if (clientList.Contains(friendName) && friendName != App.clientName)
             {
                 //there is send information to server that i add someone to friend list
                 Data msgToSend = new Data();
@@ -688,6 +810,23 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             if (clientList.Contains(usernName) && usernName != App.clientName)
             {
                 PrivateMessage(usernName);
+            }
+        }
+
+        private void IgnoreUser(object sender, RoutedEventArgs e)
+        {
+            string usernName = lb_users.SelectedItem.ToString();
+            if (clientList.Contains(usernName) && usernName != App.clientName)
+            {
+                Data msgToSend = new Data();
+
+                msgToSend.strName = App.clientName; //channel admin
+                msgToSend.strMessage = "AddIgnore";
+                msgToSend.strMessage2 = usernName;
+                msgToSend.cmdCommand = Command.ignoreUser;
+
+                byte[] byteData = msgToSend.ToByte();
+                clientManager.BeginSend(byteData);
             }
         }
 
@@ -719,6 +858,23 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
             }
         }
 
+        private void DeleteFromIgnoreList(object sender, RoutedEventArgs e)
+        {
+            string strMessage = lb_ignored.SelectedItem.ToString();
+            if (clientIgnoredList.Contains(strMessage))
+            {
+                Data msgToSend = new Data();
+
+                msgToSend.strName = App.clientName; //channel admin
+                msgToSend.strMessage = "DeleteIgnore";
+                msgToSend.strMessage2 = strMessage;
+                msgToSend.cmdCommand = Command.ignoreUser;
+
+                byte[] byteData = msgToSend.ToByte();
+                clientManager.BeginSend(byteData);
+            }
+        }
+
         private void JoinToLobbie(object sender, RoutedEventArgs e)
         {
             string strMessage = lbLobbies.SelectedItem.ToString();
@@ -735,12 +891,21 @@ private void OnReceiveLogExcep(object sender, ClientEventArgs e)
                 clientManager.BeginSend(byteData);
             }
         }
+        //exit from joined channel, if wanna enter again => required join
+        //todo check if user have opened (tab_windows.channelWindow channelPanel)
         private void ExitFromLobbie(object sender, RoutedEventArgs e)
         {
             string strMessage = lbLobbies.SelectedItem.ToString();
-            if (clientChannelsList.Contains(strMessage))
+            if (clientChannelsJoinedList.Contains(strMessage))
             {
+                Data msgToSend = new Data();
 
+                msgToSend.strName = App.clientName;
+                msgToSend.strMessage = strMessage;
+                msgToSend.cmdCommand = Command.exitChannel;
+
+                byte[] byteData = msgToSend.ToByte();
+                clientManager.BeginSend(byteData);
             }
         }
         private void DeleteChannel(object sender, RoutedEventArgs e)

@@ -47,5 +47,18 @@ namespace Server
                 channelName = value;
             }
         }
+
+        public int FounderiD
+        {
+            get
+            {
+                return founderiD;
+            }
+
+            set
+            {
+                founderiD = value;
+            }
+        }
     }
 }

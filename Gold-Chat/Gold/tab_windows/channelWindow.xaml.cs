@@ -34,7 +34,19 @@ namespace Gold.tab_windows
 
         private void OnClientChannelLeave(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                foreach (string user in channelUsersList)
+                {
+                    if (user == e.clientName)
+                    {
+                        showMessage("<<< " + e.clientName + " has leave this channel>>>" + "\r\n");
+                        channelUsersList.Remove(user);
+                        channelUsers.Items.Refresh();
+                        break;
+                    }
+                }
+            }));
         }
 
         private void OnClientListChannelUsers(object sender, ClientEventArgs e)
@@ -50,16 +62,12 @@ namespace Gold.tab_windows
         //todo check how will work with program.cs(OnClientChannelEnter)
         private void OnClientChannelEnter(object sender, ClientEventArgs e)
         {
-            //if (channelPanel != null && channelName == e.clientChannelName)
-            // {
-
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 channelMessages.Text += "<<< " + e.clientName + " log into channel" + "\r\n";
                 channelUsersList.Add(e.clientName);
                 channelUsers.Items.Refresh();
             }));
-            // }
         }
 
         private void ClientLogout(object sender, ClientEventArgs e)
@@ -70,7 +78,7 @@ namespace Gold.tab_windows
                 {
                     if (user == e.clientLogoutMessage)
                     {
-                        showMessage("<<< " + e.clientLogoutMessage + " has logout>>>");
+                        showMessage("<<< " + e.clientLogoutMessage + " has logout>>>" + "\r\n");
                         channelUsersList.Remove(user);
                         //channelUsers.Items.Remove(e.clientLogoutMessage);
                         channelUsers.Items.Refresh();

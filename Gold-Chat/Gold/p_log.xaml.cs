@@ -86,7 +86,7 @@ namespace Gold
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
-            if (e.clientLoginName == userName)//i dont want to see msgBox when other users log in
+            if (e.clientLoginName == userName && e.clientLoginMessage != "<<<" + e.clientLoginName + " has joined the room>>>")//i dont want to see msgBox when other users log in
             {
                 MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -165,7 +165,6 @@ namespace Gold
             MessageBoxResult result = MessageBox.Show("Do you want to close Aplication?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
-                //oznaczenie ze ktos zamknal okno = chce zakonczyc aplikacje
                 var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
                 anim.Completed += (s, _) => DialogResult = false;
                 BeginAnimation(OpacityProperty, anim);
@@ -181,14 +180,6 @@ namespace Gold
         {
             p_reg reg = new p_reg(clientManager);
             reg.ShowDialog();
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            /*
-            var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
-            anim.Completed += (s, _) => DialogResult = true;
-            BeginAnimation(OpacityProperty, anim);*/
         }
     }
 }

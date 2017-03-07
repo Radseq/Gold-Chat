@@ -40,6 +40,14 @@ namespace Gold
         public string clientName { get; set; } //for friend or i should use clientLoginName
         //friends
         public string clientListFriendsMessage { get; set; }
+        //Ignore
+        public string clientIgnoreOption { get; set; }
+        public string clientIgnoreMessage { get; set; }
+        public string clientIgnoreName { get; set; }
+        //kick/ban
+        public string clientBanReason { get; set; }
+        public string clientBanTime { get; set; }
+        public string clientKickReason { get; set; }
     }
 
     public class ClientManager
@@ -72,13 +80,24 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientListChannelUsers;
         public event EventHandler<ClientEventArgs> ClientChannelMessage;
         public event EventHandler<ClientEventArgs> ClientChannelEnter;
+        public event EventHandler<ClientEventArgs> ClientChannelEnterDeny;
         public event EventHandler<ClientEventArgs> ClientChannelLeave;
 
         //friend
         public event EventHandler<ClientEventArgs> ClientAddFriend;
         public event EventHandler<ClientEventArgs> ClientAcceptFriend;
         public event EventHandler<ClientEventArgs> ClientDeleteFriend;
+        public event EventHandler<ClientEventArgs> ClientDenyFriend;
         public event EventHandler<ClientEventArgs> ClientListFriends;
+        //ignore
+        public event EventHandler<ClientEventArgs> ClientIgnoreUser;
+        public event EventHandler<ClientEventArgs> ClientDeleteIgnoredUser;
+        public event EventHandler<ClientEventArgs> ClientListIgnored;
+        //kick/ban
+        public event EventHandler<ClientEventArgs> ClientKickFromChannel;
+        public event EventHandler<ClientEventArgs> ClientKickFromSerwer;
+        public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
+        //public event EventHandler<ClientEventArgs> ClientListIgnored;
 
         Socket socket;
         //string userName;
@@ -284,15 +303,15 @@ namespace Gold
                         break;
 
                     case Command.createChannel:
-                        OnClientCreateChannel(msgReceived.strMessage);
+                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
                     case Command.joinChannel:
-                        OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                        OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                         break;
 
                     case Command.exitChannel:
-                        OnClientExitChannel(msgReceived.strMessage);
+                        OnClientExitChannel(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
                     case Command.deleteChannel:
@@ -300,14 +319,16 @@ namespace Gold
                         break;
 
                     case Command.List:
-                        if (msgReceived.strMessage == "Channel" && msgReceived.strMessage2 != null) //if channel and msg is not empty (there is channels names)
+                        if (msgReceived.strMessage == "Channel") //if channel and msg is not empty (there is channels names)
                             OnClientChannelList(msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "Friends" && msgReceived.strMessage2 != null)
+                        else if (msgReceived.strMessage == "Friends")
                             OnClientFriendsList(msgReceived.strMessage2);
                         else if (msgReceived.strMessage == "ChannelsJoined")
                             OnClientChannelJoinedList(msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "ChannelUsers" && msgReceived.strMessage2 != null)
+                        else if (msgReceived.strMessage == "ChannelUsers")
                             OnClientChannelUsersList(msgReceived.strMessage2, msgReceived.strMessage3);
+                        else if (msgReceived.strMessage == "IgnoredUsers")
+                            OnClientIgnoredList(msgReceived.strMessage2);
                         else
                             OnClientList(msgReceived.strMessage);
                         break;
@@ -318,13 +339,35 @@ namespace Gold
                             OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
                         else if (msgReceived.strMessage == "Delete")
                             OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else
+                            OnClientDenyFriend(msgReceived.strName, msgReceived.strMessage2);
                         break;
                     case Command.enterChannel:
-                        OnClientEnterChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strName, msgReceived.strMessage3);
+                        if (msgReceived.strMessage2 == "enter")
+                            OnClientEnterChannel(msgReceived.strMessage, msgReceived.strName, msgReceived.strMessage3);
+                        else
+                            OnClientEnterDenyChannel(msgReceived.strMessage3);
                         //You must first join to channel if you want to enter.
                         break;
                     case Command.leaveChannel:
                         OnClientLeaveChannel(msgReceived.strName, msgReceived.strMessage);
+                        break;
+                    case Command.ignoreUser:
+                        if (msgReceived.strMessage == "AddIgnore")
+                            OnClientIgnoreUser(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        if (msgReceived.strMessage == "DeleteIgnore")
+                            OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.kick:
+                        OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
+                        break;
+                    case Command.ban:
+                        OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.kickUserChannel:
+                        OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.banUserChannel:
                         break;
                 }
                 // Procedure listening for server messages.
@@ -429,21 +472,21 @@ namespace Gold
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
         //channel todo
-        protected virtual void OnClientCreateChannel(string channelMsg)
+        protected virtual void OnClientCreateChannel(string channelMsg, string roomName)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName });
         }
-        protected virtual void OnClientJoinChannel(string channelMsg, string channelMsg2)
+        protected virtual void OnClientJoinChannel(string channelName, string channelMsg2, string channelMsg3)
         {
-            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = channelMsg2 });
+            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg = channelMsg2, clientChannelMsg2 = channelMsg3 });
         }
         protected virtual void OnClientDeleteChannel(string channelMsg)
         {
             ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
         }
-        protected virtual void OnClientExitChannel(string channelMsg)
+        protected virtual void OnClientExitChannel(string channelMsg, string channelName)
         {
-            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelName = channelName });
         }
         protected virtual void OnClientEditChannel(string channelMsg)
         {
@@ -457,9 +500,13 @@ namespace Gold
         {
             ClientChannelMessage?.Invoke(this, new ClientEventArgs() { clientChannelMessage = channelMessage });
         }
-        protected virtual void OnClientEnterChannel(string channelName, string msg2, string userName, string msg3)
+        protected virtual void OnClientEnterChannel(string channelName, string userName, string msg3)
         {
-            ClientChannelEnter?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg2 = msg2, clientName = userName, clientChannelMsg = msg3 });
+            ClientChannelEnter?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientName = userName, clientChannelMsg = msg3 });
+        }
+        protected virtual void OnClientEnterDenyChannel(string msg3)
+        {
+            ClientChannelEnterDeny?.Invoke(this, new ClientEventArgs() { clientChannelMsg = msg3 });
         }
         protected virtual void OnClientLeaveChannel(string userName, string channelName)
         {
@@ -486,9 +533,39 @@ namespace Gold
         {
             ClientDeleteFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
         }
+        protected virtual void OnClientDenyFriend(string ClientName, string ClientFriendName)
+        {
+            ClientDenyFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
         protected virtual void OnClientFriendsList(string friendNames)
         {
             ClientListFriends?.Invoke(this, new ClientEventArgs() { clientListFriendsMessage = friendNames });
+        }
+        //ignore
+        protected virtual void OnClientIgnoredList(string usersList)
+        {
+            ClientListIgnored?.Invoke(this, new ClientEventArgs() { clientListMessage = usersList });
+        }
+        protected virtual void OnClientIgnoreUser(string ignoreOption, string ignoreMessage, string ignoredName)
+        {
+            ClientIgnoreUser?.Invoke(this, new ClientEventArgs() { clientIgnoreOption = ignoreOption, clientIgnoreMessage = ignoreMessage, clientIgnoreName = ignoredName });
+        }
+        protected virtual void OnClientDeleteIgnored(string ignoreOption, string ignoreMessage, string ignoredName)
+        {
+            ClientDeleteIgnoredUser?.Invoke(this, new ClientEventArgs() { clientIgnoreOption = ignoreOption, clientIgnoreMessage = ignoreMessage, clientIgnoreName = ignoredName });
+        }
+        //kick/ban
+        protected virtual void OnClientKickFromChannel(string userName, string kickReason, string channelName)
+        {
+            ClientKickFromChannel?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason, clientChannelName = channelName });
+        }
+        protected virtual void OnClientKickFromSerwer(string userName, string kickReason)
+        {
+            ClientKickFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason });
+        }
+        protected virtual void OnClientBanFromSerwer(string userName, string time, string kickReason)
+        {
+            ClientBanFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanTime = time, clientBanReason = kickReason });
         }
     }
 }
