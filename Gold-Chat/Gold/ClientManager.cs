@@ -1,7 +1,6 @@
 ﻿using CommandClient;
 using System;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
@@ -31,6 +30,24 @@ namespace Gold
         public int clientPingTime { get; set; }
         public string clientPingMessage { get; set; }
         public string clientChangePassMessage { get; set; }
+        //for channel
+        public string clientChannelMsg { get; set; }
+        public string clientChannelMsg2 { get; set; }
+        public string clientListChannelsMessage { get; set; }
+        public string clientChannelMessage { get; set; }
+        public string clientChannelName { get; set; }
+
+        public string clientName { get; set; } //for friend or i should use clientLoginName
+        //friends
+        public string clientListFriendsMessage { get; set; }
+        //Ignore
+        public string clientIgnoreOption { get; set; }
+        public string clientIgnoreMessage { get; set; }
+        public string clientIgnoreName { get; set; }
+        //kick/ban
+        public string clientBanReason { get; set; }
+        public string clientBanTime { get; set; }
+        public string clientKickReason { get; set; }
     }
 
     public class ClientManager
@@ -50,16 +67,46 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientPrivMessage;
         //ping
         public event EventHandler<ClientEventArgs> ClientPing;
-
         public event EventHandler<ClientEventArgs> ClientChangePass;
 
+        //channel
+        public event EventHandler<ClientEventArgs> ClientCreateChannel;
+        public event EventHandler<ClientEventArgs> ClientJoinChannel;
+        public event EventHandler<ClientEventArgs> ClientDeleteChannel;
+        public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
+        public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
+        public event EventHandler<ClientEventArgs> ClientListChannel;
+        public event EventHandler<ClientEventArgs> ClientListChannelJoined;
+        public event EventHandler<ClientEventArgs> ClientListChannelUsers;
+        public event EventHandler<ClientEventArgs> ClientChannelMessage;
+        public event EventHandler<ClientEventArgs> ClientChannelEnter;
+        public event EventHandler<ClientEventArgs> ClientChannelEnterDeny;
+        public event EventHandler<ClientEventArgs> ClientChannelLeave;
+
+        //friend
+        public event EventHandler<ClientEventArgs> ClientAddFriend;
+        public event EventHandler<ClientEventArgs> ClientAcceptFriend;
+        public event EventHandler<ClientEventArgs> ClientDeleteFriend;
+        public event EventHandler<ClientEventArgs> ClientDenyFriend;
+        public event EventHandler<ClientEventArgs> ClientListFriends;
+        //ignore
+        public event EventHandler<ClientEventArgs> ClientIgnoreUser;
+        public event EventHandler<ClientEventArgs> ClientDeleteIgnoredUser;
+        public event EventHandler<ClientEventArgs> ClientListIgnored;
+        //kick/ban
+        public event EventHandler<ClientEventArgs> ClientKickFromChannel;
+        public event EventHandler<ClientEventArgs> ClientKickFromSerwer;
+        public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
+        //public event EventHandler<ClientEventArgs> ClientListIgnored;
+
         Socket socket;
-        //object msgS;
-        //public string clientPassword;
-        public string userName;
+        //string userName;
 
         //private System.Timers.Timer pingTimer;
         //private System.Timers.Timer messageTimer;
+
+        bool serverError = false;
+        bool IsUserLogout { get; set; }
 
         public const int PORT = 5000;
         public const string SERVER = "::1";
@@ -92,22 +139,22 @@ namespace Gold
             //messageTimer.Start();
         }
 
-        private void pingServer(object sender, EventArgs e)
-        {
-            Ping pinger = new Ping();
-            try
-            {
-                PingReply reply = pinger.Send("127.0.0.1");
-                if (reply.Status == IPStatus.Success)
-                    OnClientPing((int)reply.RoundtripTime, "Server Online");
-                OnClientPing(0, "Server Offline");
+        //private void pingServer(object sender, EventArgs e)
+        //{
+        //    Ping pinger = new Ping();
+        //    try
+        //    {
+        //        PingReply reply = pinger.Send("127.0.0.1");
+        //        if (reply.Status == IPStatus.Success)
+        //            OnClientPing((int)reply.RoundtripTime, "Server Online");
+        //        OnClientPing(0, "Server Offline");
 
-            }
-            catch (PingException)
-            {
-                // Discard PingExceptions and return false;
-            }
-        }
+        //    }
+        //    catch (PingException)
+        //    {
+        //        // Discard PingExceptions and return false;
+        //    }
+        //}
 
         public void BeginConnect(/*string name, string password*/)
         {
@@ -118,7 +165,7 @@ namespace Gold
             bool part2 = (socket.Available == 0);
             if ((part1 && part2) || !socket.Connected)
             {
-                //BeginConnect();
+                IsUserLogout = false;
                 socket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
                 connectDone.WaitOne();
             }
@@ -149,7 +196,7 @@ namespace Gold
                 OnSendExcep(ex.Message);
             }
         }
-        // to check
+
         public void BeginSend(byte[] byteData)
         {
             //messageTimer.Elapsed += new ElapsedEventHandler((s, e) =>
@@ -159,11 +206,11 @@ namespace Gold
 
         public void LogoutSend(byte[] byteData)
         {
+            IsUserLogout = true;
             socket.Send(byteData, 0, byteData.Length, SocketFlags.None);
-            receiveDone.WaitOne();//must be, case we must wait till receive ends
             // Release the socket.
-            //socket.Shutdown(SocketShutdown.Both);
-            //socket.Close();
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         public void BeginReceive()
@@ -205,6 +252,9 @@ namespace Gold
 
         private void OnReceive(IAsyncResult ar)
         {
+            if (IsUserLogout == true || serverError == true)
+                return;
+
             try
             {
                 //var so = (StateObject)ar.AsyncState;
@@ -218,10 +268,11 @@ namespace Gold
                 switch (msgReceived.cmdCommand)
                 {
                     case Command.Login:
-                        //if (msgReceived.strName == userName)
-                        OnClientLogin(msgReceived.strMessage, msgReceived.strName);
-                        if (msgReceived.strName == userName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                        if (msgReceived.strName == App.clientName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
                             OnClientSuccesLogin(true, socket);
+                        else if (msgReceived.strMessage == null)
+                            serverError = true;
+                        else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                         break;
 
                     case Command.Reg:
@@ -241,27 +292,96 @@ namespace Gold
                         break;
 
                     case Command.Message:
+                        if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
+                            OnClientMessage(msgReceived.strMessage + "\r\n");
+                        else
+                            OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
                         break;
 
                     case Command.privMessage:
+                        OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                        break;
+
+                    case Command.createChannel:
+                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                        break;
+
+                    case Command.joinChannel:
+                        OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+
+                    case Command.exitChannel:
+                        OnClientExitChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                        break;
+
+                    case Command.deleteChannel:
+                        OnClientDeleteChannel(msgReceived.strMessage);
                         break;
 
                     case Command.List:
-                        OnClientList(msgReceived.strMessage);
+                        if (msgReceived.strMessage == "Channel") //if channel and msg is not empty (there is channels names)
+                            OnClientChannelList(msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Friends")
+                            OnClientFriendsList(msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "ChannelsJoined")
+                            OnClientChannelJoinedList(msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "ChannelUsers")
+                            OnClientChannelUsersList(msgReceived.strMessage2, msgReceived.strMessage3);
+                        else if (msgReceived.strMessage == "IgnoredUsers")
+                            OnClientIgnoredList(msgReceived.strMessage2);
+                        else
+                            OnClientList(msgReceived.strMessage);
+                        break;
+                    case Command.manageFriend:
+                        if (msgReceived.strMessage == "Add")
+                            OnClientAddFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Yes")
+                            OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else if (msgReceived.strMessage == "Delete")
+                            OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage2);
+                        else
+                            OnClientDenyFriend(msgReceived.strName, msgReceived.strMessage2);
+                        break;
+                    case Command.enterChannel:
+                        if (msgReceived.strMessage2 == "enter")
+                            OnClientEnterChannel(msgReceived.strMessage, msgReceived.strName, msgReceived.strMessage3);
+                        else
+                            OnClientEnterDenyChannel(msgReceived.strMessage3);
+                        //You must first join to channel if you want to enter.
+                        break;
+                    case Command.leaveChannel:
+                        OnClientLeaveChannel(msgReceived.strName, msgReceived.strMessage);
+                        break;
+                    case Command.ignoreUser:
+                        if (msgReceived.strMessage == "AddIgnore")
+                            OnClientIgnoreUser(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        if (msgReceived.strMessage == "DeleteIgnore")
+                            OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.kick:
+                        OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
+                        break;
+                    case Command.ban:
+                        OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.kickUserChannel:
+                        OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                        break;
+                    case Command.banUserChannel:
                         break;
                 }
                 // Procedure listening for server messages.
-                if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
-                    OnClientMessage(msgReceived.strMessage + "\r\n");
-                else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List && msgReceived.strMessage != null)
-                {
-                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
-                }
+                //if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
+                //    OnClientMessage(msgReceived.strMessage + "\r\n");
+                //else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List)
+                //{
+                //    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                //}
 
                 byteData = new byte[1024];
                 receiveDone.Set();
+
                 socket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-                //receiveDone.Set();
             }
             catch (ObjectDisposedException ex)
             {
@@ -350,6 +470,102 @@ namespace Gold
         protected virtual void OnClientChangePass(string message)
         {
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
+        }
+        //channel todo
+        protected virtual void OnClientCreateChannel(string channelMsg, string roomName)
+        {
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName });
+        }
+        protected virtual void OnClientJoinChannel(string channelName, string channelMsg2, string channelMsg3)
+        {
+            ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg = channelMsg2, clientChannelMsg2 = channelMsg3 });
+        }
+        protected virtual void OnClientDeleteChannel(string channelMsg)
+        {
+            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+        }
+        protected virtual void OnClientExitChannel(string channelMsg, string channelName)
+        {
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelName = channelName });
+        }
+        protected virtual void OnClientEditChannel(string channelMsg)
+        {
+            ClientEditChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+        }
+        protected virtual void OnClientChannelList(string channelNames)
+        {
+            ClientListChannel?.Invoke(this, new ClientEventArgs() { clientListChannelsMessage = channelNames });
+        }
+        protected virtual void OnClientChannelMessage(string channelMessage)
+        {
+            ClientChannelMessage?.Invoke(this, new ClientEventArgs() { clientChannelMessage = channelMessage });
+        }
+        protected virtual void OnClientEnterChannel(string channelName, string userName, string msg3)
+        {
+            ClientChannelEnter?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientName = userName, clientChannelMsg = msg3 });
+        }
+        protected virtual void OnClientEnterDenyChannel(string msg3)
+        {
+            ClientChannelEnterDeny?.Invoke(this, new ClientEventArgs() { clientChannelMsg = msg3 });
+        }
+        protected virtual void OnClientLeaveChannel(string userName, string channelName)
+        {
+            ClientChannelLeave?.Invoke(this, new ClientEventArgs() { clientName = userName, clientChannelMsg = channelName });
+        }
+        protected virtual void OnClientChannelJoinedList(string channelNames)
+        {
+            ClientListChannelJoined?.Invoke(this, new ClientEventArgs() { clientListChannelsMessage = channelNames });
+        }
+        protected virtual void OnClientChannelUsersList(string channelName, string usersList)
+        {
+            ClientListChannelUsers?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientListMessage = usersList });
+        }
+        //friend
+        protected virtual void OnClientAddFriend(string ClientName, string ClientFriendName)
+        {
+            ClientAddFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientAcceptFriend(string ClientName, string ClientFriendName)
+        {
+            ClientAcceptFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientDeleteFriend(string ClientName, string ClientFriendName)
+        {
+            ClientDeleteFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientDenyFriend(string ClientName, string ClientFriendName)
+        {
+            ClientDenyFriend?.Invoke(this, new ClientEventArgs() { clientName = ClientName, clientFriendName = ClientFriendName });
+        }
+        protected virtual void OnClientFriendsList(string friendNames)
+        {
+            ClientListFriends?.Invoke(this, new ClientEventArgs() { clientListFriendsMessage = friendNames });
+        }
+        //ignore
+        protected virtual void OnClientIgnoredList(string usersList)
+        {
+            ClientListIgnored?.Invoke(this, new ClientEventArgs() { clientListMessage = usersList });
+        }
+        protected virtual void OnClientIgnoreUser(string ignoreOption, string ignoreMessage, string ignoredName)
+        {
+            ClientIgnoreUser?.Invoke(this, new ClientEventArgs() { clientIgnoreOption = ignoreOption, clientIgnoreMessage = ignoreMessage, clientIgnoreName = ignoredName });
+        }
+        protected virtual void OnClientDeleteIgnored(string ignoreOption, string ignoreMessage, string ignoredName)
+        {
+            ClientDeleteIgnoredUser?.Invoke(this, new ClientEventArgs() { clientIgnoreOption = ignoreOption, clientIgnoreMessage = ignoreMessage, clientIgnoreName = ignoredName });
+        }
+        //kick/ban
+        protected virtual void OnClientKickFromChannel(string userName, string kickReason, string channelName)
+        {
+            ClientKickFromChannel?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason, clientChannelName = channelName });
+        }
+        protected virtual void OnClientKickFromSerwer(string userName, string kickReason)
+        {
+            ClientKickFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason });
+        }
+        protected virtual void OnClientBanFromSerwer(string userName, string time, string kickReason)
+        {
+            ClientBanFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanTime = time, clientBanReason = kickReason });
         }
     }
 }

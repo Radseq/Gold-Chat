@@ -15,18 +15,15 @@ namespace Server
 
         public const int max_users = 50;
 
-        //Client client;
-        static StreamWriter strWriter = new StreamWriter("serverLogger.txt", true);
+        static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
+        static StreamWriter strWriter = new StreamWriter("ServerLogger-" + dateFile + ".txt", true);
         static ServerLogger servLogg = new ServerLogger(ref strWriter);
         ServerManager sm = new ServerManager(servLogg);
-
-        // ServerManager sm;
 
         public server()
         {
             try
             {
-                //sm = new ServerManager(servLogg);
                 ServerSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 ServerSocket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
                 ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, 5000));
@@ -34,10 +31,6 @@ namespace Server
 
                 Console.WriteLine(" >> Server Started");
                 servLogg.msgLog(" >> Server Started"); /*on Adress:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Address.ToString() + " Port:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Port.ToString());*/
-
-                //The collection of all clients logged into the room (an array of type ClientInfo)
-                //ArrayList clientList = new ArrayList();
-
 
                 sm.ClientLogin += OnClientLogin;
                 sm.ClientLogin += servLogg.OnClientLoginLogger;
@@ -92,7 +85,7 @@ namespace Server
 
         private void OnClientList(object sender, ClientEventArgs e)
         {
-            Console.WriteLine(e.clientMessageToSend);
+            Console.WriteLine("SendList " + e.clientMessageToSend + " " + e.clientMessageTwoToSend);
         }
 
         private void OnClientMessage(object sender, ClientEventArgs e)

@@ -10,7 +10,7 @@ namespace CommandClient
         Login,          //Log into the server
         Logout,         //Logout of the server
         Message,        //Send a text message to all the chat clients
-        List,           //Get a list of users in the chat room from the server
+        List,           //Get a list of users/channels/joinedChannels/friends
         privMessage,    //Support private message from friend
 
         Reg,            //Registration 
@@ -18,7 +18,21 @@ namespace CommandClient
 
         changePassword, //when client want to change password
 
-        //id_channel,     //we can use this to manage channel(like create/delete/join), and send message to channel, like privMessage
+        createChannel,  //user want to create channel
+        joinChannel,    //Join to channel by new user need password
+        exitChannel,    //if user want definetly exit channel, he cant enter again untill use join again
+        deleteChannel,  //if owner want to delete
+        editChannel,    //if owner want to edit 
+        leaveChannel,   //inform other users that someone is leave from channel, user that join before
+        enterChannel,   //inform other users that someone is enter to channel, user that join before
+        kickUserChannel,//using to kick user from channel by client founder
+        banUserChannel, //using to ban user from channel by client founder
+
+        manageFriend,   //delete/add/accept_ask friend
+        ignoreUser,     //
+
+        kick,           //kick user from serwer by admin
+        ban,            //ban user from serwer by admin
 
         Null            //No command
     }
@@ -28,17 +42,21 @@ namespace CommandClient
     public class Data
     {
         public string strName;      //Name by which the client logs into the room
-        public string strMessage;   //Name of friend.
-        public string strMessage2;   //Message text
+        public string strMessage;   //MessageOne
+        public string strMessage2;  //MessageTwo
+        public string strMessage3;  //MessageThree
+        public string strMessage4;  //MessageFour
         public Command cmdCommand;  //Command type (login, logout, send message, etcetera)
 
         //Default constructor
         public Data()
         {
             cmdCommand = Command.Null;
-            strMessage2 = null;
             strName = null;
             strMessage = null;
+            strMessage2 = null;
+            strMessage3 = null;
+            strMessage4 = null;
         }
 
         //Converts the bytes into an object of type Data
@@ -50,30 +68,45 @@ namespace CommandClient
             //The next four store the length of the name
             int nameLen = BitConverter.ToInt32(data, 4);
 
-            //name of friend
+            //The next four store the length of the strMessage
             int strMessageLen = BitConverter.ToInt32(data, 8);
 
-            //The next four store the length of the message
+            //The next four store the length of the strMessage2
             int strMessage2Len = BitConverter.ToInt32(data, 12);
 
-            //This check makes sure that strName has been passed in the array of bytes
+            //The next four store the length of the strMessage3
+            int strMessage3Len = BitConverter.ToInt32(data, 16);
+
+            //The next four store the length of the strMessage4
+            int strMessage4Len = BitConverter.ToInt32(data, 20);
+
             if (nameLen > 0)
-                strName = Encoding.UTF8.GetString(data, 16, nameLen);
+                strName = Encoding.UTF8.GetString(data, 24, nameLen);
             else
                 strName = null;
 
 
             //This check makes sure that strName has been passed in the array of bytes
             if (strMessageLen > 0)
-                strMessage = Encoding.UTF8.GetString(data, 16 + nameLen, strMessageLen);//tu byl blad odczytywalo 1bit nazwy urzytkownika zamista frienda bo friend name zaczynl sie od x bitu nazwy uzytkownika ....
+                strMessage = Encoding.UTF8.GetString(data, 24 + nameLen, strMessageLen);
             else
                 strMessage = null;
 
             //This checks for a null message field
             if (strMessage2Len > 0)
-                strMessage2 = Encoding.UTF8.GetString(data, 16 + nameLen + strMessageLen, strMessage2Len);
+                strMessage2 = Encoding.UTF8.GetString(data, 24 + nameLen + strMessageLen, strMessage2Len);
             else
                 strMessage2 = null;
+
+            if (strMessage3Len > 0)
+                strMessage3 = Encoding.UTF8.GetString(data, 24 + nameLen + strMessageLen + strMessage2Len, strMessage3Len);
+            else
+                strMessage3 = null;
+
+            if (strMessage4Len > 0)
+                strMessage4 = Encoding.UTF8.GetString(data, 24 + nameLen + strMessageLen + strMessage2Len + strMessage3Len, strMessage4Len);
+            else
+                strMessage4 = null;
         }
 
         //Converts the Data structure into an array of bytes
@@ -90,15 +123,27 @@ namespace CommandClient
             else
                 result.AddRange(BitConverter.GetBytes(0));
 
-            //Add the length of the friend name
+            //Length of the message
             if (strMessage != null)
                 result.AddRange(BitConverter.GetBytes(strMessage.Length));
             else
                 result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the message
+            //Length of the message2
             if (strMessage2 != null)
                 result.AddRange(BitConverter.GetBytes(strMessage2.Length));
+            else
+                result.AddRange(BitConverter.GetBytes(0));
+
+            //Length of the message3
+            if (strMessage3 != null)
+                result.AddRange(BitConverter.GetBytes(strMessage3.Length));
+            else
+                result.AddRange(BitConverter.GetBytes(0));
+
+            //Length of the message4
+            if (strMessage4 != null)
+                result.AddRange(BitConverter.GetBytes(strMessage4.Length));
             else
                 result.AddRange(BitConverter.GetBytes(0));
 
@@ -106,13 +151,19 @@ namespace CommandClient
             if (strName != null)
                 result.AddRange(Encoding.UTF8.GetBytes(strName));
 
-            //Add the friend name
+            //Add the message
             if (strMessage != null)
                 result.AddRange(Encoding.UTF8.GetBytes(strMessage));
 
             //And, lastly we add the message text to our array of bytes
             if (strMessage2 != null)
                 result.AddRange(Encoding.UTF8.GetBytes(strMessage2));
+
+            if (strMessage3 != null)
+                result.AddRange(Encoding.UTF8.GetBytes(strMessage3));
+
+            if (strMessage4 != null)
+                result.AddRange(Encoding.UTF8.GetBytes(strMessage4));
 
             return result.ToArray();
         }

@@ -13,3 +13,4 @@ Gold-Chat/.vs
 *.xml
 *.txt
 CommandClient.dll
+*.TMP

@@ -28,7 +28,7 @@ namespace Gold.tab_windows
             {
                 Data msgToSend = new Data();
 
-                msgToSend.strName = clientManager.userName;
+                msgToSend.strName = App.clientName;
                 msgToSend.strMessage = clientManager.CalculateChecksum(confNewPassTb.Password);
                 //msgToSend.strMessage2 = emailTextbox.Text;
                 msgToSend.cmdCommand = Command.changePassword;
