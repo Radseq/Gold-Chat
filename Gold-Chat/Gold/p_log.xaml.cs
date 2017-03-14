@@ -178,7 +178,7 @@ namespace Gold
 
         private void registerButton_Click(object sender, RoutedEventArgs e)
         {
-            p_reg reg = new p_reg(clientManager);
+            p_reg reg = new p_reg(clientManager, this);
             reg.ShowDialog();
         }
     }

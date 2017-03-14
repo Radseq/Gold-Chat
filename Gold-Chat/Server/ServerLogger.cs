@@ -60,5 +60,28 @@ namespace Server
         {
             write(msg);
         }
+
+        public void OnExecuteReader(object sender, DataBaseManagerEventArgs e)
+        {
+            string exception = "Exception ExecuteReader : " + e.Exception + "\n\r SQL Query : \n\r" + e.Query;
+            Console.WriteLine(exception);
+            write(exception);
+        }
+
+        public void OnExecuteNonQuery(object sender, DataBaseManagerEventArgs e)
+        {
+            string exception = "Exception ExecuteNonQuery : " + e.Exception + "\n\r SQL Query : \n\r" + e.Query;
+            Console.WriteLine(exception);
+            write(exception);
+        }
+
+        public void OnConnectToDB(object sender, DataBaseManagerEventArgs e)
+        {
+            string exception = "Exception Connection : " + e.Exception + "\n\r Closing Application. \n\r";
+            Console.WriteLine(exception);
+            write(exception);
+            Environment.Exit(1);
+        }
+
     }
 }

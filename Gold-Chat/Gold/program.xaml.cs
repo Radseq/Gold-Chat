@@ -232,14 +232,13 @@ namespace Gold
             MessageBox.Show(e.clientIgnoreMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientIgnoreOption == "DeleteIgnore")
             {
-                //  Dispatcher.BeginInvoke((Action)(() =>
-                // {
-                clientIgnoredList.Remove(e.clientIgnoreName);
-                string removedName = e.clientIgnoreName;
-                lb_ignored.Items.Remove(removedName);
-                lb_ignored.Items.Refresh();
-                getClientList();
-                // }));
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    clientIgnoredList.Remove(e.clientIgnoreName);
+                    lb_ignored.Items.Remove(e.clientIgnoreName);
+                    lb_ignored.Items.Refresh();
+                    getClientList();
+                }));
             }
         }
 
@@ -312,14 +311,14 @@ namespace Gold
         private void OnClientDeleteFriend(object sender, ClientEventArgs e)
         {
             //the names of all users that he have in friend list
-            Data msgToSendFriends = new Data();
-            msgToSendFriends.cmdCommand = Command.List;
-            msgToSendFriends.strName = strName;
-            msgToSendFriends.strMessage = "Friends";
+            //Data msgToSendFriends = new Data();
+            //msgToSendFriends.cmdCommand = Command.List;
+            //msgToSendFriends.strName = strName;
+            //msgToSendFriends.strMessage = "Friends";
 
-            byteData = msgToSendFriends.ToByte();
+            //byteData = msgToSendFriends.ToByte();
 
-            clientManager.BeginSend(byteData);
+            //clientManager.BeginSend(byteData);
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 clientFriendsList.Remove(e.clientFriendName == App.clientName ? e.clientName : e.clientFriendName);
@@ -463,8 +462,15 @@ namespace Gold
 
         private void OnClientCreateChannel(object sender, ClientEventArgs e)
         {
-            //if (e.clientChannelMsg2 != "CreatedChannel")
             MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            if (e.clientChannelMsg2 == "CreatedChannel")
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    clientChannelsJoinedList.Add(e.clientChannelName);
+                    lbJoinedChann.Items.Refresh();
+                }));
+            }
         }
 
         private void OnClientLogin(object sender, ClientEventArgs e)

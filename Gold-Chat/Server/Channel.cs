@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Server
 {
@@ -13,10 +14,10 @@ namespace Server
     class Channel
     {
         string channelName;
-        List<string> users = new List<string>(); //using to send userlist, when new user enter to this channel
-        int founderiD;
+        List<string> users = new List<string>(); // Using to send userlist, when new user enter to this channel
+        Int64 founderiD;
 
-        public Channel(string name, int creatorId)
+        public Channel(string name, Int64 creatorId)
         {
             channelName = name;
             founderiD = creatorId;
@@ -48,7 +49,7 @@ namespace Server
             }
         }
 
-        public int FounderiD
+        public Int64 FounderiD
         {
             get
             {
