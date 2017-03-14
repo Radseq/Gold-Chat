@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using System;
 //for hash
 using System.Windows;
 
@@ -10,9 +11,11 @@ namespace Gold
     public partial class p_reg : Window
     {
         ClientManager clientManager;
+        p_log loginPanel;
 
-        public p_reg(ClientManager cm)
+        public p_reg(ClientManager cm, p_log pLog)
         {
+            loginPanel = pLog;
             clientManager = cm;
             InitializeComponent();
         }
@@ -83,6 +86,14 @@ namespace Gold
         private void OnClientRegistration(object sender, ClientEventArgs e)
         {
             MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (e.clientRegMessage == "You has been registered")
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    loginPanel.loginTextBox.Text = logTextbox.Text;
+                    Close();
+                }));
+            }
         }
 
         private void cleanButton_Click(object sender, RoutedEventArgs e)

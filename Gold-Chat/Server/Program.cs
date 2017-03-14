@@ -9,6 +9,8 @@ namespace Server
     {
         public Socket ServerSocket { get; set; }
 
+        DataBaseManager db = DataBaseManager.Instance;
+
         private bool runServer = true;
 
         byte[] byteData = new byte[1024];
@@ -26,7 +28,7 @@ namespace Server
             {
                 ServerSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 ServerSocket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0);
-                ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, 5000));
+                ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, Settings.SERVER_PORT));
                 ServerSocket.Listen(5);
 
                 Console.WriteLine(" >> Server Started");
@@ -45,6 +47,10 @@ namespace Server
                 sm.ClientSendMessage += servLogg.OnClientSendMessageLogger;
                 sm.ClientReceiMessage += OnClientReceiMessage;
                 sm.ClientReceiMessage += servLogg.OnClientReceiMessageLogger;
+                // DataBase
+                db.ConnectToDB += servLogg.OnConnectToDB;
+                db.ExecuteNonQuery += servLogg.OnExecuteNonQuery;
+                db.ExecuteReader += servLogg.OnExecuteReader;
 
                 while (runServer)
                 {
@@ -70,6 +76,7 @@ namespace Server
             }*/
             strWriter.Close();
             strWriter.Dispose();
+            db.closeConnection();
         }
 
         #region event messages
@@ -119,9 +126,6 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            //todo when server start check for there is mysql connection to server
-            //and port is in use
-
             server serv = new server(); //after changes on this and ServerManager i think this class can be deleted
 
             Console.ReadLine();
