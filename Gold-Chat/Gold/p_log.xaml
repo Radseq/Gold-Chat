@@ -11,7 +11,7 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid MouseLeftButtonDown="move" Background="DarkBlue">
-        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" Style="{DynamicResource TextStyle}" Text="Gold Chat" FontSize="30" Canvas.Left="186" Canvas.Top="-84" Margin="8,106,0,0">
+        <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" Style="{DynamicResource TextStyle}" Text="Gold Chat" FontSize="30" Canvas.Left="186" Canvas.Top="-84" Margin="69,-9,0,0">
             <TextBlock.LayoutTransform>
                 <SkewTransform AngleX="30" />
             </TextBlock.LayoutTransform>
@@ -28,9 +28,9 @@
                     <GradientStop Color="#FFC73636" Offset="0.5" />
                 </LinearGradientBrush>
             </TextBlock.Foreground></TextBlock>
-        <TextBox Style="{DynamicResource TextBoxStyle}" HorizontalAlignment="Left" Height="20" Name="loginTextBox" Width="99" Margin="101,28,0,116" />
-        <PasswordBox  HorizontalAlignment="Left" Width="99" Height="20" Name="passwordBox" Margin="101,60,0,84" />
-        <Button Height="30" Width="60" Content="Login" x:Name="loginButton" Click="loginButton_Click" IsDefault="True" Background="Transparent" Margin="211,103,0,31" Foreground="#FFFFFF41" BorderBrush="Transparent" BorderThickness="0">
+        <TextBox Style="{DynamicResource TextBoxStyle}" HorizontalAlignment="Left" Height="Auto" Name="loginTextBox" Width="111" Margin="65,42,0,119" />
+        <PasswordBox  HorizontalAlignment="Left" Width="111" Name="passwordBox" Margin="65,74,0,85" />
+        <Button Content="Login" x:Name="loginButton" Click="loginButton_Click" IsDefault="True" Background="Transparent" Margin="215,111,10,28" Foreground="#FFFFFF41" BorderBrush="Transparent" BorderThickness="0">
             <Button.Triggers>
                 <EventTrigger RoutedEvent="Button.Loaded">
                     <BeginStoryboard>
@@ -45,9 +45,9 @@
                 </EventTrigger>
             </Button.Triggers>
         </Button>
-        <Label Foreground="{DynamicResource Yellow}" Content="Login:" HorizontalAlignment="Left" Name="logLabel" Width="40" Height="25" HorizontalContentAlignment="Right" Margin="56,23,0,116" />
-        <Label Foreground="{DynamicResource Yellow}" Content="Password:" HorizontalAlignment="Left" Name="passLabel" Width="60" Height="25" HorizontalContentAlignment="Right" Margin="36,55,0,84" />
-        <Button Content="Register" Name="registerButton" Style="{DynamicResource buttonTemplate2}" FontFamily="Tahoma" Click="registerButton_Click" FontSize="18" FontWeight="Bold"  Margin="155,101,16,-7" Height="70" Width="100">
+        <Label Foreground="{DynamicResource Yellow}" Content="Login:" HorizontalAlignment="Left" Name="logLabel" Width="40" HorizontalContentAlignment="Right" Margin="20,37,0,119" />
+        <Label Foreground="{DynamicResource Yellow}" Content="Password:" HorizontalAlignment="Left" Name="passLabel" Width="60" HorizontalContentAlignment="Right" Margin="0,69,0,85" />
+        <Button Content="Register" Name="registerButton" Style="{DynamicResource buttonTemplate2}" FontFamily="Tahoma" Click="registerButton_Click" FontSize="18" FontWeight="Bold"  Margin="7,109,164,-18">
             <Button.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
@@ -57,6 +57,6 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <Label x:Name="serverStatusLabel" HorizontalAlignment="Left" Margin="80,145,0,0" VerticalAlignment="Top" Width="120" Height="33" FontWeight="Bold"/>
+        <Button x:Name="lostPasswordButton" Content="Lost Password" HorizontalAlignment="Left" Margin="82,125,0,0" VerticalAlignment="Top" Width="119" Click="lostPasswordButton_Click" />
     </Grid>
 </Window>

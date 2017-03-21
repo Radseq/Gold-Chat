@@ -21,8 +21,6 @@ namespace Gold
     {
         public static string strName = App.clientName;          //Name by which the user logs into the room
 
-        private byte[] byteData = new byte[1024];
-
         ArrayList clientList = new ArrayList();
         ArrayList clientIgnoredList = new ArrayList();         //list of ignored users
         ArrayList clientChannelsList = new ArrayList();         //list of all channels
@@ -106,14 +104,7 @@ namespace Gold
 
         private void getClientList()
         {
-            Data msgToSend = new Data();
-            msgToSend.cmdCommand = Command.List;
-            msgToSend.strName = strName;
-            msgToSend.strMessage = null;
-
-            byteData = msgToSend.ToByte();
-
-            clientManager.BeginSend(byteData);
+            clientManager.SendToServer(Command.List);
         }
 
         private void OnClientChannelEnterDeny(object sender, ClientEventArgs e)
@@ -123,6 +114,7 @@ namespace Gold
 
         private void getFromServLists(object sender, EventArgs e)
         {
+            // ???
             if (second == 0)
             {
                 //The user has logged into the system so we now request the server to send
@@ -130,53 +122,13 @@ namespace Gold
 
             }
             else if (second == 1)
-            {
-                //the names of all ignored users
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.List;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = "IgnoredUsers";
-
-                byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.List, "IgnoredUsers"); // The names of all ignored users
             else if (second == 2)
-            {
-                //the names of all channels that he have joined
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.List;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = "ChannelsJoined";
-
-                byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.List, "ChannelsJoined"); // The names of all channels that he have joined
             else if (second == 3)
-            {
-                //the names of all users that he have in friend list
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.List;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = "Friends";
-
-                byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.List, "Friends"); // The names of all users that he have in friend list
             else if (second == 4)
-            {
-                //the names of all channels that he have acces to
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.List;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = "Channel";
-
-                byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.List, "Channel"); // The names of all channels that he have acces to
             if (second > 4)
                 dispatcherTimer.Stop();
             second = second + 1;
@@ -290,15 +242,7 @@ namespace Gold
                     tc.Items.Add(tab);
 
                     //user enter to channel and want a list of all users in
-                    Data msgToSend = new Data();
-                    msgToSend.strName = App.clientName;
-                    msgToSend.strMessage = "ChannelUsers";
-                    msgToSend.strMessage2 = channelName;
-                    msgToSend.cmdCommand = Command.List;
-
-                    byte[] byteData = msgToSend.ToByte();
-
-                    clientManager.BeginSend(byteData);
+                    clientManager.SendToServer(Command.List, "ChannelUsers", channelName);
 
                     //lets print motd 
                     channelPanel.channelMessages.Text += "<<< Welcome Message: " + e.clientChannelMsg + " >>>>" + "\r\n";
@@ -356,31 +300,9 @@ namespace Gold
             {
                 MessageBoxResult result = MessageBox.Show("User: " + e.clientFriendName + " want to be your friend Accept?", "Gold Chat: " + strName, MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No)
-                {
-                    Data msgToSend = new Data();
-
-                    msgToSend.strName = strName;
-                    msgToSend.strMessage = "No";
-                    msgToSend.strMessage2 = e.clientFriendName;
-                    msgToSend.cmdCommand = Command.manageFriend;
-
-                    byte[] byteData = msgToSend.ToByte();
-
-                    clientManager.BeginSend(byteData);
-                }
+                    clientManager.SendToServer(Command.manageFriend, "No", e.clientFriendName);
                 else
-                {
-                    Data msgToSend = new Data();
-
-                    msgToSend.strName = strName;
-                    msgToSend.strMessage = "Yes";
-                    msgToSend.strMessage2 = e.clientFriendName;
-                    msgToSend.cmdCommand = Command.manageFriend;
-
-                    byte[] byteData = msgToSend.ToByte();
-
-                    clientManager.BeginSend(byteData);
-                }
+                    clientManager.SendToServer(Command.manageFriend, "Yes", e.clientFriendName);
             }));
         }
 
@@ -553,16 +475,7 @@ namespace Gold
         {
             try
             {
-                //Fill the info for the message to be send
-                Data msgToSend = new Data();
-
-                msgToSend.strName = strName;
-                msgToSend.strMessage = tb_message.Text;
-                msgToSend.cmdCommand = Command.Message;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
+                clientManager.SendToServer(Command.Message, tb_message.Text);
 
                 tb_message.Text = null;
             }
@@ -576,18 +489,7 @@ namespace Gold
         {
             try
             {
-                //Fill the info for the message to be send
-                Data msgToSend = new Data();
-
-                msgToSend.strName = strName;
-                msgToSend.strMessage = pm.sendPrivMessageTb.Text;
-                msgToSend.strMessage2 = pm.strMessage; //friend name
-                msgToSend.cmdCommand = Command.privMessage;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                //Send it to the server
-                clientManager.BeginSend(byteData);
+                clientManager.SendToServer(Command.privMessage, pm.sendPrivMessageTb.Text, pm.strMessage);
             }
             catch (Exception)
             {
@@ -728,9 +630,6 @@ namespace Gold
             p_log log = new p_log(clientManager);
             log.Show();
         }
-
-
-
         #endregion
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -790,18 +689,7 @@ namespace Gold
         {
             string friendName = lb_users.SelectedItem.ToString();
             if (clientList.Contains(friendName) && friendName != App.clientName)
-            {
-                //there is send information to server that i add someone to friend list
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName; //channel admin
-                msgToSend.strMessage = "Add";
-                msgToSend.strMessage2 = friendName;
-                msgToSend.cmdCommand = Command.manageFriend;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.manageFriend, "Add", friendName); // There is send information to server that i add someone to friend list
         }
 
         private void PrivateMessage(string usernName)
@@ -814,36 +702,22 @@ namespace Gold
         {
             string usernName = lb_users.SelectedItem.ToString();
             if (clientList.Contains(usernName) && usernName != App.clientName)
-            {
                 PrivateMessage(usernName);
-            }
         }
 
         private void IgnoreUser(object sender, RoutedEventArgs e)
         {
             string usernName = lb_users.SelectedItem.ToString();
             if (clientList.Contains(usernName) && usernName != App.clientName)
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName; //channel admin
-                msgToSend.strMessage = "AddIgnore";
-                msgToSend.strMessage2 = usernName;
-                msgToSend.cmdCommand = Command.ignoreUser;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.ignoreUser, "AddIgnore", usernName);
         }
 
         private void PrivateMsgToFriend(object sender, MouseButtonEventArgs e)
         {
             string friendName = lb_friend_users.SelectedItem.ToString();
-            //Now if friend is in our friend list + his online(exists in clientList) 
-            if (clientFriendsList.Contains(friendName) /*&& friendName != App.clientName why i fucking write that when we newer be in lb_friend_users*/ && clientList.Contains(friendName))
-            {
+
+            if (clientFriendsList.Contains(friendName) && clientList.Contains(friendName)) // Now if friend is in our friend list + his online(exists in clientList) 
                 PrivateMessage(friendName);
-            }
             else MessageBox.Show("Your Friend " + friendName + " is offline", "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -851,51 +725,21 @@ namespace Gold
         {
             string friendName = lb_friend_users.SelectedItem.ToString();
             if (clientFriendsList.Contains(friendName) && friendName != App.clientName)
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName; //channel admin
-                msgToSend.strMessage = "Delete";
-                msgToSend.strMessage2 = friendName;
-                msgToSend.cmdCommand = Command.manageFriend;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.manageFriend, "Delete", friendName);
         }
 
         private void DeleteFromIgnoreList(object sender, RoutedEventArgs e)
         {
             string strMessage = lb_ignored.SelectedItem.ToString();
             if (clientIgnoredList.Contains(strMessage))
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName; //channel admin
-                msgToSend.strMessage = "DeleteIgnore";
-                msgToSend.strMessage2 = strMessage;
-                msgToSend.cmdCommand = Command.ignoreUser;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.ignoreUser, "DeleteIgnore", strMessage);
         }
 
         private void JoinToLobbie(object sender, RoutedEventArgs e)
         {
             string strMessage = lbLobbies.SelectedItem.ToString();
             if (clientChannelsList.Contains(strMessage))
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName; //channel admin
-                msgToSend.strMessage = strMessage;
-                //msgToSend.strMessage2 = clientManager.CalculateChecksum(enterPass.Password); // haslo
-                msgToSend.cmdCommand = Command.joinChannel;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.joinChannel, strMessage);
         }
         //exit from joined channel, if wanna enter again => required join
         //todo check if user have opened (tab_windows.channelWindow channelPanel)
@@ -903,16 +747,7 @@ namespace Gold
         {
             string strMessage = lbLobbies.SelectedItem.ToString();
             if (clientChannelsJoinedList.Contains(strMessage))
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName;
-                msgToSend.strMessage = strMessage;
-                msgToSend.cmdCommand = Command.exitChannel;
-
-                byte[] byteData = msgToSend.ToByte();
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.editChannel, strMessage);
         }
         private void DeleteChannel(object sender, RoutedEventArgs e)
         {
@@ -934,28 +769,13 @@ namespace Gold
         private void EnterToJoinedChannel(object sender, MouseButtonEventArgs e)
         {
             string strMessage = lbJoinedChann.SelectedItem.ToString();
-
-            Data msgToSend = new Data();
-
-            msgToSend.strName = App.clientName;
-            msgToSend.strMessage = strMessage;
-            msgToSend.cmdCommand = Command.enterChannel;
-
-            byte[] byteData = msgToSend.ToByte();
-            clientManager.BeginSend(byteData);
+            clientManager.SendToServer(Command.enterChannel, strMessage);
         }
 
         private void LeaveJoinedChannel(object sender, RoutedEventArgs e)
         {
             string strMessage = lbJoinedChann.SelectedItem.ToString();
-            Data msgToSend = new Data();
-
-            msgToSend.strName = App.clientName;
-            msgToSend.strMessage = strMessage;
-            msgToSend.cmdCommand = Command.leaveChannel;
-
-            byte[] byteData = msgToSend.ToByte();
-            clientManager.BeginSend(byteData);
+            clientManager.SendToServer(Command.leaveChannel, strMessage);
         }
     }
 }

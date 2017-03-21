@@ -34,16 +34,7 @@ namespace Gold
                     var tabControl = Parent as ItemsControl;
                     tabControl.Items.Remove(this);
                     if (isChannel)
-                    {
-                        Data msgToSend = new Data();
-                        msgToSend.strName = App.clientName;
-                        msgToSend.strMessage = tabControlName;
-                        msgToSend.cmdCommand = Command.leaveChannel;
-
-                        byte[] byteData = msgToSend.ToByte();
-
-                        clientManager.BeginSend(byteData);
-                    }
+                        clientManager.SendToServer(Command.leaveChannel, tabControlName);
                 };
             dockPanel.Children.Add(closeButton);
 

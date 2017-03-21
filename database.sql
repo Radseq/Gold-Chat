@@ -9,8 +9,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `register_id` varchar(255) NOT NULL,
-  `permission` int(1) NOT NULL, /*'1-admin,2-superAdmin'*/
+  `permission` int(1) NULL, /*'1-admin,2-superAdmin'*/
   PRIMARY KEY (id_user)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user_lost_pass` (
+  `id_user_lost_pass` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_user` bigint(20) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  `code_create_date` DATETIME NOT NULL,
+  FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (id_user_lost_pass)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `user_friend` (

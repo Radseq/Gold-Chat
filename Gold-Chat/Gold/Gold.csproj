@@ -59,6 +59,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="tab_windows\lost_password.xaml.cs">
+      <DependentUpon>lost_password.xaml</DependentUpon>
+    </Compile>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -90,6 +93,10 @@
     <Compile Include="tab_windows\p_infor.xaml.cs" />
     <Compile Include="tab_windows\p_suggest.xaml.cs" />
     <Compile Include="tab_windows\p_user.xaml.cs" />
+    <Page Include="tab_windows\lost_password.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

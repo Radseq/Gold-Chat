@@ -64,19 +64,7 @@ namespace Gold.tab_windows
 
                 }
                 else
-                {
-                    Data msgToSend = new Data();
-
-                    msgToSend.strName = App.clientName; //channel admin
-                    msgToSend.strMessage = roomNameTb.Text;
-                    msgToSend.strMessage2 = clientManager.CalculateChecksum(enterPass.Password);
-                    msgToSend.strMessage3 = clientManager.CalculateChecksum(amdinPass.Password);
-                    msgToSend.strMessage4 = welcomeMessageTb.Text;
-                    msgToSend.cmdCommand = Command.createChannel;
-
-                    byte[] byteData = msgToSend.ToByte();
-                    clientManager.BeginSend(byteData);
-                }
+                    clientManager.SendToServer(Command.createChannel, roomNameTb.Text, clientManager.CalculateChecksum(enterPass.Password), clientManager.CalculateChecksum(amdinPass.Password), welcomeMessageTb.Text);
 
             }
             else

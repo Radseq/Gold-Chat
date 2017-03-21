@@ -25,18 +25,7 @@ namespace Gold.tab_windows
         private void button1_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (newPassTb.Password != "" && confNewPassTb.Password != "" && newPassTb.Password.Length > 6)
-            {
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName;
-                msgToSend.strMessage = clientManager.CalculateChecksum(confNewPassTb.Password);
-                //msgToSend.strMessage2 = emailTextbox.Text;
-                msgToSend.cmdCommand = Command.changePassword;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
-            }
+                clientManager.SendToServer(Command.changePassword, clientManager.CalculateChecksum(confNewPassTb.Password));
         }
 
         private void emailNotyfiCb_Unchecked(object sender, System.Windows.RoutedEventArgs e)

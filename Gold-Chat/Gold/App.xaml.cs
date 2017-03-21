@@ -17,7 +17,6 @@ namespace Gold
             p_log frmLogin = new p_log(cm);
             if (frmLogin.ShowDialog() == true)
             {
-                clientName = frmLogin.userName;
                 //clientSocket = frmLogin.clientSocket;
                 program mainProg = new program(cm);
                 Application app = new Application();

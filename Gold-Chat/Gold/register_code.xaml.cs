@@ -11,13 +11,13 @@ namespace Gold
     {
 
         ClientManager clientManager;
-        private string userName;
+        //private string userName;
 
-        public register_code(ClientManager cm, string userNameP_log)
+        public register_code(ClientManager cm/*, string userNameP_log*/)
         {
             InitializeComponent();
             clientManager = cm;
-            userName = userNameP_log;
+            // userName = userNameP_log;
             clientManager.ClientReSendEmail += OnClientReSendEmail;
         }
 
@@ -38,32 +38,12 @@ namespace Gold
 
         private void endReg(object sender, RoutedEventArgs e)
         {
-            Data msgToSend = new Data();
-
-            msgToSend.strName = userName;
-            msgToSend.strMessage = registerCode.Text;
-            msgToSend.cmdCommand = Command.ReSendEmail;
-
-            byte[] byteData = msgToSend.ToByte();
-
-            clientManager.BeginSend(byteData);
-
-            //Send it to the server
-            //pLogin.clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(pLogin.OnSend), null);
+            clientManager.SendToServer(Command.ReSendEmail, registerCode.Text);
         }
 
         private void resendCode(object sender, RoutedEventArgs e)
         {
-            Data msgToSend = new Data();
-
-            msgToSend.strName = userName;
-            msgToSend.strMessage = "";
-            msgToSend.cmdCommand = Command.ReSendEmail;
-
-            byte[] byteData = msgToSend.ToByte();
-            clientManager.BeginSend(byteData);
-            //Send it to the server
-            // pLogin.clientSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(pLogin.OnSend), null);
+            clientManager.SendToServer(Command.ReSendEmail, "");
         }
     }
 }

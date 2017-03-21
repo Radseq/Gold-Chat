@@ -140,17 +140,17 @@ namespace Server
             {
                 if (oldPassword != newPassword)
                 {
-                    msgToSend.strMessage = updateUserPasswordToDb(newPassword, conClient, oldPassword);
+                    msgToSend.strMessage = updateUserPasswordToDb(newPassword, conClient.strName, oldPassword);
                 }
                 else
                     msgToSend.strMessage = "New and old password are same!";
             }
         }
 
-        private string updateUserPasswordToDb(string newPassword, Client conClient, string oldPassword)
+        private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)
         {
-            db.bind(new string[] { "pass", newPassword, "login", conClient.strName, "oldPass", oldPassword });
-            int updated = db.delUpdateInsertDb("UPDATE users SET password = @pass WHERE login = @login AND password = @oldPass");
+            db.bind(new string[] { "pass", newPassword, "Login", userName, "oldPass", oldPassword });
+            int updated = db.delUpdateInsertDb("UPDATE users SET password = @pass WHERE login = @Login AND password = @oldPass");
 
             if (updated > 0)
                 return "Your Password has been changed!";
@@ -186,7 +186,7 @@ namespace Server
             db.manySelect("SELECT register_id, email, id_user, login, permission FROM users WHERE login = @userName AND password = @password");
             string[] query = db.tableToRow();
 
-            if (userName != query[3])
+            if (query == null || userName != query[3])
                 msgToSend.strMessage = "Wrong login or password";
             else if (query[0] != "") // query[0] Activation code must be "" if user want to login
             {
@@ -205,7 +205,7 @@ namespace Server
                     // All is correct so user can use app
                     conClient.strName = query[3];
                     msgToSend.strMessage = "You are succesfully Log in";
-
+                    msgToSend.strMessage2 = conClient.permission.ToString(); //send to user if he is admin, used to visibility some oprions and rights on client side
                     conClient.enterChannels = new List<string>(); // Init of channels whitch i joined
                     conClient.ignoredUsers = new List<string>(); // Init of ignored users
 
@@ -282,42 +282,47 @@ namespace Server
                 db.bind(new string[] { "RegId", userRegisterCode, "Login", userName });
                 db.manySelect("SELECT register_id, email FROM users WHERE register_id = @RegId AND login = @Login");
                 string[] query = db.tableToRow();
-
-                regCode = query[0];
-                userEmail = query[1];
-
-                if (regCode == userRegisterCode)
+                if (query != null)
                 {
-                    db.bind(new string[] { "reg_id", "", "email", userEmail });
-                    int updated = db.delUpdateInsertDb("UPDATE users SET register_id = @reg_id WHERE email = @email");
+                    regCode = query[0];
+                    userEmail = query[1];
 
-                    if (updated > 0)
-                        msgToSend.strMessage = "Now you can login in to application";
+                    if (regCode == userRegisterCode)
+                    {
+                        db.bind(new string[] { "reg_id", "", "email", userEmail });
+                        int updated = db.delUpdateInsertDb("UPDATE users SET register_id = @reg_id WHERE email = @email");
+
+                        if (updated > 0)
+                            msgToSend.strMessage = "Now you can login in to application";
+                        else
+                            msgToSend.strMessage = "Error when Activation contact to support";
+                    }
                     else
-                        msgToSend.strMessage = "Error when Activation contact to support";
+                        msgToSend.strMessage = "Activation code not match.";
                 }
-                else
-                    msgToSend.strMessage = "Activation code not match.";
-
+                else msgToSend.strMessage = "No user with that activation code";
             }
             else
             {
                 db.bind("login", userName);
                 db.manySelect("SELECT register_id, email FROM users WHERE login = @login");
                 string[] query = db.tableToRow();
-
-                regCode = query[0];
-                userEmail = query[1];
-                if (regCode != "")
+                if (query != null)
                 {
-                    var emailSender = new EmailSender();
-                    emailSender.EmailSended += OnEmaiReSended;
-                    emailSender.SendEmail(userName, userEmail, "Gold Chat: Resended Register Code", "Here is your activation code: " + regCode);
+                    regCode = query[0];
+                    userEmail = query[1];
+                    if (regCode != "")
+                    {
+                        var emailSender = new EmailSender();
+                        emailSender.EmailSended += OnEmaiReSended;
+                        emailSender.SendEmail(userName, userEmail, "Gold Chat: Resended Register Code", "Here is your activation code: " + regCode);
 
-                    msgToSend.strMessage = "Activation code resended.";
+                        msgToSend.strMessage = "Activation code resended.";
+                    }
+                    else
+                        msgToSend.strMessage = "You must activate an account.";
                 }
-                else
-                    msgToSend.strMessage = "You must activate an account.";
+                else msgToSend.strMessage = "You are not registred";
             }
             OnClientReSendAckCode(userName, userEmail);
         }
@@ -487,6 +492,11 @@ namespace Server
                         SendServerRespond(ref client, ref msgToSend);
                         break;
 
+                    case Command.lostPassword:
+                        clientLostPassword(msgReceived, ref msgToSend);
+                        SendServerRespond(ref client, ref msgToSend);
+                        break;
+
                     case Command.ReSendEmail:
                         clientReSendActivCode(msgReceived, ref msgToSend);
                         SendServerRespond(ref client, ref msgToSend);
@@ -565,19 +575,23 @@ namespace Server
                         ManageIgnoreUser(client, msgReceived, msgToSend);
                         SendServerRespond(ref client, ref msgToSend);
                         break;
+                    /// Not Implement !!!
                     case Command.kick:
                         ClientKick(client, msgReceived, msgToSend);
                         SendServerRespond(ref client, ref msgToSend);
                         //msgToSend.strName = friendName;
                         //SendMessageToNick(ref client, msgReceived, msgToSend);
                         break;
+                    /// Not Implement !!!
                     case Command.ban:
                         ClientBan(ref client, msgReceived, msgToSend);
                         SendServerRespond(ref client, ref msgToSend);
                         break;
+                    /// Not Implement !!!
                     case Command.kickUserChannel:
                         ClientKickFromChannel(ref client, msgReceived, msgToSend);
                         break;
+                    /// Not Implement !!!
                     case Command.banUserChannel:
                         ClientBanFromChannel(ref client, msgReceived, msgToSend);
                         break;
@@ -600,6 +614,77 @@ namespace Server
 
                 //if (client is IDisposable) ((IDisposable)client).Dispose(); //free client
             }
+        }
+
+        private void clientLostPassword(Data msgReceived, ref Data msgToSend)
+        {
+            string type = msgReceived.strMessage;
+
+            if (type == "email")
+            {
+                string emailAdr = msgReceived.strMessage2;
+
+                db.bind("Email", emailAdr);
+                db.manySelect("SELECT id_user, email FROM users WHERE email = @Email");
+                string[] respond = db.tableToRow();
+                if (respond != null)
+                {
+                    string email = respond[1];
+                    string generatedCode = generateRandom(25);
+                    if (inserUserLostPasswordCodeToDb(respond, generatedCode) > 0)
+                    {
+                        sendEmailOnUserLostPassword(email, generatedCode, ref msgToSend);
+                    }
+                    else msgToSend.strMessage2 = "Unknown error while save random code, contact to admin";
+                }
+                else msgToSend.strMessage = "That email not exists";
+            }
+            else if (type == "codeFromEmail")
+                clientSendCodeFromEmail(msgReceived, ref msgToSend);
+            else msgToSend.strMessage2 = "Wrong operation option";
+        }
+
+        private int inserUserLostPasswordCodeToDb(string[] respond, string generatedCode)
+        {
+            int id_user = Int32.Parse(respond[0]);
+            DateTime theDate = DateTime.Now;
+            theDate.ToString("dd-MM-yyyy HH:mm");
+            db.bind(new string[] { "idUser", id_user.ToString(), "Code", generatedCode, "CodeCreateDate", theDate.ToString() });
+            int created = db.delUpdateInsertDb("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
+            return created;
+        }
+
+        private void sendEmailOnUserLostPassword(string email, string generatedCode, ref Data msgToSend)
+        {
+            var emailSender = new EmailSender();
+            emailSender.EmailSended += OnEmaiSended;
+
+            emailSender.SendEmail("Zgubione Hasło", email, "Gold Chat: Lost Password", userLostPassEmailMessage("Urzytkowniku", generatedCode));
+
+            msgToSend.strMessage2 = "Lost password code has send to your email";
+        }
+
+        private void clientSendCodeFromEmail(Data msgReceived, ref Data msgToSend)
+        {
+            string code = msgReceived.strMessage2;
+            string newPassword = msgReceived.strMessage3;
+
+            db.bind("Code", code);
+            db.manySelect("SELECT ulp.code, u.email, u.password, u.login FROM user_lost_pass ulp, users u WHERE u.id_user = ulp.id_user AND code = @Code");
+            string[] codeDb = db.tableToRow();
+            if (codeDb != null && codeDb[0] == code)
+            {
+                db.bind("Code", code);
+                int deleted = db.delUpdateInsertDb("DELETE FROM user_lost_pass WHERE code = @Code");
+
+                if (deleted == 0)
+                    Console.WriteLine("Cannot delete " + codeDb[1] + " from user_lost_pass");
+
+                string updated = updateUserPasswordToDb(newPassword, codeDb[3], codeDb[2]);
+                msgToSend.strMessage2 = updated;
+            }
+            else
+                msgToSend.strMessage2 = "Wrong code from email";
         }
 
         private void ClientBanFromChannel(ref Client client, Data msgReceived, Data msgToSend)
@@ -641,7 +726,7 @@ namespace Server
                             }
                         }
                         else
-                            msgToSend.strMessage2 = "There no " + userName + " in your channel";
+                            msgToSend.strMessage2 = "There is no " + userName + " in your channel";
                     }
                     else
                         msgToSend.strMessage2 = "Only channel founder can kick";
@@ -828,8 +913,7 @@ namespace Server
             db.manySelect("SELECT uc.id_channel, c.welcome_message FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser");
 
             string[] respond = db.tableToRow();
-            //todo check
-            if (respond.Length > 0)
+            if (respond != null)
             {
                 int id_channel_db = Int32.Parse(respond[0]);
                 string motd = respond[1];
@@ -968,10 +1052,7 @@ namespace Server
             if (adminPass != "")
             {
                 if (adminPass == admPass)
-                {
-                    // Now delete channel from db
-                    msgToSend.strMessage = deleteChannelFromDb(client, channelName);
-                }
+                    msgToSend.strMessage = deleteChannelFromDb(client, channelName);// Delete channel from db
                 else
                     msgToSend.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
             }
@@ -1010,19 +1091,22 @@ namespace Server
             db.bind(new string[] { "channelName", channelName, "idUser", client.id.ToString() });
             db.manySelect("SELECT uc.id_channel, c.id_user_founder FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser");
             string[] getFromDb = db.tableToRow();
-
-            int idChannelDb = Int32.Parse(getFromDb[0]);
-            Int64 adminId = Int64.Parse(getFromDb[1]);
-
-            if (idChannelDb > 0 && adminId > 0)
+            if (getFromDb != null)
             {
-                if (adminId != client.id)
+                int idChannelDb = Int32.Parse(getFromDb[0]);
+                Int64 adminId = Int64.Parse(getFromDb[1]);
+
+                if (idChannelDb > 0 && adminId > 0)
                 {
-                    msgToSend.strMessage = deleteUserFromChannelDb(client, channelName, idChannelDb);
+                    if (adminId != client.id)
+                    {
+                        msgToSend.strMessage = deleteUserFromChannelDb(client, channelName, idChannelDb);
+                    }
+                    else msgToSend.strMessage = "You cannot exit channel that you created";
                 }
-                else msgToSend.strMessage = "You cannot exit channel that you created";
+                else msgToSend.strMessage = "You cannot exit this channel because you not joined";
             }
-            else msgToSend.strMessage = "You cannot exit this channel because you not joined";
+            else msgToSend.strMessage = "Channel not exit or you are not joined to";
 
             msgToSend.strMessage2 = channelName;
         }
@@ -1051,13 +1135,12 @@ namespace Server
             db.bind("ChannelName", channelName);
             db.manySelect("SELECT id_channel, welcome_Message, enter_password FROM channel WHERE channel_name = @ChannelName");
             string[] getFromDb = db.tableToRow();
-
-            int idChannelDb = Int32.Parse(getFromDb[0]);
-            string welcomeMsg = getFromDb[1]; // Used for send email notyfication when user login 
-            string enterPassword = getFromDb[2];
-
-            if (idChannelDb > 0) // Expecting only one id
+            if (getFromDb != null)
             {
+                int idChannelDb = Int32.Parse(getFromDb[0]);
+                string welcomeMsg = getFromDb[1]; // Used for send email notyfication when user login 
+                string enterPassword = getFromDb[2];
+
                 if (enterPassword == null)
                     msgToSend.strMessage2 = "Send Password";
                 else if (channelPass != enterPassword)
@@ -1348,6 +1431,39 @@ namespace Server
                 </strong>
             </p>
             <p>Dziękujemy <br /> Administracja Gold Chat.</p>", userName, registrationCode);
+        }
+
+        private string userLostPassEmailMessage(string userName, string code)
+        {
+            return string.Format(@"
+            <p>Witaj <strong>{0}</strong>.
+            </p>
+            <p><br />
+                Jeśli zapomniałeś haśło wklej ten kod w oknie Lost Password : <span style='color: #ff0000;'><strong>{1}</strong></span>
+            </p>
+            <p>
+            <p> 
+                Jeśli nie zapomniałeś hasło lub nie próbowałeś go odzyskiwać, usuń tego maila
+            </p>
+                <strong>
+                <span style='color: #ff0000;'> Pamiętaj by dokłanie skopiować KOD.</span>
+                </strong>
+            </p>
+            <p>Dziękujemy <br /> Administracja Gold Chat.</p>", userName, code);
+        }
+
+        private string generateRandom(int lenght)
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+            var stringChars = new char[lenght];
+            var random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string(stringChars);
         }
     }
 }

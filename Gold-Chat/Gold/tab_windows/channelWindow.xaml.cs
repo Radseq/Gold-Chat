@@ -120,17 +120,7 @@ namespace Gold.tab_windows
         {
             try
             {
-                //Fill the info for the message to be send
-                Data msgToSend = new Data();
-
-                msgToSend.strName = App.clientName;
-                msgToSend.strMessage = sendChannelMsg.Text;
-                msgToSend.strMessage2 = channelName;
-                msgToSend.cmdCommand = Command.Message;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                clientManager.BeginSend(byteData);
+                clientManager.SendToServer(Command.Message, sendChannelMsg.Text, channelName);
 
                 sendChannelMsg.Text = null;
             }

@@ -17,6 +17,7 @@ namespace CommandClient
         ReSendEmail,    //Resend activation name to client
 
         changePassword, //when client want to change password
+        lostPassword,   //used to remember password
 
         createChannel,  //user want to create channel
         joinChannel,    //Join to channel by new user need password

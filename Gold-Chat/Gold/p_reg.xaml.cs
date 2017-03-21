@@ -63,18 +63,8 @@ namespace Gold
                 }
                 else
                 {
-                    Data msgToSend = new Data();
-
-                    msgToSend.strName = logTextbox.Text;
-                    msgToSend.strMessage = clientManager.CalculateChecksum(passbox.Password);
-                    msgToSend.strMessage2 = emailTextbox.Text;
-                    msgToSend.cmdCommand = Command.Reg;
-
-                    byte[] byteData = msgToSend.ToByte();
-
-                    clientManager.BeginConnect();
-
-                    clientManager.BeginSend(byteData);
+                    App.clientName = logTextbox.Text;
+                    clientManager.SendToServer(Command.Reg, clientManager.CalculateChecksum(passbox.Password), emailTextbox.Text);
 
                     clientManager.ClientRegistration += OnClientRegistration;
                 }

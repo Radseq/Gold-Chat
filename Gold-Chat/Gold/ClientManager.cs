@@ -67,7 +67,9 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientPrivMessage;
         //ping
         public event EventHandler<ClientEventArgs> ClientPing;
+
         public event EventHandler<ClientEventArgs> ClientChangePass;
+        public event EventHandler<ClientEventArgs> ClientLostPass;
 
         //channel
         public event EventHandler<ClientEventArgs> ClientCreateChannel;
@@ -106,7 +108,9 @@ namespace Gold
         //private System.Timers.Timer messageTimer;
 
         bool serverError = false;
-        bool IsUserLogout { get; set; }
+        bool IsClientConnectedToServer { get; set; }
+
+        public int permission { get; set; }
 
         public const int PORT = 5000;
         public const string SERVER = "::1";
@@ -127,7 +131,7 @@ namespace Gold
             config = config.loadConfig();
 
             socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-
+            IsClientConnectedToServer = false;
             //pingTimer = new System.Timers.Timer();
             //pingTimer.Interval = 5000;
             //pingTimer.Elapsed += new ElapsedEventHandler(this.pingServer);
@@ -156,7 +160,7 @@ namespace Gold
         //    }
         //}
 
-        public void BeginConnect(/*string name, string password*/)
+        private void BeginConnect(/*string name, string password*/)
         {
             //userName = name;
             //clientPassword = password;
@@ -165,7 +169,7 @@ namespace Gold
             bool part2 = (socket.Available == 0);
             if ((part1 && part2) || !socket.Connected)
             {
-                IsUserLogout = false;
+                IsClientConnectedToServer = true;
                 socket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
                 connectDone.WaitOne();
             }
@@ -197,7 +201,27 @@ namespace Gold
             }
         }
 
-        public void BeginSend(byte[] byteData)
+        public void SendToServer(Command command, string strMessage = null, string strMessage2 = null, string strMessage3 = null, string strMessage4 = null)
+        {
+            if (!IsClientConnectedToServer)
+                BeginConnect();
+
+            Data msgToSend = new Data();
+            msgToSend.cmdCommand = command;
+            msgToSend.strName = App.clientName;
+            msgToSend.strMessage = strMessage;
+            msgToSend.strMessage2 = strMessage2;
+            msgToSend.strMessage3 = strMessage3;
+            msgToSend.strMessage4 = strMessage4;
+
+            byte[] toSendByteData = new byte[1024];
+            toSendByteData = msgToSend.ToByte();
+
+            if (IsClientConnectedToServer)
+                BeginSend(toSendByteData);
+        }
+
+        private void BeginSend(byte[] byteData)
         {
             //messageTimer.Elapsed += new ElapsedEventHandler((s, e) =>
             socket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
@@ -206,7 +230,7 @@ namespace Gold
 
         public void LogoutSend(byte[] byteData)
         {
-            IsUserLogout = true;
+            IsClientConnectedToServer = false;
             socket.Send(byteData, 0, byteData.Length, SocketFlags.None);
             // Release the socket.
             socket.Shutdown(SocketShutdown.Both);
@@ -252,7 +276,7 @@ namespace Gold
 
         private void OnReceive(IAsyncResult ar)
         {
-            if (IsUserLogout == true || serverError == true)
+            if (!IsClientConnectedToServer || serverError == true)
                 return;
 
             try
@@ -269,7 +293,10 @@ namespace Gold
                 {
                     case Command.Login:
                         if (msgReceived.strName == App.clientName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                        {
                             OnClientSuccesLogin(true, socket);
+                            permission = int.Parse(msgReceived.strMessage2);
+                        }
                         else if (msgReceived.strMessage == null)
                             serverError = true;
                         else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
@@ -281,6 +308,10 @@ namespace Gold
 
                     case Command.changePassword:
                         OnClientChangePass(msgReceived.strMessage);
+                        break;
+
+                    case Command.lostPassword:
+                        OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
                     case Command.ReSendEmail:
@@ -358,15 +389,19 @@ namespace Gold
                         if (msgReceived.strMessage == "DeleteIgnore")
                             OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                         break;
+                    /// Not Implement !!!
                     case Command.kick:
                         OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
+                    /// Not Implement !!!
                     case Command.ban:
                         OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                         break;
+                    /// Not Implement !!!
                     case Command.kickUserChannel:
                         OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                         break;
+                    /// Not Implement !!!
                     case Command.banUserChannel:
                         break;
                 }
@@ -392,6 +427,11 @@ namespace Gold
             {
                 OnReceiveLogExcep(ex.Message);
             }
+        }
+
+        protected virtual void OnClientLostPassword(string strMessage, string strMessage2)
+        {
+            ClientLostPass?.Invoke(this, new ClientEventArgs() { clientChannelMsg = strMessage, clientChangePassMessage = strMessage2 });
         }
 
         //md5

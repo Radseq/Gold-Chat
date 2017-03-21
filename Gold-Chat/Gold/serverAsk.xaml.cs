@@ -41,15 +41,7 @@ namespace Gold
 
         private void sendJoinToServ()
         {
-            Data msgToSend = new Data();
-
-            msgToSend.strName = App.clientName; //channel admin
-            msgToSend.strMessage = message1;
-            msgToSend.strMessage2 = clientManager.CalculateChecksum(answerTB.Text);
-            msgToSend.cmdCommand = Command.joinChannel;
-
-            byte[] byteData = msgToSend.ToByte();
-            clientManager.BeginSend(byteData);
+            clientManager.SendToServer(Command.joinChannel, message1, clientManager.CalculateChecksum(answerTB.Text));
 
             Close();
         }

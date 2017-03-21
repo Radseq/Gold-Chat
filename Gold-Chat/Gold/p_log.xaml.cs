@@ -1,6 +1,6 @@
 ﻿using CommandClient;
+using Gold.tab_windows;
 using System;
-using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
@@ -13,14 +13,10 @@ namespace Gold
     /// </summary>
     public partial class p_log : Window //typ
     {
-
-        public string userName;
-        public Socket clientSocket;
+        //public Socket clientSocket;
         //public string strName;
         public const int PORT = 5000;
         public const string SERVER = "::1";
-
-        private byte[] byteData = new byte[1024];
 
         SpeechLib.SpVoice voice = new SpeechLib.SpVoice();
 
@@ -73,7 +69,7 @@ namespace Gold
                     register_code regCodeWindows;
                     if (result == MessageBoxResult.OK)
                     {
-                        regCodeWindows = new register_code(clientManager, userName);
+                        regCodeWindows = new register_code(clientManager/*, App.clientName*/);
                         regCodeWindows.Show();
                     }
                 }
@@ -86,7 +82,7 @@ namespace Gold
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
-            if (e.clientLoginName == userName && e.clientLoginMessage != "<<<" + e.clientLoginName + " has joined the room>>>")//i dont want to see msgBox when other users log in
+            if (e.clientLoginName == App.clientName && e.clientLoginMessage != "<<<" + e.clientLoginName + " has joined the room>>>")//i dont want to see msgBox when other users log in
             {
                 MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -112,23 +108,8 @@ namespace Gold
             {
                 try
                 {
-                    userName = loginTextBox.Text;
-                    App.clientName = userName;
-
-                    clientManager.BeginConnect();
-
-                    Data msgToSend = new Data();
-
-                    msgToSend.strName = userName;
-                    msgToSend.strMessage = clientManager.CalculateChecksum(passwordBox.Password);
-                    if (loginNotyfi) //if server need to notyfice you that you log in, value get form config.xml
-                        msgToSend.strMessage2 = "1";
-                    msgToSend.cmdCommand = Command.Login;
-
-                    byte[] byteData = msgToSend.ToByte();
-
-                    //Send it to the server
-                    clientManager.BeginSend(byteData);
+                    App.clientName = loginTextBox.Text;
+                    clientManager.SendToServer(Command.Login, clientManager.CalculateChecksum(passwordBox.Password), (loginNotyfi ? "1" : null));
                 }
                 catch (Exception ex)
                 {
@@ -156,7 +137,7 @@ namespace Gold
                 var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
                 anim.Completed += (s, _) => DialogResult = true;
                 BeginAnimation(OpacityProperty, anim);
-                clientSocket = e.clientSocket;
+                //clientSocket = e.clientSocket;
             }));
         }
 
@@ -180,6 +161,12 @@ namespace Gold
         {
             p_reg reg = new p_reg(clientManager, this);
             reg.ShowDialog();
+        }
+
+        private void lostPasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            lost_password rp = new lost_password(clientManager);
+            rp.Show();
         }
     }
 }
