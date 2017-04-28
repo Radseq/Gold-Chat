@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
@@ -16,11 +15,12 @@ namespace Server
         byte[] byteData = new byte[1024];
 
         public const int max_users = 50;
+        EmailSender emailSender = EmailSender.Instance;
 
         static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
-        static StreamWriter strWriter = new StreamWriter("ServerLogger-" + dateFile + ".txt", true);
-        static ServerLogger servLogg = new ServerLogger(ref strWriter);
-        ServerManager sm = new ServerManager(servLogg);
+
+        static ServerLogger servLogg = ServerLogger.Instance;
+        ServerManager sm = new ServerManager();
 
         public server()
         {
@@ -34,19 +34,19 @@ namespace Server
                 Console.WriteLine(" >> Server Started");
                 servLogg.msgLog(" >> Server Started"); /*on Adress:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Address.ToString() + " Port:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Port.ToString());*/
 
-                sm.ClientLogin += OnClientLogin;
-                sm.ClientLogin += servLogg.OnClientLoginLogger;
-                sm.ClientRegistration += OnClientRegistration;
-                sm.ClientReSendAckCode += OnClientReSendAckCode;
-                sm.ClientLogout += OnClientLogout;
-                sm.ClientLogout += servLogg.OnClientLogoutLogger;
-                sm.ClientMessage += OnClientMessage;
-                sm.ClientMessage += servLogg.OnClientMessageLogger;
-                sm.ClientSendMessage += OnClientSendMessage;
-                sm.ClientList += OnClientList;
-                sm.ClientSendMessage += servLogg.OnClientSendMessageLogger;
-                sm.ClientReceiMessage += OnClientReceiMessage;
-                sm.ClientReceiMessage += servLogg.OnClientReceiMessageLogger;
+                //sm.ClientLogin += OnClientLogin;
+                //sm.ClientLogin += servLogg.OnClientLoginLogger;
+                //sm.ClientRegistration += OnClientRegistration;
+                //sm.ClientReSendAckCode += OnClientReSendAckCode;
+                emailSender.EmailSended += servLogg.OnEmaiSended;
+                emailSender.EmailSended += servLogg.OnEmaiNotyficationLoginSended;
+                //sm.ClientMessage += OnClientMessage;
+                //sm.ClientMessage += servLogg.OnClientMessageLogger;
+                //sm.ClientSendMessage += OnClientSendMessage;
+                //sm.ClientList += OnClientList;
+                //sm.ClientSendMessage += servLogg.OnClientSendMessageLogger;
+                //sm.ClientReceiMessage += OnClientReceiMessage;
+                //sm.ClientReceiMessage += servLogg.OnClientReceiMessageLogger;
                 // DataBase
                 db.ConnectToDB += servLogg.OnConnectToDB;
                 db.ExecuteNonQuery += servLogg.OnExecuteNonQuery;
@@ -74,8 +74,8 @@ namespace Server
                 clientList[0].cSocket.Close();
                 clientList.RemoveAt(0);
             }*/
-            strWriter.Close();
-            strWriter.Dispose();
+            //strWriter.Close();
+            //strWriter.Dispose();
             db.closeConnection();
         }
 
@@ -103,21 +103,6 @@ namespace Server
         private void OnClientLogout(object sender, ClientEventArgs e)
         {
             Console.WriteLine(e.clientName + " has left the room>>>");
-        }
-
-        private void OnClientLogin(object sender, ClientEventArgs e)
-        {
-            Console.WriteLine(e.clientName + " has joined the room>>>");
-        }
-
-        private void OnClientReSendAckCode(object sender, ClientEventArgs e)
-        {
-            Console.WriteLine(e.clientName + " resend thier activation code to " + e.clientEmail);
-        }
-
-        private void OnClientRegistration(object sender, ClientEventArgs e)
-        {
-            Console.WriteLine(e.clientName + " has registered by " + e.clientEmail);
         }
         #endregion
     }

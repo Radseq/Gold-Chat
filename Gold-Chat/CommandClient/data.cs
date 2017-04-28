@@ -7,14 +7,15 @@ namespace CommandClient
     //The commands for interaction between the server and the client
     public enum Command
     {
+        NoCommand,      //No command
         Login,          //Log into the server
         Logout,         //Logout of the server
         Message,        //Send a text message to all the chat clients
         List,           //Get a list of users/channels/joinedChannels/friends
         privMessage,    //Support private message from friend
 
-        Reg,            //Registration 
-        ReSendEmail,    //Resend activation name to client
+        Registration,   //Registration 
+        ReSendActiveCode,    //Resend activation name to client
 
         changePassword, //when client want to change password
         lostPassword,   //used to remember password
@@ -33,9 +34,7 @@ namespace CommandClient
         ignoreUser,     //
 
         kick,           //kick user from serwer by admin
-        ban,            //ban user from serwer by admin
-
-        Null            //No command
+        ban             //ban user from serwer by admin
     }
 
     //The data structure by which the server and the client interact with 
@@ -52,7 +51,7 @@ namespace CommandClient
         //Default constructor
         public Data()
         {
-            cmdCommand = Command.Null;
+            cmdCommand = Command.NoCommand;
             strName = null;
             strMessage = null;
             strMessage2 = null;

@@ -13,8 +13,27 @@ namespace Server
 
     class EmailSender
     {
+        // Singleton
+        static EmailSender instance = null;
+        static readonly object padlock = new object();
+
         public event EventHandler<EmailSenderEventArgs> EmailSended;
         public event EventHandler<EmailSenderEventArgs> FailEmailSended;
+
+        // Singleton
+        public static EmailSender Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                        instance = new EmailSender();
+
+                    return instance;
+                }
+            }
+        }
 
         public void SendEmail(string userName, string toEmail, string subject, string emailMessage)
         {

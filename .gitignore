@@ -1,10 +1,14 @@
 # ignores following folders
 Gold-Chat/CommandClient/obj
-Gold-Chat/Gold/bin
-Gold-Chat/Gold/obj
+Gold-Chat/Gold_Client/obj
+Gold-Chat/ServerTests/obj
 Gold-Chat/Server/obj
+Gold-Chat/Gold/obj
+Gold-Chat/Gold_Client/bin
+Gold-Chat/ServerTests/bin
+Gold-Chat/Gold/bin
 Gold-Chat/.vs
-/not_used
+
 *.csproj.user
 *.pdb
 *.exe

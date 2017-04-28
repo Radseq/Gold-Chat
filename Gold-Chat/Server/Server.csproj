@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.7.1.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.7.1\lib\net45\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MySql.Data">
       <HintPath>.\MySql.Data.dll</HintPath>
     </Reference>
@@ -49,16 +57,59 @@
   <ItemGroup>
     <Compile Include="Channel.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="ClientEventArgs.cs" />
+    <Compile Include="ClientService\ClientBan.cs" />
+    <Compile Include="ClientService\ClientBanFromChannel.cs" />
+    <Compile Include="ClientService\ClientChangePassword.cs" />
+    <Compile Include="ClientService\ClientDeleteChannel.cs" />
+    <Compile Include="ClientService\ClientEnterChannel.cs" />
+    <Compile Include="ClientService\ClientExitChannel.cs" />
+    <Compile Include="ClientService\ClientIgnoreUser.cs" />
+    <Compile Include="ClientService\ClientJoinChannel.cs" />
+    <Compile Include="ClientService\ClientKick.cs" />
+    <Compile Include="ClientService\ClientKickFromChannel.cs" />
+    <Compile Include="ClientService\List\ClientLeaveChannel.cs" />
+    <Compile Include="ClientService\ClientListManager.cs" />
+    <Compile Include="ClientService\ClientLogin.cs" />
+    <Compile Include="ClientService\ClientLogout.cs" />
+    <Compile Include="ClientService\ClientLostPassword.cs" />
+    <Compile Include="ClientService\ClientMessages.cs" />
+    <Compile Include="ClientService\ClientPrivateMessage.cs" />
+    <Compile Include="ClientService\ClientRegistration.cs" />
+    <Compile Include="ClientService\ClientReSendActiveCode.cs" />
+    <Compile Include="ClientService\ClientCreateChannel.cs" />
+    <Compile Include="ClientService\GetListOfChannlsFromDataBase.cs" />
+    <Compile Include="ClientService\List\SendChannelList.cs" />
+    <Compile Include="ClientService\List\SendChannelsListJoined.cs" />
+    <Compile Include="ClientService\List\SendFriendsList.cs" />
+    <Compile Include="ClientService\List\SendListOfIgnoredUsers.cs" />
+    <Compile Include="ClientService\List\SendListOfUsersInChannel.cs" />
+    <Compile Include="ClientService\List\SendOnlineListOfClients.cs" />
+    <Compile Include="ClientService\ManageClientFriend.cs" />
     <Compile Include="DataBaseManager.cs" />
     <Compile Include="EmailSender.cs" />
+    <Compile Include="Interfaces\IChannelList.cs" />
+    <Compile Include="Interfaces\IClient.cs" />
+    <Compile Include="Interfaces\IClientList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Interfaces\IPrepareRespond.cs" />
+    <Compile Include="Interfaces\IServerReceive.cs" />
+    <Compile Include="Interfaces\IServerSend.cs" />
+    <Compile Include="ResponseMessages\Respond.cs" />
+    <Compile Include="ResponseMessages\SendMessageToAll.cs" />
+    <Compile Include="ResponseMessages\SendMessageToChannel.cs" />
+    <Compile Include="ResponseMessages\SendMessageToNick.cs" />
+    <Compile Include="ResponseMessages\SendMessageToSomeone.cs" />
     <Compile Include="ServerLogger.cs" />
     <Compile Include="ServerManager.cs" />
+    <Compile Include="ResponseMessages\ServerResponds.cs" />
+    <Compile Include="ServerReceive.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommandClient\CommandClient.csproj">
@@ -66,6 +117,7 @@
       <Name>CommandClient</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

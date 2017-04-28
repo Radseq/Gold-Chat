@@ -1,5 +1,6 @@
 ﻿using CommandClient;
 using System;
+using System.Text.RegularExpressions;
 //for hash
 using System.Windows;
 
@@ -24,17 +25,21 @@ namespace Gold
         {
             if (logTextbox.Text != string.Empty && passbox.Password != string.Empty && rePassbox.Password != string.Empty && emailTextbox.Text != string.Empty)
             {
-                if (logTextbox.Text.Length < 3 && logTextbox.Text.Length > 30 /* todo && !System.Text.RegularExpressions.Regex.IsMatch(logTextbox.Text, @"[a-z]{30}")*/)
+                Regex rgx = new Regex(@"^(?=[a-z])[-\w.]{0,23}([a-zA-Z\d])$");
+                bool loginRegex = rgx.IsMatch(logTextbox.Text);
+
+                if (logTextbox.Text.Length < 3 && logTextbox.Text.Length > 30)
                 {
 
                     MessageBox.Show("Your username must be between 4 and 29 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                     logTextbox.Focus();
                 }
 
-                //if (!System.Text.RegularExpressions.Regex.IsMatch(logTextbox.Text, "^[a-zA-Z0-9_.]+$"))
-                //{ 
-
-                //}
+                else if (!loginRegex)
+                {
+                    MessageBox.Show("Your username must contain only a-z or 0-9 extample michael123", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
+                    logTextbox.Focus();
+                }
 
                 else if (passbox.Password.Length < 6 && rePassbox.Password.Length < 6)
                 {
@@ -64,7 +69,7 @@ namespace Gold
                 else
                 {
                     App.clientName = logTextbox.Text;
-                    clientManager.SendToServer(Command.Reg, clientManager.CalculateChecksum(passbox.Password), emailTextbox.Text);
+                    clientManager.SendToServer(Command.Registration, clientManager.CalculateChecksum(passbox.Password), emailTextbox.Text);
 
                     clientManager.ClientRegistration += OnClientRegistration;
                 }

@@ -76,8 +76,6 @@ namespace Gold
             clientManager.ClientKickFromSerwer += OnClientKickFromSerwer;
             clientManager.ClientBanFromSerwer += OnClientBanFromSerwer;
 
-            getClientList();
-
             dispatcherTimer.Tick += new EventHandler(getFromServLists);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
         }
@@ -102,11 +100,6 @@ namespace Gold
             }
         }
 
-        private void getClientList()
-        {
-            clientManager.SendToServer(Command.List);
-        }
-
         private void OnClientChannelEnterDeny(object sender, ClientEventArgs e)
         {
             MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
@@ -119,7 +112,7 @@ namespace Gold
             {
                 //The user has logged into the system so we now request the server to send
                 //the names of all users who are in the chat room
-
+                clientManager.SendToServer(Command.List);
             }
             else if (second == 1)
                 clientManager.SendToServer(Command.List, "IgnoredUsers"); // The names of all ignored users
@@ -133,40 +126,6 @@ namespace Gold
                 dispatcherTimer.Stop();
             second = second + 1;
         }
-
-        //private void getFromServLists()
-        //{
-        //    //The user has logged into the system so we now request the server to send
-        //    //the names of all users who are in the chat room
-        //    Data msgToSend = new Data();
-        //    msgToSend.cmdCommand = Command.List;
-        //    msgToSend.strName = strName;
-        //    msgToSend.strMessage = null;
-
-        //    byteData = msgToSend.ToByte();
-
-        //    clientManager.BeginSend(byteData);
-
-        //    //the names of all ignored users
-        //    Data msgToSendIgnoredUsers = new Data();
-        //    msgToSendIgnoredUsers.cmdCommand = Command.List;
-        //    msgToSendIgnoredUsers.strName = strName;
-        //    msgToSendIgnoredUsers.strMessage = "IgnoredUsers";
-
-        //    byteData = msgToSendIgnoredUsers.ToByte();
-
-        //    clientManager.BeginSend(byteData);
-
-        //    //the names of all channels that he have joined
-        //    Data msgToSendJoinedChannels = new Data();
-        //    msgToSendJoinedChannels.cmdCommand = Command.List;
-        //    msgToSendJoinedChannels.strName = strName;
-        //    msgToSendJoinedChannels.strMessage = "ChannelsJoined";
-
-        //    byteData = msgToSendJoinedChannels.ToByte();
-
-        //    clientManager.BeginSend(byteData);
-        //}
 
         private void OnClientListIgnored(object sender, ClientEventArgs e)
         {
@@ -189,7 +148,7 @@ namespace Gold
                     clientIgnoredList.Remove(e.clientIgnoreName);
                     lb_ignored.Items.Remove(e.clientIgnoreName);
                     lb_ignored.Items.Refresh();
-                    getClientList();
+                    clientManager.SendToServer(Command.List);
                 }));
             }
         }
@@ -357,13 +316,18 @@ namespace Gold
 
         private void OnClientExitChannel(object sender, ClientEventArgs e)
         {
-            Dispatcher.BeginInvoke((Action)(() =>
+            if (e.clientChannelMsg == "You are exit from the channel")
             {
-                clientChannelsJoinedList.Remove(e.clientChannelName);
-                lbJoinedChann.Items.Refresh();
+                MessageBox.Show(e.clientChannelMsg + " " + e.clientChannelName + ".", "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    clientChannelsJoinedList.Remove(e.clientChannelName);
+                    lbJoinedChann.Items.Refresh();
 
-            }));
-            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                }));
+            }
+            else
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientEditChannel(object sender, ClientEventArgs e)
@@ -389,8 +353,8 @@ namespace Gold
             {
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    clientChannelsJoinedList.Add(e.clientChannelName);
-                    lbJoinedChann.Items.Refresh();
+                    clientChannelsList.Add(e.clientChannelName);
+                    lbLobbies.Items.Refresh();
                 }));
             }
         }
@@ -423,16 +387,20 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
-                if (pm != null)
-                {
-                    pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
-                }
-                else
+                //if (pm != null)
+                //{
+                //    //pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
+                //    pm.showPrivMessageTb.Text += e.clientPrivMessage;
+                //}
+                //else
+                if (pm == null)
                 {
                     pm = new private_message(e.clientFriendName);
                     pm.Show();
-                    pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
+                    //pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
+                    pm.showPrivMessageTb.Text += e.clientPrivMessage;
                 }
+                pm.showPrivMessageTb.Text += e.clientPrivMessage;
             }));
         }
 
@@ -448,6 +416,8 @@ namespace Gold
         {
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                //if (e.clientListMessage != null)
+                // {
                 string[] splitNicks = e.clientListMessage.Split('*');
                 foreach (string nick in splitNicks)
                 {
@@ -458,6 +428,7 @@ namespace Gold
                 clientList.RemoveAt(clientList.Count - 1);
                 lb_users.ItemsSource = clientList;
                 lb_users.Items.Refresh();
+                // }
             }));
         }
 
@@ -476,7 +447,6 @@ namespace Gold
             try
             {
                 clientManager.SendToServer(Command.Message, tb_message.Text);
-
                 tb_message.Text = null;
             }
             catch (Exception)
@@ -655,21 +625,13 @@ namespace Gold
             }
             try
             {
-                //Send a message to logout of the server
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.Logout;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = null;
-
-                byte[] logoutMessage = msgToSend.ToByte();
-
                 //clientManager.ClientLogin -= OnClientLogin; //unsubscribe
 
                 var anim = new DoubleAnimation(0, TimeSpan.FromSeconds(1));
                 anim.Completed += (s, _) => Close();
                 BeginAnimation(OpacityProperty, anim);
 
-                clientManager.LogoutSend(logoutMessage);
+                clientManager.LogoutSend();
 
                 clientManager.config.SaveConfig(clientManager.config);// when user exit from program, we save configuration
 
@@ -747,7 +709,7 @@ namespace Gold
         {
             string strMessage = lbLobbies.SelectedItem.ToString();
             if (clientChannelsJoinedList.Contains(strMessage))
-                clientManager.SendToServer(Command.editChannel, strMessage);
+                clientManager.SendToServer(Command.exitChannel, strMessage);
         }
         private void DeleteChannel(object sender, RoutedEventArgs e)
         {

@@ -59,13 +59,12 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Compile Include="tab_windows\lost_password.xaml.cs">
       <DependentUpon>lost_password.xaml</DependentUpon>
     </Compile>
-    <Page Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -73,26 +72,54 @@
     <Compile Include="ClientManager.cs" />
     <Compile Include="CloseableTabItem.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="private_message.xaml.cs" />
-    <Compile Include="program.xaml.cs" />
-    <Compile Include="p_log.xaml.cs" />
-    <Compile Include="p_reg.xaml.cs" />
-    <Compile Include="register_code.xaml.cs" />
+    <Compile Include="private_message.xaml.cs">
+      <DependentUpon>private_message.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="program.xaml.cs">
+      <DependentUpon>program.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="p_log.xaml.cs">
+      <DependentUpon>p_log.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="p_reg.xaml.cs">
+      <DependentUpon>p_reg.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="register_code.xaml.cs">
+      <DependentUpon>register_code.xaml</DependentUpon>
+    </Compile>
     <Compile Include="serverAsk.xaml.cs">
       <DependentUpon>serverAsk.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TabCloseButton.xaml.cs" />
+    <Compile Include="TabCloseButton.xaml.cs">
+      <DependentUpon>TabCloseButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="tab_windows\channelWindow.xaml.cs">
       <DependentUpon>channelWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="tab_windows\p_abouse.xaml.cs" />
-    <Compile Include="tab_windows\p_adm.xaml.cs" />
-    <Compile Include="tab_windows\p_archive.xaml.cs" />
-    <Compile Include="tab_windows\p_contact.xaml.cs" />
-    <Compile Include="tab_windows\p_create_room.xaml.cs" />
-    <Compile Include="tab_windows\p_infor.xaml.cs" />
-    <Compile Include="tab_windows\p_suggest.xaml.cs" />
-    <Compile Include="tab_windows\p_user.xaml.cs" />
+    <Compile Include="tab_windows\p_abouse.xaml.cs">
+      <DependentUpon>p_abouse.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_adm.xaml.cs">
+      <DependentUpon>p_adm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_archive.xaml.cs">
+      <DependentUpon>p_archive.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_contact.xaml.cs">
+      <DependentUpon>p_contact.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_create_room.xaml.cs">
+      <DependentUpon>p_create_room.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_infor.xaml.cs">
+      <DependentUpon>p_infor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_suggest.xaml.cs">
+      <DependentUpon>p_suggest.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="tab_windows\p_user.xaml.cs">
+      <DependentUpon>p_user.xaml</DependentUpon>
+    </Compile>
     <Page Include="tab_windows\lost_password.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -123,9 +150,6 @@
     <AppDesigner Include="Properties\" />
     <None Include="Resources\chat2.psd" />
     <None Include="Resources\login.psd" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommandClient\CommandClient.csproj">

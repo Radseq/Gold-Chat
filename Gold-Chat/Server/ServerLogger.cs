@@ -5,20 +5,38 @@ namespace Server
 {
     public class ServerLogger
     {
-        //private string file = "serverLogger.txt";
-        private StreamWriter sw;
+        // Singleton
+        static ServerLogger instance = null;
+        static readonly object padlock = new object();
 
-        public ServerLogger(ref StreamWriter strWriter)
+        static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
+        static StreamWriter strWriter = new StreamWriter("ServerLogger-" + dateFile + ".txt", true);
+
+        // Singleton
+        public static ServerLogger Instance
         {
-            sw = strWriter;
-            sw.WriteLine("Serwer started at " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " Start Logging.");
-            sw.Flush();
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                        instance = new ServerLogger();
+
+                    return instance;
+                }
+            }
+        }
+
+        private ServerLogger()
+        {
+            strWriter.WriteLine("Serwer started at " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " Start Logging.");
+            strWriter.Flush();
         }
 
         private void write(string message)
         {
-            sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + message);
-            sw.Flush();
+            strWriter.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + message);
+            strWriter.Flush();
         }
 
         public void OnClientReceiMessageLogger(object sender, ClientEventArgs e)
@@ -43,12 +61,25 @@ namespace Server
 
         public void OnClientLogoutLogger(object sender, ClientEventArgs e)
         {
+            Console.WriteLine(e.clientName + " has left the room>>>");
             write(e.clientName + " has left the room>>>");
         }
 
-        public void OnClientLoginLogger(object sender, ClientEventArgs e)
+        public void OnClientReSendAckCode(object sender, ClientEventArgs e)
         {
+            Console.WriteLine(e.clientName + " resend thier activation code to " + e.clientEmail);
+            write(e.clientName + " resend thier activation code to " + e.clientEmail);
+        }
+
+        public void OnClientLogin(object sender, ClientEventArgs e)
+        {
+            Console.WriteLine(e.clientName + " has joined the room>>>");
             write(e.clientName + " has joined the room>>>");
+        }
+
+        public void OnClientRegistration(object sender, ClientEventArgs e)
+        {
+            write(e.clientName + " has registered by " + e.clientEmail);
         }
 
         public void RunServerLogger(Exception ex)
@@ -81,6 +112,27 @@ namespace Server
             Console.WriteLine(exception);
             write(exception);
             Environment.Exit(1);
+        }
+
+        public void OnEmaiSended(object source, EmailSenderEventArgs args)
+        {
+            string outStr = "Activation Code has been send to " + args.UserNameEmail + " email";
+            Console.WriteLine(outStr);
+            msgLog(outStr);
+        }
+
+        public void OnEmaiReSended(object source, EmailSenderEventArgs args)
+        {
+            string outStr = "Register Code resended to " + args.UserNameEmail + " email";
+            Console.WriteLine(outStr);
+            msgLog(outStr);
+        }
+
+        public void OnEmaiNotyficationLoginSended(object sender, EmailSenderEventArgs e)
+        {
+            string outStr = "Login Notyfication to " + e.UserNameEmail + " email";
+            Console.WriteLine(outStr);
+            msgLog(outStr);
         }
 
     }

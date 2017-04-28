@@ -12,7 +12,7 @@ namespace Server
         public string Exception { get; set; }
     }
 
-    class DataBaseManager
+    public class DataBaseManager
     {
         // Event
         public event EventHandler<DataBaseManagerEventArgs> ConnectToDB;
@@ -117,16 +117,18 @@ namespace Server
             // No connection with database? make connection
             if (isConnected == false)
                 connectToDb();
-
-            // Disposes the MySQLCommand instance after add parameters
-            using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
+            else
             {
-                // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
-                // Placeholders instead of directly writing the values into the statements
-                // Prepared statements increase security and performance.
-                //mySqlCommand.Prepare();
+                // Disposes the MySQLCommand instance after add parameters
+                using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
+                {
+                    // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
+                    // Placeholders instead of directly writing the values into the statements
+                    // Prepared statements increase security and performance.
+                    //mySqlCommand.Prepare();
 
-                addValueToParameters();
+                    addValueToParameters();
+                }
             }
         }
 
