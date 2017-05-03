@@ -93,122 +93,55 @@
 							</Grid>
 						</Expander>
 						<Expander Header="Everyone" Margin="0" OverridesDefaultStyle="True" Width="116">
-							<ListBox x:Name="lb_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
-								<!-- MouseDoubleClick="lb_users_MouseDoubleClick" -->
-								<ListBox.Resources>
-									<Style x:Key="AddFriendItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="{Binding AddFriendHandleCommand}"/>
-									</Style>
-									<Style x:Key="PrivMessageContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="PrivateMsgToUser"/>
-									</Style>
-									<Style x:Key="IgnoreMessageContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="IgnoreUser"/>
-									</Style>
-								</ListBox.Resources>
-								<ListBox.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
-										<Setter Property="ContextMenu">
-											<Setter.Value>
-												<ContextMenu>
-													<MenuItem Header="Add to Friend List" Style="{StaticResource AddFriendItemContextMenuStyle}"/>
-													<MenuItem Header="Private Message" Style="{StaticResource PrivMessageContextMenuStyle}"/>
-													<MenuItem Header="Ignore" Style="{StaticResource IgnoreMessageContextMenuStyle}"/>
-												</ContextMenu>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ListBox.ItemContainerStyle>
-							</ListBox>
+                            <ListBox ItemsSource="{Binding UsersConnected}" SelectedItem="{Binding SelectedUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Click" Command="{Binding AddFriendHandleCommand}" />
+                                        <MenuItem Header="Click" Command="{Binding PrivateMsgToUserCommand}" />
+                                        <MenuItem Header="Click" Command="{Binding IgnoreUserCommand}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
 						</Expander>
 						<Expander Header="Friends" Margin="0" OverridesDefaultStyle="True" Width="116">
-							<ListBox x:Name="lb_friend_users" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="PrivateMsgToFriend">
-								<ListBox.Resources>
-									<Style x:Key="DeleteItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="Delete_Friend"/>
-									</Style>
-								</ListBox.Resources>
-								<ListBox.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
-										<Setter Property="ContextMenu">
-											<Setter.Value>
-												<ContextMenu>
-													<MenuItem Header="Delete Friend" Style="{StaticResource DeleteItemContextMenuStyle}"/>
-												</ContextMenu>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ListBox.ItemContainerStyle>
-							</ListBox>
+                            <ListBox ItemsSource="{Binding FriendlyUsersConnected}" SelectedItem="{Binding SelectedFriendlyUser}" VerticalAlignment="Top" 
+                                     IsSynchronizedWithCurrentItem="True" MouseDoubleClick="{Binding PrivateMsgToFriendCommand}">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Click" Command="{Binding DeleteFriendCommand}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
 						</Expander>
 						<Expander Header="Ignored" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
-							<ListBox x:Name="lb_ignored" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
-								<!-- MouseDoubleClick="lb_users_MouseDoubleClick" -->
-								<ListBox.Resources>
-									<Style x:Key="DeleteIgnoredItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="DeleteFromIgnoreList"/>
-									</Style>
-								</ListBox.Resources>
-								<ListBox.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
-										<Setter Property="ContextMenu">
-											<Setter.Value>
-												<ContextMenu>
-													<MenuItem Header="Delete From List" Style="{StaticResource DeleteIgnoredItemContextMenuStyle}"/>
-												</ContextMenu>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ListBox.ItemContainerStyle>
-							</ListBox>
+                            <ListBox ItemsSource="{Binding IgnoredUsers}" SelectedItem="{Binding SelectedIgnoredUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Click" Command="{Binding DeleteIgnoredUserCommand}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
 						</Expander>
 						<Expander Header="Lobbies" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
-							<ListBox x:Name="lbLobbies" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
-								<ListBox.Resources>
-									<Style x:Key="LobbiesItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="JoinToLobbie"/>
-									</Style>
-								</ListBox.Resources>
-								<ListBox.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
-										<Setter Property="ContextMenu">
-											<Setter.Value>
-												<ContextMenu>
-													<MenuItem Header="Join" Style="{StaticResource LobbiesItemContextMenuStyle}"/>
-												</ContextMenu>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ListBox.ItemContainerStyle>
-							</ListBox>
+                            <ListBox ItemsSource="{Binding Lobbies}" SelectedItem="{Binding SelectedLobbie}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Click" Command="{Binding JoinToLobbieCommand}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
 						</Expander>
 						<Expander Header="JoinedChannels" Height="auto" Margin="0" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="116">
-							<ListBox x:Name="lbJoinedChann" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="EnterToJoinedChannel">
-								<ListBox.Resources>
-									<Style x:Key="JoinedLobbiesItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="LeaveJoinedChannel"/>
-									</Style>
-									<Style x:Key="DeleteLobbiesItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="DeleteChannel"/>
-									</Style>
-									<Style x:Key="ExitLobbieItemContextMenuStyle" TargetType="MenuItem">
-										<EventSetter Event="Click" Handler="ExitFromLobbie"/>
-									</Style>
-								</ListBox.Resources>
-								<ListBox.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
-										<Setter Property="ContextMenu">
-											<Setter.Value>
-												<ContextMenu>
-													<MenuItem Header="Leave" Style="{StaticResource JoinedLobbiesItemContextMenuStyle}"/>
-													<MenuItem Header="Delete" Style="{StaticResource DeleteLobbiesItemContextMenuStyle}"/>
-													<MenuItem Header="Exit" Style="{StaticResource ExitLobbieItemContextMenuStyle}"/>
-												</ContextMenu>
-											</Setter.Value>
-										</Setter>
-									</Style>
-								</ListBox.ItemContainerStyle>
-							</ListBox>
+                            <ListBox ItemsSource="{Binding JoinedChannelsList}" SelectedItem="{Binding SelectedJoinedLobbie}" VerticalAlignment="Top" 
+                                     IsSynchronizedWithCurrentItem="True" MouseDoubleClick="{Binding EnterToJoinedChannelCommand}">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Click" Command="{Binding LeaveChannelCommand}" />
+                                        <MenuItem Header="Click" Command="{Binding ExitChannelCommand}" />
+                                        <MenuItem Header="Click" Command="{Binding DeleteChannelCommand}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
 						</Expander>
 					</StackPanel>
 				</Canvas>

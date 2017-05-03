@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows;
 using System.Xml.Serialization;
 
 namespace Gold_Client.ViewModel
@@ -46,7 +47,7 @@ namespace Gold_Client.ViewModel
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message);
             }
             return new Configuration();
         }

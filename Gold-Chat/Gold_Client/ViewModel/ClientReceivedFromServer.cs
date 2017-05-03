@@ -2,7 +2,6 @@
 using Gold_Client.Model;
 using System;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Threading;
 
 namespace Gold_Client.ViewModel
@@ -80,8 +79,6 @@ namespace Gold_Client.ViewModel
             get; set;
         }
 
-        bool serverError = false;
-
         private byte[] byteData = new byte[1024];
 
         //lets use config
@@ -133,14 +130,11 @@ namespace Gold_Client.ViewModel
 
         private void OnReceive(IAsyncResult ar)
         {
-            if (serverError)
-                return;
-
             try
             {
                 //var so = (StateObject)ar.AsyncState;
 
-                //if (!socket.Connected) return;
+                if (!Client.cSocket.Connected) return;
 
                 Client.cSocket.EndReceive(ar);
 
@@ -154,8 +148,6 @@ namespace Gold_Client.ViewModel
                             OnClientSuccesLogin(true, Client.cSocket);
                             Client.permission = int.Parse(msgReceived.strMessage2);
                         }
-                        else if (msgReceived.strMessage == null)
-                            serverError = true;
                         else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                         break;
 
@@ -297,18 +289,6 @@ namespace Gold_Client.ViewModel
         protected virtual void OnClientLostPassword(string strMessage, string strMessage2)
         {
             ClientLostPass?.Invoke(this, new ClientEventArgs() { clientChannelMsg = strMessage, clientChangePassMessage = strMessage2 });
-        }
-
-        //md5
-        public string CalculateChecksum(string inputString)
-        {
-            var md5 = new MD5CryptoServiceProvider();
-            var hashbytes = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(inputString));
-            var hashstring = "";
-            foreach (var hashbyte in hashbytes)
-                hashstring += hashbyte.ToString("x2");
-
-            return hashstring;
         }
 
         protected virtual void OnReceiveLogExcep(string message)

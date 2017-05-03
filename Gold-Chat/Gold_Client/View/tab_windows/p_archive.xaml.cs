@@ -1,11 +1,11 @@
 ﻿using System.Windows;
 
-namespace Gold.tab_windows
+namespace Gold_Client.View.tab_windows
 {
     /// <summary>
     /// Interaction logic for archive.xaml
     /// </summary>
-    public partial class p_archive : Window
+    public partial class p_archive
     {
         /* TODO
          * pobieranie rozmowy z pliku txt lub bazy sql

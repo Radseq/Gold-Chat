@@ -1,7 +1,11 @@
 ## To do:
+After rewite client to MVVM
+- [ ] More classes divisions (more solid like)
+
 After rewite server:
 - [ ] First private msg is sending 2 times.
 - [ ] After create channel client not receive new list of channels and joined channels
+- [ ] Make Log Messages to File And to Console, in separate classes
 
 - [ ] Sending/Recev files by users
 - [x] Program don't receive 4 messages sended by progeam.cs(Window_Loaded)

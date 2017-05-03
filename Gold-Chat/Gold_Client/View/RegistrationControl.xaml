@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel" mc:Ignorable="d"
-             d:DesignHeight="323"
              d:DesignWidth="282" 
-             d:DataContext="{d:DesignInstance ViewModel:RegistrationPresenter}">
+             d:DataContext="{d:DesignInstance ViewModel:RegistrationPresenter}" Height="193.435">
     <UserControl.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding RegistrationCommand}"/>
     </UserControl.InputBindings>
@@ -15,11 +14,11 @@
         <Label Content="Password:" Margin="26,35,124,128" Name="passLabel" />
         <Label Content="Re Password:" Margin="8,64,124,97" Name="repassLabel" />
         <Label Content="Email:" Margin="46,95,129,73" Name="emailLabel" />
-        <TextBox Margin="95,9,10,162" Name="logTextbox" />
-        <PasswordBox Margin="95,37,10,133" Name="passbox" PasswordChar="*" MaxLength="10" />
-        <PasswordBox Margin="95,66,10,102" Name="rePassbox" PasswordChar="*" MaxLength="10" />
-        <TextBox Text="{Binding RegistrationEmailTB, UpdateSourceTrigger=PropertyChanged}" Margin="95,95,10,73" Name="emailTextbox" />
-        <Button Command="{Binding RegistrationCommand}" Content="Register" Name="registerButton" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" IsDefault="True" Margin="123,137,10,10" />
-        <Button Command="{Binding CleanRegistrationWindowCommand}" Content="Clean" Margin="38,137,106,10" Name="cleanButton" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" />
+        <TextBox Margin="95,9,10,162" Text="{Binding RegistrationLoginTB, UpdateSourceTrigger=PropertyChanged}" />
+        <PasswordBox Margin="95,37,10,133" x:Name="newPass" PasswordChanged="newPasswordChanged" PasswordChar="*" MaxLength="10" />
+        <PasswordBox Margin="95,66,10,102" x:Name="newPass2" PasswordChanged="newPassword2Changed" PasswordChar="*" MaxLength="10" />
+        <TextBox Text="{Binding RegistrationEmailTB, UpdateSourceTrigger=PropertyChanged}" Margin="95,95,10,73" />
+        <Button Command="{Binding RegistrationCommand}" Content="Register" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" IsDefault="True" Margin="190,146,10,14" />
+        <Button Command="{Binding CleanRegistrationWindowCommand}" Content="Clean" Margin="37,146,180,14" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" />
     </Grid>
 </UserControl>

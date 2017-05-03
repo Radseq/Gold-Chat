@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel" mc:Ignorable="d"
-             d:DesignHeight="323"
              d:DesignWidth="282" 
-             d:DataContext="{d:DesignInstance ViewModel:LoginPresenter}">
+             d:DataContext="{d:DesignInstance ViewModel:LoginPresenter}" Height="106">
     <UserControl.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
     </UserControl.InputBindings>
@@ -15,8 +14,8 @@
         <Label Foreground="Blue" Margin="19,36,172,44" Content="Password:"/>
         <TextBox Text="{Binding LoginTB, UpdateSourceTrigger=PropertyChanged}" Margin="86,1,29,79"/>
         <PasswordBox Name="passBox" Margin="86,36,29,44"/>
-        <Button Command="{Binding RegistrationWindowCommand}" Margin="5,73,168,4" Content="Registration"/>
-        <Button Command="{Binding LostPasswordWindowCommand}" Margin="89,73,61,4" Content="Lost Password"/>
-        <Button Content="Login" Command="{Binding LoginCommad}" CommandParameter="{Binding ElementName=passBox}" Margin="196,73,5,4"/>
+        <Button Command="{Binding RegistrationWindowCommand}" Margin="5,73,185,4" Content="Registration"/>
+        <Button Command="{Binding LostPasswordWindowCommand}" Margin="102,73,91,4" Content="Lost Password"/>
+        <Button Content="Login" Command="{Binding LoginCommand}" CommandParameter="{Binding ElementName=passBox}" Margin="196,73,5,4"/>
     </Grid>
 </UserControl>

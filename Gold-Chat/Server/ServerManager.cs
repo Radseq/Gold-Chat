@@ -20,7 +20,7 @@ namespace Server
         //list of all channels
         private List<Channel> channels = new List<Channel>();
 
-        ServerLogger servLogger = ServerLogger.Instance;
+        LoggerToFile servLogger = LoggerToFile.Instance;
         public Client Client { get; set; }
 
         public ServerManager()
@@ -44,7 +44,7 @@ namespace Server
 
             string acceptConnectrion = " >> Accept connection from client: " + Client.addr.Address + " on Port: " + Client.addr.Port;// + " Users Connected: " + clientList.Count;
             Console.WriteLine(acceptConnectrion);
-            servLogger.msgLog(acceptConnectrion);
+            servLogger.Log(acceptConnectrion);
 
             clientList.Add(Client); // When a user logs in to the server then we add her to our list of clients
 

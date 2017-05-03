@@ -48,7 +48,7 @@ namespace Server
         byte[] byteData = new byte[1024];
 
         public event EventHandler<ClientEventArgs> ClientReceiMessage;
-        ServerLogger servLogger = ServerLogger.Instance;
+        LoggerToFile servLogger = LoggerToFile.Instance;
 
         public void startReceiver()
         {
@@ -202,7 +202,7 @@ namespace Server
                 string exMessage = ("client: " + client.strName + " " + ex.Message);
                 Console.WriteLine(exMessage);
                 Console.WriteLine(ex.StackTrace);
-                servLogger.msgLog(exMessage);
+                servLogger.Log(exMessage);
 
                 clientLogout.Response();
             }

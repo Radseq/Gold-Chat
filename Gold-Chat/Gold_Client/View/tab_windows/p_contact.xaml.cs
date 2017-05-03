@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace Gold.tab_windows
+﻿namespace Gold_Client.View.tab_windows
 {
     /// <summary>
     /// Interaction logic for p_contact.xaml
     /// </summary>
-    public partial class p_contact : UserControl
+    public partial class p_contact
     {
         public p_contact()
         {

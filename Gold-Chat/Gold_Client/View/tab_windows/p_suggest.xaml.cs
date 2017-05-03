@@ -1,13 +1,12 @@
 ﻿//for mail(suggestions)
 using System.Windows;
-using System.Windows.Controls;
 
-namespace Gold.tab_windows
+namespace Gold_Client.View.tab_windows
 {
     /// <summary>
     /// Interaction logic for p_suggest.xaml
     /// </summary>
-    public partial class p_suggest : UserControl
+    public partial class p_suggest
     {
         public p_suggest()
         {

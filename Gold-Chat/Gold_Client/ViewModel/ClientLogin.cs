@@ -66,7 +66,8 @@ namespace Gold_Client.ViewModel
             {
                 Client.strName = UserName;
                 ClientSendToServer clientSendToServer = new ClientSendToServer();
-                clientSendToServer.SendToServer(Command.Login, clientReceive.CalculateChecksum(passwordBox.Password), (loginNotyfi ? "1" : null));
+                clientSendToServer.SendToServer(Command.Login, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, passwordBox.Password).Password),
+                    (loginNotyfi ? "1" : null));
             }
             catch (Exception ex)
             {

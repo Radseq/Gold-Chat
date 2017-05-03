@@ -19,7 +19,7 @@ namespace Server
 
         static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
 
-        static ServerLogger servLogg = ServerLogger.Instance;
+        static LoggerToFile servLogg = LoggerToFile.Instance;
         ServerManager sm = new ServerManager();
 
         public server()
@@ -32,7 +32,7 @@ namespace Server
                 ServerSocket.Listen(5);
 
                 Console.WriteLine(" >> Server Started");
-                servLogg.msgLog(" >> Server Started"); /*on Adress:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Address.ToString() + " Port:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Port.ToString());*/
+                servLogg.Log(" >> Server Started"); /*on Adress:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Address.ToString() + " Port:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Port.ToString());*/
 
                 //sm.ClientLogin += OnClientLogin;
                 //sm.ClientLogin += servLogg.OnClientLoginLogger;

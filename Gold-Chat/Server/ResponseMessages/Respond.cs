@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server.ResponseMessages
 {
@@ -23,8 +19,8 @@ namespace Server.ResponseMessages
             }
             catch (Exception ex)
             {
-                ServerLogger servLogger = ServerLogger.Instance;
-                servLogger.msgLog(ex.Message);
+                LoggerToFile servLogger = LoggerToFile.Instance;
+                servLogger.Log(ex.Message);
             }
         }
     }

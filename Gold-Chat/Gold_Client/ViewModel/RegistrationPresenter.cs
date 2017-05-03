@@ -1,6 +1,10 @@
-﻿namespace Gold_Client.ViewModel
+﻿using System.Security;
+
+namespace Gold_Client.ViewModel
 {
-    class RegistrationPresenter : ObservableObject
+    public class RegistrationPresenter : ObservableObject
     {
+        public SecureString SecurePassword { private get; set; }
+        public SecureString SecurePasswordRepeart { private get; set; }
     }
 }

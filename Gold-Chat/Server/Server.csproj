@@ -91,6 +91,7 @@
     <Compile Include="Interfaces\IChannelList.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IClientList.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IPrepareRespond.cs" />
@@ -101,7 +102,7 @@
     <Compile Include="ResponseMessages\SendMessageToChannel.cs" />
     <Compile Include="ResponseMessages\SendMessageToNick.cs" />
     <Compile Include="ResponseMessages\SendMessageToSomeone.cs" />
-    <Compile Include="ServerLogger.cs" />
+    <Compile Include="LoggerToFile.cs" />
     <Compile Include="ServerManager.cs" />
     <Compile Include="ResponseMessages\ServerResponds.cs" />
     <Compile Include="ServerReceive.cs" />

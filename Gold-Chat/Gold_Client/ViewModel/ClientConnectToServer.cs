@@ -64,17 +64,19 @@ namespace Gold_Client.ViewModel
                 //ConnectivityLog.Error(ex);
                 Console.WriteLine(ex);
             }
+            connectDone.WaitOne();
 
             Client.cSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //var remoteIpAddress = IPAddress.Parse(ChannelIp);
             //ChannelEndPoint = new IPEndPoint(remoteIpAddress, ChannelPort);
 
             Client.cSocket.Connect(ipEndPoint);
+            //Client.cSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
             Thread.Sleep(1000);
 
             if (Client.cSocket.Connected)
             {
-
+                connectDone.Set();
             }
             else
             {

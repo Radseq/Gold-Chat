@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Gold.tab_windows
+namespace Gold_Client.View.tab_windows
 {
     /// <summary>
     /// Interaction logic for tabcontrol.xaml
     /// </summary>
-    public partial class p_admin : UserControl
+    public partial class p_admin
     {
 
         public p_admin()

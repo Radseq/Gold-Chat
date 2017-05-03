@@ -2,6 +2,7 @@
 using Gold_Client.Model;
 using System;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace Gold_Client.ViewModel
@@ -66,12 +67,13 @@ namespace Gold_Client.ViewModel
             byte[] toSendByteData = new byte[1024];
             toSendByteData = msgToSend.ToByte();
 
-            if (Client.cSocket.Connected)
+            if (!Client.cSocket.Connected)
             {
                 ClientConnectToServer clientConnectToServer = new ClientConnectToServer();
                 clientConnectToServer.BeginConnect();
                 BeginSend(toSendByteData);
             }
+            else BeginSend(toSendByteData);
         }
 
         private void BeginSend(byte[] byteData)
@@ -101,5 +103,16 @@ namespace Gold_Client.ViewModel
             SendException?.Invoke(this, new ClientEventArgs() { sendExcepMessage = message });
         }
 
+        //md5
+        public string CalculateChecksum(string inputString)
+        {
+            var md5 = new MD5CryptoServiceProvider();
+            var hashbytes = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(inputString));
+            var hashstring = "";
+            foreach (var hashbyte in hashbytes)
+                hashstring += hashbyte.ToString("x2");
+
+            return hashstring;
+        }
     }
 }

@@ -1,18 +1,12 @@
-﻿<UserControl x:Class="Gold.tab_windows.p_create_room"
+﻿<UserControl x:Class="Gold_Client.View.tab_windows.p_create_room"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="331" d:DesignWidth="500">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Gold;component/Resources/Skins/GlassButton.xaml"/>
-                <ResourceDictionary Source="/Gold;component/Resources/Skins/skin.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
+             xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel.tab_windows" mc:Ignorable="d"
+             d:DesignWidth="500" Height="331"
+             d:DataContext="{d:DesignInstance ViewModel:CreateRoomPresenter}">
+
     <Grid>
         <Label Content="Room Name" Height="23" HorizontalAlignment="Left" Name="label1" VerticalAlignment="Top" Width="99" Margin="12,0,0,0" />
         <Label Content="Enterence Password" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="label2" VerticalAlignment="Top" Width="119" />
@@ -20,12 +14,12 @@
         <Label Content="Administrator Password" Height="23" HorizontalAlignment="Left" Margin="12,140,0,0" Name="label4" VerticalAlignment="Top" Width="162" />
         <Label Content="Confim Administrator Password" Height="23" HorizontalAlignment="Left" Margin="12,188,0,0" Name="label5" VerticalAlignment="Top" Width="189" />
         <Label Content="Welcome Messege" Height="28" HorizontalAlignment="Left" Margin="12,240,0,0" Name="label6" VerticalAlignment="Top" Width="119" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,26,0,0" Name="roomNameTb" VerticalAlignment="Top" Width="476" />
-        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,72,0,0" Name="enterPass" VerticalAlignment="Top" Width="476" />
-        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,117,0,0" Name="confEnterPass" VerticalAlignment="Top" Width="476" />
-        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,165,0,0" Name="amdinPass" VerticalAlignment="Top" Width="476" />
-        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="14,212,0,0" Name="confAdminPass" VerticalAlignment="Top" Width="476" />
-        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,268,0,0" Name="welcomeMessageTb" VerticalAlignment="Top" Width="476" />
-        <Button Style="{DynamicResource buttonTemplate}" Content="Create Looby" Height="23" HorizontalAlignment="Left" Margin="190,297,0,0" Name="create_channel" VerticalAlignment="Top" Width="101" Click="create_channel_Click" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,26,0,0" Text="{Binding RoomNameTb, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="476" />
+        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,72,0,0" PasswordChanged="enterPasswordChanged" VerticalAlignment="Top" Width="476" />
+        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,117,0,0" PasswordChanged="confEnterPasswordChanged" VerticalAlignment="Top" Width="476" />
+        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="12,165,0,0" PasswordChanged="adminPasswordChanged" VerticalAlignment="Top" Width="476" />
+        <PasswordBox Height="23" HorizontalAlignment="Left" Margin="14,212,0,0" PasswordChanged="confAdminPasswordChanged" VerticalAlignment="Top" Width="476" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="12,268,0,0" Text="{Binding WelcomeMessageTb, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="476" />
+        <Button Content="Create Looby" Height="23" HorizontalAlignment="Left" Margin="190,297,0,0" Command="{Binding SendCreateChannelCommand}" VerticalAlignment="Top" Width="101" />
     </Grid>
 </UserControl>

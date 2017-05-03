@@ -1,41 +1,20 @@
-﻿using CommandClient;
+﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Gold.tab_windows
+namespace Gold_Client.View.tab_windows
 {
-    /// <summary>
-    /// Interaction logic for p_user.xaml
-    /// </summary>
-    public partial class p_user : UserControl
+    public partial class p_user
     {
-
-        private ClientManager clientManager;
-
-        public p_user(ClientManager cM)
+        private void NewPasswordChanged(object sender, RoutedEventArgs e)
         {
-            InitializeComponent();
-            clientManager = cM;
-
-            //when tab windows shows up read config and setting value of windows element
-            if (clientManager.config.loginEmailNotyfication == false)
-                emailNotyfiCb.IsChecked = false;
-            else emailNotyfiCb.IsChecked = true;
+            if (DataContext != null)
+            { ((dynamic)DataContext).SecurePassword = ((PasswordBox)sender).SecurePassword; }
         }
 
-        private void button1_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ConfNewPasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (newPassTb.Password != "" && confNewPassTb.Password != "" && newPassTb.Password.Length > 6)
-                clientManager.SendToServer(Command.changePassword, clientManager.CalculateChecksum(confNewPassTb.Password));
-        }
-
-        private void emailNotyfiCb_Unchecked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            clientManager.config.loginEmailNotyfication = false; //user dont want to be notyficated
-        }
-
-        private void emailNotyfiCb_Checked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            clientManager.config.loginEmailNotyfication = true; //user want to be notyficated
+            if (DataContext != null)
+            { ((dynamic)DataContext).SecurePasswordRepeart = ((PasswordBox)sender).SecurePassword; }
         }
     }
 }
