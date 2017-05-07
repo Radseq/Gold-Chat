@@ -2,15 +2,12 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace Gold_Client.View.tab_windows
+namespace Gold_Client.View.TabWindows
 {
-    /// <summary>
-    /// Interaction logic for tabcontrol.xaml
-    /// </summary>
-    public partial class p_admin
+    public partial class AdminControl
     {
 
-        public p_admin()
+        public AdminControl()
         {
             InitializeComponent();
         }

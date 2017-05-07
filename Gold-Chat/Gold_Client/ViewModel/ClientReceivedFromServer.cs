@@ -74,7 +74,7 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public Client Client
+        public Client User
         {
             get; set;
         }
@@ -89,8 +89,7 @@ namespace Gold_Client.ViewModel
         public ClientReceivedFromServer()
         {
             config = config.loadConfig();
-            Client = new Client();
-            Client.cSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            User = App.Client;
 
             //pingTimer = new System.Timers.Timer();
             //pingTimer.Interval = 5000;
@@ -124,7 +123,7 @@ namespace Gold_Client.ViewModel
         public void BeginReceive()
         {
             byteData = new byte[1024];
-            Client.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+            User.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
             receiveDone.WaitOne();
         }
 
@@ -134,19 +133,19 @@ namespace Gold_Client.ViewModel
             {
                 //var so = (StateObject)ar.AsyncState;
 
-                if (!Client.cSocket.Connected) return;
+                if (!User.cSocket.Connected) return;
 
-                Client.cSocket.EndReceive(ar);
+                User.cSocket.EndReceive(ar);
 
                 Data msgReceived = new Data(byteData);
                 //Accordingly process the message received
                 switch (msgReceived.cmdCommand)
                 {
                     case Command.Login:
-                        if (msgReceived.strName == Client.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                        if (msgReceived.strName == User.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
                         {
-                            OnClientSuccesLogin(true, Client.cSocket);
-                            Client.permission = int.Parse(msgReceived.strMessage2);
+                            OnClientSuccesLogin(true, User.cSocket);
+                            User.permission = int.Parse(msgReceived.strMessage2);
                         }
                         else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                         break;
@@ -210,7 +209,7 @@ namespace Gold_Client.ViewModel
                         else if (msgReceived.strMessage == "IgnoredUsers")
                             OnClientIgnoredList(msgReceived.strMessage2);
                         else
-                            OnClientList(msgReceived.strMessage);
+                            OnClientList(msgReceived.strMessage2);
                         break;
 
                     case Command.manageFriend:
@@ -273,7 +272,7 @@ namespace Gold_Client.ViewModel
                 byteData = new byte[1024];
                 receiveDone.Set();
 
-                Client.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
+                User.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
             }
             catch (ObjectDisposedException ex)
             {

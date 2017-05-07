@@ -1,10 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Gold_Client.View.tab_windows
+namespace Gold_Client.View.TabWindows
 {
-    public partial class p_user
+    public partial class SettingsControl
     {
+        public SettingsControl()
+        {
+            InitializeComponent();
+        }
+
         private void NewPasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext != null)

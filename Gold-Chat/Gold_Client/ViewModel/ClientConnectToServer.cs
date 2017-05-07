@@ -8,10 +8,12 @@ namespace Gold_Client.ViewModel
 {
     class ClientConnectToServer : IClient
     {
-        public Client Client
+        public Client User
         {
             get; set;
         }
+
+        public event EventHandler<ClientEventArgs> ConnectMessage;
 
         // Singleton
         static ClientConnectToServer instance = null;
@@ -34,19 +36,22 @@ namespace Gold_Client.ViewModel
 
         public const int PORT = 5000;
         public const string SERVER = "::1";
-        IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Parse(SERVER), PORT);
+        IPEndPoint ServerIpEndPoint = new IPEndPoint(IPAddress.Parse(SERVER), PORT);
 
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
 
-        public event EventHandler<ClientEventArgs> ConnectMessage;
+        private ClientConnectToServer()
+        {
+            User = App.Client;
+        }
 
         public void BeginConnect()
         {
-            bool part1 = Client.cSocket.Poll(1000, SelectMode.SelectRead);
-            bool part2 = (Client.cSocket.Available == 0);
-            if ((part1 && part2) || !Client.cSocket.Connected)
+            bool part1 = User.cSocket.Poll(1000, SelectMode.SelectRead);
+            bool part2 = (User.cSocket.Available == 0);
+            if ((part1 && part2) || !User.cSocket.Connected)
             {
-                Client.cSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
+                User.cSocket.BeginConnect(ServerIpEndPoint, new AsyncCallback(OnConnect), null);
                 connectDone.WaitOne();
             }
         }
@@ -55,26 +60,23 @@ namespace Gold_Client.ViewModel
         {
             try
             {
-                Client.cSocket.Shutdown(SocketShutdown.Both);
-                Client.cSocket.Disconnect(true);
-                Client.cSocket.Close();
+                User.cSocket.Shutdown(SocketShutdown.Both);
+                User.cSocket.Disconnect(true);
+                User.cSocket.Close();
             }
             catch (Exception ex)
             {
-                //ConnectivityLog.Error(ex);
                 Console.WriteLine(ex);
             }
             connectDone.WaitOne();
 
-            Client.cSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //var remoteIpAddress = IPAddress.Parse(ChannelIp);
-            //ChannelEndPoint = new IPEndPoint(remoteIpAddress, ChannelPort);
+            User.cSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            Client.cSocket.Connect(ipEndPoint);
+            User.cSocket.Connect(ServerIpEndPoint);
             //Client.cSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);
             Thread.Sleep(1000);
 
-            if (Client.cSocket.Connected)
+            if (User.cSocket.Connected)
             {
                 connectDone.Set();
             }
@@ -88,10 +90,7 @@ namespace Gold_Client.ViewModel
         {
             try
             {
-                //We are connected so we login into the server
-                Client.cSocket.EndConnect(ar);
-
-                // Signal that the connection has been made.
+                User.cSocket.EndConnect(ar);
                 connectDone.Set();
             }
             catch (Exception ex)

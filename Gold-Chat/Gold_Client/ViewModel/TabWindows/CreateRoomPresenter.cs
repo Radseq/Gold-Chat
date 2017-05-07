@@ -3,7 +3,7 @@ using System.Security;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Gold_Client.ViewModel.tab_windows
+namespace Gold_Client.ViewModel.TabWindows
 {
     public class CreateRoomPresenter : ObservableObject
     {

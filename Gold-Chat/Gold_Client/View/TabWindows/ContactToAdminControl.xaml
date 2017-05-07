@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Gold_Client.View.tab_windows.p_contact"
+﻿<UserControl x:Class="Gold_Client.View.TabWindows.ContactToAdminControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="Gold_Client.View.TabWindows.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel.TabWindows" mc:Ignorable="d" Height="250"
+             d:DataContext="{d:DesignInstance ViewModel:UserSettingsPresenter}" Width="425">
+    <Grid>
+        <Label Content="Colour Sheme" Height="28" Margin="98.5,1,111.5,221" x:Name="label1"  Width="111" />
+        <Label Content="New Password" Height="28"  Margin="98.5,56,105.5,166" x:Name="label2"  Width="117" />
+        <Label Content="Confim New Password" Height="28"  Margin="98.5,111,95.5,111" x:Name="label3"  Width="127" />
+        <CheckBox Content="Email Notyfication" Height="18"  Margin="10,171,185,61" x:Name="checkBox1"  Width="126" />
+        <PasswordBox Height="22"  Margin="10,84,10,144" x:Name="newPassTb" PasswordChanged="NewPasswordChanged" />
+        <PasswordBox Height="22"  Margin="10,139,10,89" x:Name="confNewPassTb" PasswordChanged="ConfNewPasswordChanged" />
+        <CheckBox Content="Show Time Stamp" Height="18"  Margin="10,194,177,38" x:Name="checkBox2"  Width="134"  />
+        <CheckBox Content="Login Notyfication" FlowDirection="RightToLeft" Height="18"  Margin="159,171,10,61" x:Name="emailNotyfiCb"  Width="152" IsChecked="{Binding LoginNotyfiIsChecked}" />
+        <CheckBox Content="Shave Chat Logs" FlowDirection="RightToLeft" Height="18"  Margin="190,194,10,38" x:Name="checkBox4"  Width="121" />
+        <Button Command="{Binding SaveUserSettingsCommand}"  Height="24"  Margin="10,217,10,9" Content="Save" />
+        <Menu Height="22"  Margin="10,29,10,199" x:Name="menu1"/>
+    </Grid>
+</UserControl>

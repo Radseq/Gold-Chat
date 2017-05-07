@@ -8,15 +8,15 @@ namespace Gold_Client.ViewModel
     public class LostPasswordPresenter : ObservableObject
     {
         private string emailTb;
-        private string userCodeFromEmailTB;
+        private string userCodeFromEmailTB = "0";
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
-        public bool IsNewPasswordEnabled { get { return UserCodeFromEmailTB.Length == 25 ? false : true; } }
-        public bool IsNewPassword2Enabled { get { return UserCodeFromEmailTB.Length == 25 ? false : true; } }
-        public bool IsSendPasswordButtonEnabled { get { return UserCodeFromEmailTB.Length == 25 ? false : true; } }
+        public bool IsNewPasswordEnabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
+        public bool IsNewPassword2Enabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
+        public bool IsSendPasswordButtonEnabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
 
         public string EmailTB
         {
@@ -40,12 +40,15 @@ namespace Gold_Client.ViewModel
 
         public ICommand GenerateCodeCommand => new DelegateCommand(() =>
         {
-            clientSendToServer.SendToServer(Command.lostPassword, "email", emailTb);
+            if (!string.IsNullOrWhiteSpace(emailTb))
+                clientSendToServer.SendToServer(Command.lostPassword, "email", emailTb);
+            else
+                MessageBox.Show("Write email", "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
         });
 
         public ICommand SendNewPassCommand => new DelegateCommand(() =>
         {
-            if (userCodeFromEmailTB != "")
+            if (!string.IsNullOrWhiteSpace(userCodeFromEmailTB))
             {
                 if (SecurePassword == SecurePasswordRepeart)
                 {

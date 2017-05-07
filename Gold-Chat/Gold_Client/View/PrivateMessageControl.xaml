@@ -10,7 +10,7 @@
         <KeyBinding Key="Enter" Command="{Binding SendPrivateMessageCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <TextBox HorizontalAlignment="Left" Height="224" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding IncomePrivMessage, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="272" IsEnabled="False"/>
-        <TextBox Text="{Binding OutGoingPrivMessage, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="10,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="272"/>
+        <TextBox HorizontalAlignment="Left" Height="224" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding IncomePrivMessage, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="262" IsEnabled="False"/>
+        <TextBox Text="{Binding OutGoingPrivMessage, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="10,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262"/>
     </Grid>
 </UserControl>

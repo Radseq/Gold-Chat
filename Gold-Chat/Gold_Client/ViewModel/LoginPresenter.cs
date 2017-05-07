@@ -1,12 +1,16 @@
-﻿using System.Windows.Controls;
+﻿using Gold_Client.View;
+using System.Security;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel
 {
     public class LoginPresenter : ObservableObject
     {
-
         private string login;
+
+        public SecureString SecurePassword { private get; set; }
+
         public string LoginTB
         {
             get { return login; }
@@ -17,24 +21,29 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        private void Login(object obj)
+        public ICommand LoginCommand => new DelegateCommand(() =>
         {
-            PasswordBox pwBox = obj as PasswordBox;
-            if (string.IsNullOrWhiteSpace(login) && string.IsNullOrWhiteSpace(pwBox.Password)) return;
-            ClientLogin clientLogin = new ClientLogin(App.Client);
-            clientLogin.SendLoginAndEncryptPass(login, pwBox);
-        }
+            if (!string.IsNullOrWhiteSpace(login) && !string.IsNullOrWhiteSpace(new System.Net.NetworkCredential(string.Empty, SecurePassword).Password))
+            {
+                ClientLogin clientLogin = new ClientLogin(App.Client);
+                clientLogin.SendLoginAndEncryptPass(login, SecurePassword);
+            }
+            else
+                MessageBox.Show("Login or password cant be null", "Login Information", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        });
 
         public ICommand RegistrationWindowCommand => new DelegateCommand(() =>
         {
-            //p_reg reg = new p_reg(clientManager, this);
-            //reg.ShowDialog();
+            RegistrationWindow registration = new RegistrationWindow();
+            registration.Show();
+
         });
 
         public ICommand LostPasswordWindowCommand => new DelegateCommand(() =>
         {
-            //lost_password rp = new lost_password(clientManager);
-            //rp.Show();
+            LostPasswordWindow lostPassWindow = new LostPasswordWindow();
+            lostPassWindow.Show();
         });
     }
 }

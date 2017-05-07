@@ -12,7 +12,7 @@ namespace Gold_Client.ViewModel
 
         private string incomePrivMessage;
         private string outGoingPrivMessage;
-        private string friendName;
+        public string FriendName;
 
         public PrivateMessagePresenter()
         {
@@ -42,7 +42,7 @@ namespace Gold_Client.ViewModel
         public ICommand SendPrivateMessageCommand => new DelegateCommand(() =>
         {
             if (string.IsNullOrWhiteSpace(OutGoingPrivMessage)) return;
-            clientSendToServer.SendToServer(Command.privMessage, OutGoingPrivMessage/*, FriendName*/);
+            clientSendToServer.SendToServer(Command.privMessage, OutGoingPrivMessage, friendName);
         });
 
         private void OnClientPrivMessage(object sender, ClientEventArgs e)

@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using Gold_Client.View.Others;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -31,7 +32,7 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public void SetHeader(UIElement header, string name, bool channel = false)
+        public void SetHeader(UIElement header, string name, ref ObservableCollection<TabItem> tabControlItems, bool channel = false)
         {
             tabControlName = name;
             isChannel = channel;
@@ -39,13 +40,17 @@ namespace Gold_Client.ViewModel
             var dockPanel = new DockPanel();
             dockPanel.Children.Add(header);
 
+            ObservableCollection<TabItem> tb = tabControlItems;
+
             // Close button to remove the tab
             var closeButton = new TabCloseButton();
             closeButton.Click +=
                 (sender, e) =>
                 {
-                    var tabControl = Parent as ItemsControl;
-                    tabControl.Items.Remove(this);
+                    // var a = ((TabControl)((TabItem)sender).Parent);
+                    //var tabControl = Parent as ItemsControl;
+                    //tabControl.Items.Remove(this);
+                    tb.Remove(this);
                     if (isChannel)
                         clientSendToServer.SendToServer(Command.leaveChannel, tabControlName);
                 };

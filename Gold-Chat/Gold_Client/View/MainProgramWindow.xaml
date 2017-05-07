@@ -6,7 +6,8 @@
         xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel"
         xmlns:View="clr-namespace:Gold_Client.View"
         mc:Ignorable="d"
-        Title="MainProgramWindow" ResizeMode="NoResize"
+
+        Title="Gold Chat" ResizeMode="NoResize"
         SizeToContent="WidthAndHeight">
     <Window.DataContext>
         <ViewModel:MainWindowPresenter/>

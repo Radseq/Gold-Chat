@@ -30,18 +30,26 @@ namespace Gold_Client.ViewModel
 
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
 
+        private ClientSendToServer()
+        {
+            User = App.Client;
+            if (User.cSocket == null)
+                User.cSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+        }
+
         public event EventHandler<ClientEventArgs> SendException;
 
-        public Client Client
+        public Client User
         {
-            get; set;
+            get;
+            set;
         }
 
         private void OnSend(IAsyncResult ar)
         {
             try
             {
-                Client.cSocket.EndSend(ar);
+                User.cSocket.EndSend(ar);
                 sendDone.Set();
             }
             catch (ObjectDisposedException ode)
@@ -58,7 +66,7 @@ namespace Gold_Client.ViewModel
         {
             Data msgToSend = new Data();
             msgToSend.cmdCommand = command;
-            msgToSend.strName = Client.strName;
+            msgToSend.strName = User.strName;
             msgToSend.strMessage = strMessage;
             msgToSend.strMessage2 = strMessage2;
             msgToSend.strMessage3 = strMessage3;
@@ -67,9 +75,9 @@ namespace Gold_Client.ViewModel
             byte[] toSendByteData = new byte[1024];
             toSendByteData = msgToSend.ToByte();
 
-            if (!Client.cSocket.Connected)
+            if (!User.cSocket.Connected)
             {
-                ClientConnectToServer clientConnectToServer = new ClientConnectToServer();
+                ClientConnectToServer clientConnectToServer = ClientConnectToServer.Instance;
                 clientConnectToServer.BeginConnect();
                 BeginSend(toSendByteData);
             }
@@ -78,7 +86,7 @@ namespace Gold_Client.ViewModel
 
         private void BeginSend(byte[] byteData)
         {
-            Client.cSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
+            User.cSocket.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnSend), null);
             sendDone.WaitOne();
         }
 
@@ -87,15 +95,15 @@ namespace Gold_Client.ViewModel
             //Send a message to logout of the server
             Data msgToSend = new Data();
             msgToSend.cmdCommand = Command.Logout;
-            msgToSend.strName = Client.strName;
+            msgToSend.strName = User.strName;
 
             byte[] logoutMessage = msgToSend.ToByte();
 
-            Client.cSocket.Send(logoutMessage, 0, logoutMessage.Length, SocketFlags.None);
+            User.cSocket.Send(logoutMessage, 0, logoutMessage.Length, SocketFlags.None);
             // Release the socket.
-            Client.cSocket.Shutdown(SocketShutdown.Both);
-            Client.cSocket.Close();
-            Client.cSocket.Dispose();
+            User.cSocket.Shutdown(SocketShutdown.Both);
+            User.cSocket.Close();
+            User.cSocket.Dispose();
         }
 
         protected virtual void OnSendExcep(string message)

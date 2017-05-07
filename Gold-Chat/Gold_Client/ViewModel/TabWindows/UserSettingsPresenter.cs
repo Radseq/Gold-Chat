@@ -2,7 +2,7 @@
 using System.Security;
 using System.Windows.Input;
 
-namespace Gold_Client.ViewModel.tab_windows
+namespace Gold_Client.ViewModel.TabWindows
 {
     public class UserSettingsPresenter : ObservableObject
     {
@@ -11,22 +11,22 @@ namespace Gold_Client.ViewModel.tab_windows
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
-        private bool isSelected;
+        private bool loginNotyfiIsChecked;
 
-        public bool IsChecked
+        public bool LoginNotyfiIsChecked
         {
             get
             {
-                return isSelected;
+                return loginNotyfiIsChecked;
             }
             set
             {
-                if (isSelected == value)
+                if (loginNotyfiIsChecked == value)
                 {
                     return;
                 }
-                isSelected = value;
-                RaisePropertyChangedEvent(nameof(IsChecked));
+                loginNotyfiIsChecked = value;
+                RaisePropertyChangedEvent(nameof(LoginNotyfiIsChecked));
             }
         }
 
@@ -34,8 +34,8 @@ namespace Gold_Client.ViewModel.tab_windows
         {
             Configuration config = new Configuration();
             if (config.loginEmailNotyfication == false)
-                IsChecked = false;
-            else IsChecked = true;
+                LoginNotyfiIsChecked = false;
+            else LoginNotyfiIsChecked = true;
         }
 
         public ICommand SaveUserSettingsCommand => new DelegateCommand(() =>

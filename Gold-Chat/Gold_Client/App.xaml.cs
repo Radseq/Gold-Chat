@@ -17,7 +17,6 @@ namespace Gold_Client
             LoginWindow loginWindows = new LoginWindow();
             if (loginWindows.ShowDialog() == true)
             {
-                //clientSocket = frmLogin.clientSocket;
                 MainProgramWindow mainProg = new MainProgramWindow();
                 Application app = new Application();
                 app.Run(mainProg);

@@ -1,10 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Gold_Client.View.tab_windows
+namespace Gold_Client.View.TabWindows
 {
-    public partial class p_create_room
+    public partial class CreateRoomControl
     {
+        public CreateRoomControl()
+        {
+            InitializeComponent();
+        }
+
         private void enterPasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext != null)

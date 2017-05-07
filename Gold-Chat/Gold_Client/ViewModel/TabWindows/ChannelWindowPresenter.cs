@@ -4,19 +4,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace Gold_Client.ViewModel.tab_windows
+namespace Gold_Client.ViewModel.TabWindows
 {
-    class ChannelWindowPresenter : ObservableObject
+    class ChannelPresenter : ObservableObject
     {
         ClientReceivedFromServer received = ClientReceivedFromServer.Instance;
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         string channelName;
 
-        public ChannelWindowPresenter(string tabChannelName)
+        public ChannelPresenter()
         {
-            channelName = tabChannelName;
-
             received.ClientChannelMessage += OnClientChannelMessage;
             received.ClientLogout += ClientLogout;
             received.ClientChannelEnter += OnClientChannelEnter;

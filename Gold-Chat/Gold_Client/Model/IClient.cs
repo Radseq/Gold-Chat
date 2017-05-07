@@ -7,6 +7,6 @@ namespace Gold_Client.Model
 {
     interface IClient
     {
-        Client Client { get; set; }
+        Client User { get; set; }
     }
 }

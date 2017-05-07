@@ -1,19 +1,15 @@
 ﻿using System.Windows;
 
-namespace Gold_Client.View.tab_windows
+namespace Gold_Client.View.TabWindows
 {
-    /// <summary>
-    /// Interaction logic for archive.xaml
-    /// </summary>
-    public partial class p_archive
+    public partial class ArchiveMessagesControl
     {
         /* TODO
-         * pobieranie rozmowy z pliku txt lub bazy sql
          * kazda linijka pliku zawiera id_urzytkownika, nazwa uzytkownika, data wyslania wiadomosci, wiadomosc
          * po kliknieciu na item listy(nazwa urzytkownika+data) tresc wiadomosci pokazywana jest w message_content
          */
 
-        public p_archive()
+        public ArchiveMessagesControl()
         {
             InitializeComponent();
         }

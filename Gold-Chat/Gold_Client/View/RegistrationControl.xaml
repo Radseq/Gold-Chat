@@ -5,20 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel" mc:Ignorable="d"
              d:DesignWidth="282" 
-             d:DataContext="{d:DesignInstance ViewModel:RegistrationPresenter}" Height="193.435">
+             d:DataContext="{d:DesignInstance ViewModel:RegistrationPresenter}" Height="150">
     <UserControl.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding RegistrationCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <Label Content="Login:" Margin="46,7,124,157" Name="logLabel" />
-        <Label Content="Password:" Margin="26,35,124,128" Name="passLabel" />
-        <Label Content="Re Password:" Margin="8,64,124,97" Name="repassLabel" />
-        <Label Content="Email:" Margin="46,95,129,73" Name="emailLabel" />
-        <TextBox Margin="95,9,10,162" Text="{Binding RegistrationLoginTB, UpdateSourceTrigger=PropertyChanged}" />
-        <PasswordBox Margin="95,37,10,133" x:Name="newPass" PasswordChanged="newPasswordChanged" PasswordChar="*" MaxLength="10" />
-        <PasswordBox Margin="95,66,10,102" x:Name="newPass2" PasswordChanged="newPassword2Changed" PasswordChar="*" MaxLength="10" />
-        <TextBox Text="{Binding RegistrationEmailTB, UpdateSourceTrigger=PropertyChanged}" Margin="95,95,10,73" />
-        <Button Command="{Binding RegistrationCommand}" Content="Register" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" IsDefault="True" Margin="190,146,10,14" />
-        <Button Command="{Binding CleanRegistrationWindowCommand}" Content="Clean" Margin="37,146,180,14" FontFamily="Tahoma" FontSize="18" FontWeight="Bold" />
+        <Label Content="Login:" Margin="46,7,192,120" Name="logLabel" />
+        <Label Content="Password:" Margin="26,35,192,91" Name="passLabel" />
+        <Label Content="Re Password:" Margin="8,62,192,64" Name="repassLabel" />
+        <Label Content="Email:" Margin="46,86,192,40" Name="emailLabel" />
+        <TextBox Margin="95,9,10,120" Text="{Binding RegistrationLoginTB, UpdateSourceTrigger=PropertyChanged}" Focusable="{Binding RegistrationLoginTBIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
+        <PasswordBox Margin="95,35,10,93" x:Name="newPass" PasswordChanged="newPasswordChanged" PasswordChar="*" Focusable="{Binding PasswordIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
+        <PasswordBox Margin="95,62,10,64" x:Name="newPass2" PasswordChanged="newPassword2Changed" PasswordChar="*"  />
+        <TextBox Text="{Binding RegistrationEmailTB, UpdateSourceTrigger=PropertyChanged}" Margin="95,91,10,40" Focusable="{Binding EmailTBIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
+        <Button Command="{Binding RegistrationCommand}" Content="Register" IsDefault="True" Margin="209,119,10,10" />
+        <Button Command="{Binding CleanRegistrationWindowCommand}" Content="Clean" Margin="95,119,136,10" />
     </Grid>
 </UserControl>

@@ -65,11 +65,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModel\CloseableTabItem.cs" />
+    <Compile Include="ViewModel\Others\ListsTakesFromServer.cs" />
     <Compile Include="ViewModel\PrivateMessagePresenter.cs" />
-    <Compile Include="ViewModel\tab_windows\ChannelWindowPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\ChannelWindowPresenter.cs" />
     <Compile Include="ViewModel\LostPasswordPresenter.cs" />
-    <Compile Include="ViewModel\tab_windows\CreateRoomPresenter.cs" />
-    <Compile Include="ViewModel\tab_windows\UserSettingsPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\CreateRoomPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\MainContentPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\UserSettingsPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\UserSuggestPresenter.cs" />
     <Compile Include="View\LoginControl.xaml.cs">
       <DependentUpon>LoginControl.xaml</DependentUpon>
     </Compile>
@@ -103,32 +106,35 @@
     <Compile Include="View\Others\TabCloseButton.xaml.cs">
       <DependentUpon>TabCloseButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\channelWindow.xaml.cs">
-      <DependentUpon>channelWindow.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\ChannelControl.xaml.cs">
+      <DependentUpon>ChannelControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_abouse.xaml.cs">
-      <DependentUpon>p_abouse.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\MainContent.xaml.cs">
+      <DependentUpon>MainContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_adm.xaml.cs">
-      <DependentUpon>p_adm.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\AbouseControl.xaml.cs">
+      <DependentUpon>AbouseControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_archive.xaml.cs">
-      <DependentUpon>p_archive.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\AdminControl.xaml.cs">
+      <DependentUpon>AdminControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_contact.xaml.cs">
-      <DependentUpon>p_contact.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\ArchiveMessagesControl.xaml.cs">
+      <DependentUpon>ArchiveMessagesControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_create_room.xaml.cs">
-      <DependentUpon>p_create_room.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\ContactToAdminControl.xaml.cs">
+      <DependentUpon>ContactToAdminControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_infor.xaml.cs">
-      <DependentUpon>p_infor.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\CreateRoomControl.xaml.cs">
+      <DependentUpon>CreateRoomControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_suggest.xaml.cs">
-      <DependentUpon>p_suggest.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\InformationControl.xaml.cs">
+      <DependentUpon>InformationControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\tab_windows\p_user.xaml.cs">
-      <DependentUpon>p_user.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\SuggestControl.xaml.cs">
+      <DependentUpon>SuggestControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TabWindows\SettingsControl.xaml.cs">
+      <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -194,39 +200,43 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\channelWindow.xaml">
+    <Page Include="View\TabWindows\ChannelControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_abouse.xaml">
+    <Page Include="View\TabWindows\MainContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TabWindows\AbouseControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_adm.xaml">
+    <Page Include="View\TabWindows\AdminControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_archive.xaml">
+    <Page Include="View\TabWindows\ArchiveMessagesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_contact.xaml">
+    <Page Include="View\TabWindows\ContactToAdminControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_create_room.xaml">
+    <Page Include="View\TabWindows\CreateRoomControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_infor.xaml">
+    <Page Include="View\TabWindows\InformationControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_suggest.xaml">
+    <Page Include="View\TabWindows\SuggestControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\tab_windows\p_user.xaml">
+    <Page Include="View\TabWindows\SettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -280,9 +290,7 @@
       <Name>CommandClient</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModel\Others\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="chat2.ico" />
   </ItemGroup>
