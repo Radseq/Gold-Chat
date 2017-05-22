@@ -1,4 +1,6 @@
 ﻿using CommandClient;
+using Gold_Client.Model;
+using Gold_Client.ViewModel.Others;
 using System.Security;
 using System.Windows;
 using System.Windows.Input;
@@ -9,14 +11,49 @@ namespace Gold_Client.ViewModel
     {
         private string emailTb;
         private string userCodeFromEmailTB = "0";
+
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
+        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
-        public bool IsNewPasswordEnabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
-        public bool IsNewPassword2Enabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
-        public bool IsSendPasswordButtonEnabled { get { return userCodeFromEmailTB.Length == 25 ? true : false; } }
+        bool isNewPasswordEnabled = false;
+        bool isNewPassword2Enabled = false;
+        bool isSendPasswordButtonEnabled = false;
+
+        public bool IsNewPasswordEnabled
+        {
+            get { return isNewPasswordEnabled; }
+            set
+            {
+                isNewPasswordEnabled = value; RaisePropertyChangedEvent(nameof(IsNewPasswordEnabled));
+            }
+        }
+
+        public bool IsNewPassword2Enabled
+        {
+            get { return isNewPassword2Enabled; }
+            set { isNewPassword2Enabled = value; RaisePropertyChangedEvent(nameof(IsNewPassword2Enabled)); }
+        }
+
+        public bool IsSendPasswordButtonEnabled
+        {
+            get { return isSendPasswordButtonEnabled; }
+            set { isSendPasswordButtonEnabled = value; RaisePropertyChangedEvent(nameof(IsSendPasswordButtonEnabled)); }
+        }
+
+        public LostPasswordPresenter()
+        {
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientLostPass += OnClientLostPass;
+        }
+
+        private void OnClientLostPass(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         public string EmailTB
         {
@@ -34,7 +71,24 @@ namespace Gold_Client.ViewModel
             set
             {
                 userCodeFromEmailTB = value;
+                enableButtonsAndPasswordBoxIfLenght25();
                 RaisePropertyChangedEvent(nameof(UserCodeFromEmailTB));
+            }
+        }
+
+        private void enableButtonsAndPasswordBoxIfLenght25()
+        {
+            if (UserCodeFromEmailTB.Length == 25)
+            {
+                IsNewPasswordEnabled = true;
+                IsNewPassword2Enabled = true;
+                IsSendPasswordButtonEnabled = true;
+            }
+            else
+            {
+                IsNewPasswordEnabled = false;
+                IsNewPassword2Enabled = false;
+                IsSendPasswordButtonEnabled = false;
             }
         }
 

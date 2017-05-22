@@ -9,7 +9,7 @@ namespace Server.ClientService
     {
         //list of all channels
         private List<Channel> Channels;
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -18,7 +18,7 @@ namespace Server.ClientService
             Client = client;
             Received = receive;
             Channels = channelList;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -48,7 +48,7 @@ namespace Server.ClientService
                             Send.strMessage3 = motd;
 
                             // Because user is in channel now, msg will send to him aswell
-                            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ClientList, channelName);
+                            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
                             sendToChannel.ResponseToChannel();
                         }
                         else

@@ -4,11 +4,27 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace Gold_Client.ViewModel
+namespace Gold_Client.ViewModel.Others
 {
     public class DelegateCommand : ICommand
     {
         private readonly Action _action;
+        private readonly Action<object> actionObject;
+        private readonly Predicate<Object> _predicate;
+
+        public DelegateCommand(Action<Object> action) : this(action, null)
+        {
+        }
+
+        public DelegateCommand(Action<Object> action, Predicate<Object> predicate)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action), @"You must specify an Action<T>.");
+            }
+            actionObject = action;
+            _predicate = predicate;
+        }
 
         public DelegateCommand(Action action)
         {
@@ -17,12 +33,22 @@ namespace Gold_Client.ViewModel
 
         public void Execute(object parameter)
         {
-            _action();
+            _action?.Invoke();
+            actionObject?.Invoke(parameter);
         }
 
         public bool CanExecute(object parameter)
         {
-            return true;
+            if (_predicate == null)
+            {
+                return true;
+            }
+            return _predicate(parameter);
+        }
+
+        public void Execute()
+        {
+            Execute(null);
         }
 
         public bool CanExecuteUpdateTextBoxBindingOnEnterCommand(object parameter)

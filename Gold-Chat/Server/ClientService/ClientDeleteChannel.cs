@@ -9,8 +9,8 @@ namespace Server.ClientService
     {
         public event EventHandler<ClientEventArgs> ClientDeleteChannelEvent;
         //list of all channels
-        List<Channel> ChannelList;
-        List<Client> ClientList;
+        List<Channel> ListOfChannels;
+        List<Client> ListOfClientsOnline;
 
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -18,8 +18,8 @@ namespace Server.ClientService
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
-            ChannelList = channelList;
+            ListOfClientsOnline = clientList;
+            ListOfChannels = channelList;
         }
 
         public void Execute()
@@ -50,10 +50,10 @@ namespace Server.ClientService
             if (deleteChannelResult > 0)
             {
                 // If channels list have channel, delete this channel from list
-                foreach (Channel channel in ChannelList)
+                foreach (Channel channel in ListOfChannels)
                 {
                     if (channel.ChannelName == channelName)
-                        ChannelList.Remove(channel);
+                        ListOfChannels.Remove(channel);
                 }
                 Client.enterChannels.Remove(channelName);
                 OnClientDeleteChannel(channelName, Client.strName);
@@ -68,7 +68,7 @@ namespace Server.ClientService
         {
             if (Send.strMessage2 == "enter")
             {
-                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ClientList, Received.strMessage/*channelName*/);
+                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, Received.strMessage/*channelName*/);
                 sendToChannel.ResponseToChannel();
             }
 

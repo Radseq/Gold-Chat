@@ -7,15 +7,15 @@ namespace Server.ClientService
 {
     class ClientKickFromChannel : ServerResponds, IPrepareRespond
     {
-        List<Client> ClientList;
-        List<Channel> ChannelList;
+        List<Client> ListOfClientsOnline;
+        List<Channel> ListOfChannels;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
-            ChannelList = channelList;
+            ListOfClientsOnline = clientList;
+            ListOfChannels = channelList;
         }
 
         public void Execute()
@@ -30,7 +30,7 @@ namespace Server.ClientService
             //todo in client side get kick from channel ->
             //todo make tab list in program cs and when user got kick, close channel from tab list
 
-            foreach (Channel channel in ChannelList)
+            foreach (Channel channel in ListOfChannels)
             {
                 if (channel.ChannelName == channelName /*&& ch.FounderiD == client.id*/)
                 {
@@ -38,11 +38,11 @@ namespace Server.ClientService
                     {
                         if (channel.Users.Contains(userName))
                         {
-                            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ClientList, channelName);
+                            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
                             sendToChannel.ResponseToChannel();
                             channel.Users.Remove(userName);
 
-                            foreach (Client cInfo in ClientList)
+                            foreach (Client cInfo in ListOfClientsOnline)
                             {
                                 if (cInfo.strName == userName)
                                     if (cInfo.enterChannels.Contains(channelName))

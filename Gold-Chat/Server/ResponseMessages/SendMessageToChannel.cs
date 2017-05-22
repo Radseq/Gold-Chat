@@ -7,7 +7,7 @@ namespace Server.ResponseMessages
 {
     class SendMessageToChannel : Respond, IServerSend
     {
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
         string ChannelName;
 
         public Data Send { get; set; }
@@ -15,13 +15,13 @@ namespace Server.ResponseMessages
         public SendMessageToChannel(Data send, List<Client> clientList, string channelName)
         {
             Send = send;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
             ChannelName = channelName;
         }
 
         public void ResponseToChannel()
         {
-            foreach (Client cInfo in ClientList)
+            foreach (Client cInfo in ListOfClientsOnline)
             {
                 if (cInfo.enterChannels.Contains(ChannelName))
                     Response(Send.ToByte(), cInfo);

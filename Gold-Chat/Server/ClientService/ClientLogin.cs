@@ -12,13 +12,13 @@ namespace Server
         DataBaseManager db = DataBaseManager.Instance;
         EmailSender emailSender = EmailSender.Instance;
 
-        private List<Client> ClientList;
+        private List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelsList = null)
         {
             Received = receive;
             Client = client;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -93,7 +93,7 @@ namespace Server
             if (Send.strMessage == "You are succesfully Log in") // Client succesfully login and rest of online users will got this msg below
             {
                 Send.strMessage = "<<<" + Received.strName + " has joined the room>>>";
-                SendMessageToAll sendMsgToAll = new SendMessageToAll(Client, Send, ClientList);
+                SendMessageToAll sendMsgToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
                 sendMsgToAll.ResponseToAll();
             }
         }

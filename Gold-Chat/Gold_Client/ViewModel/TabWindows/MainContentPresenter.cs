@@ -1,5 +1,6 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ViewModel.Others;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
@@ -7,16 +8,17 @@ namespace Gold_Client.ViewModel.TabWindows
     public class MainContentPresenter : ObservableObject
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
 
         private string incomeMsg;
         private string outcomeMsg;
 
         public MainContentPresenter()
         {
-            clientReceiveFromServer.ClientLogin += OnClientLogin;
-            clientReceiveFromServer.ClientLogout += OnClientLogout;
-            clientReceiveFromServer.ClientMessage += OnClientMessage;
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientLogin += OnClientLogin;
+            proccesReceiverInformation.ClientLogout += OnClientLogout;
+            proccesReceiverInformation.ClientMessage += OnClientMessage;
         }
 
         public string IncomeMessageTB

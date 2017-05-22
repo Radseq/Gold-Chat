@@ -11,13 +11,13 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientChannelMessage;
 
         //The collection of all clients logged into the room
-        private List<Client> ClientList;
+        private List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -31,14 +31,14 @@ namespace Server.ClientService
         {
             if (Received.strMessage2 == null)
             {
-                SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ClientList);
+                SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
                 sendToAll.ResponseToAll();
                 //base.Response();
             }
             else
             {
                 string channelName = Received.strMessage2;
-                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ClientList, channelName);
+                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
                 sendToChannel.ResponseToChannel();
                 OnClientChannelMessage(Send.strMessage, Received.strName + ": " + Received.strMessage + " On:" + channelName);
             }

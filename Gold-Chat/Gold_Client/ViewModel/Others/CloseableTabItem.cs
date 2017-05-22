@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using Gold_Client.View.Others;
+using Gold_Client.ViewModel.Others;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,14 +14,14 @@ namespace Gold_Client.ViewModel
         /// Maybe bad written but i dont have any clue to do it better :(
         /// </summary>
         string tabControlName;
-        ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         bool isChannel = false;
 
         public CloseableTabItem()
         {
-            clientReceiveFromServer.ClientKickFromChannel += OnClientKickFromChannel;
+            proccesReceiverInformation.ClientKickFromChannel += OnClientKickFromChannel;
         }
 
         private void OnClientKickFromChannel(object sender, ClientEventArgs e)
@@ -32,7 +33,7 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public void SetHeader(UIElement header, string name, ref ObservableCollection<TabItem> tabControlItems, bool channel = false)
+        public void SetHeader(UIElement header, string name, ref ObservableCollection<object> tabControlItems, bool channel = false)
         {
             tabControlName = name;
             isChannel = channel;
@@ -40,7 +41,7 @@ namespace Gold_Client.ViewModel
             var dockPanel = new DockPanel();
             dockPanel.Children.Add(header);
 
-            ObservableCollection<TabItem> tb = tabControlItems;
+            ObservableCollection<object> tb = tabControlItems;
 
             // Close button to remove the tab
             var closeButton = new TabCloseButton();

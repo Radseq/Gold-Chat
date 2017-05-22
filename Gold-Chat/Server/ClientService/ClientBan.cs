@@ -8,11 +8,11 @@ namespace Server.ClientService
     class ClientBan : ServerResponds, IClient, IPrepareRespond
     {
         DataBaseManager db = DataBaseManager.Instance;
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelsList = null)
         {
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
             Received = receive;
             Client = client;
         }
@@ -26,7 +26,7 @@ namespace Server.ClientService
 
             if (Client.permission > 0)
             {
-                foreach (Client client in ClientList)
+                foreach (Client client in ListOfClientsOnline)
                 {
                     if (client.strName == userName && client.permission == 0)
                         if (insertUserBanToDb(client, banReason, time) == 0) Send.strMessage2 = "Cannot ban " + userName + " unknown reason";
@@ -41,7 +41,7 @@ namespace Server.ClientService
 
             if (db.delUpdateInsertDb("INSERT INTO user_bans (id_user, reason, end_ban) " + "VALUES (@idUser, @BanReason, @EndBanDateTime)") > 0)
             {
-                SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ClientList);
+                SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
                 sendToAll.ResponseToAll();
                 client.cSocket.Close();
                 return 1;

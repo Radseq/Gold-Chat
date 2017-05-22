@@ -9,9 +9,9 @@ namespace Server.ClientService
     class ClientLogout : ServerResponds, IPrepareRespond
     {
         //The collection of all clients logged into the room
-        private List<Client> ClientList;
+        private List<Client> ListOfClientsOnline;
         //list of all channels
-        private List<Channel> ChannelList;
+        private List<Channel> ListOfChannels;
 
         public event EventHandler<ClientEventArgs> ClientLogoutEvent;
 
@@ -21,8 +21,8 @@ namespace Server.ClientService
         {
             Client = client;
             Received = receive;
-            ChannelList = channelList;
-            ClientList = clientList;
+            ListOfChannels = channelList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -31,16 +31,16 @@ namespace Server.ClientService
             // When a user wants to log out of the server then we search for him 
             // in the list of clients and close the corresponding connection
             int nIndex = 0;
-            foreach (Client clientInList in ClientList)
+            foreach (Client clientInList in ListOfClientsOnline)
             {
                 if (Client.cSocket == clientInList.cSocket)
                 {
-                    ClientList.RemoveAt(nIndex);
+                    ListOfClientsOnline.RemoveAt(nIndex);
                     break;
                 }
                 ++nIndex;
 
-                foreach (Channel ch in ChannelList) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
+                foreach (Channel ch in ListOfChannels) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
                 {
                     if (ch.Users.Contains(Client.strName))
                         ch.Users.Remove(Client.strName);
@@ -55,7 +55,7 @@ namespace Server.ClientService
 
         public void Response()
         {
-            SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ClientList);
+            SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
             sendToAll.ResponseToAll();
 
             OnClientSendMessage(Send.strMessage);

@@ -348,13 +348,17 @@ namespace Gold
 
         private void OnClientCreateChannel(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            string channelName = e.clientChannelName;
+            if (e.clientName == App.clientName)
+                MessageBox.Show("You are create channe: " + channelName, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientChannelMsg2 == "CreatedChannel")
             {
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    clientChannelsList.Add(e.clientChannelName);
+                    clientChannelsList.Add(channelName);
+                    clientChannelsJoinedList.Add(channelName);
                     lbLobbies.Items.Refresh();
+                    lbJoinedChann.Items.Refresh();
                 }));
             }
         }
@@ -397,8 +401,6 @@ namespace Gold
                 {
                     pm = new private_message(e.clientFriendName);
                     pm.Show();
-                    //pm.showPrivMessageTb.Text += e.clientFriendName + ": " + e.clientPrivMessage;
-                    pm.showPrivMessageTb.Text += e.clientPrivMessage;
                 }
                 pm.showPrivMessageTb.Text += e.clientPrivMessage;
             }));

@@ -6,6 +6,7 @@ using Gold_Client.ViewModel.Others;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,9 +17,12 @@ namespace Gold_Client.ViewModel
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+
         /// HACK -> send list of tab items to CloseableTabItem and there remove TabItem
-        private/* readonly*/ ObservableCollection<TabItem> tabControlItems = new ObservableCollection<TabItem>();
-        public IEnumerable<TabItem> TabControlItems => tabControlItems;
+        private/* readonly*/ ObservableCollection<object> tabControlItems = new ObservableCollection<object>();
+        //public IEnumerable<object> TabControlItems => tabControlItems;
+        public ObservableCollection<object> TabControlItems { get { return tabControlItems; } }
 
         private readonly ObservableCollection<string> usersConnected = new ObservableCollection<string>();
         private readonly ObservableCollection<string> friendlyUsersConnected = new ObservableCollection<string>();
@@ -39,6 +43,39 @@ namespace Gold_Client.ViewModel
 
         public MainWindowPresenter()
         {
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientLogin += OnClientLogin;
+            proccesReceiverInformation.ClientLogout += OnClientLogout;
+            proccesReceiverInformation.ClientList += OnClientList;
+            proccesReceiverInformation.ClientPrivMessage += OnClientPrivMessage;
+            proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+
+            clientReceiveFromServer.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            //proccesReceiverInformation.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            //channels
+            proccesReceiverInformation.ClientCreateChannel += OnClientCreateChannel;
+            proccesReceiverInformation.ClientDeleteChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientEditChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientJoinChannel += OnClientJoinChannel;
+            proccesReceiverInformation.ClientExitChannel += OnClientExitChannel;
+            proccesReceiverInformation.ClientListChannel += OnClientListChannel;
+            proccesReceiverInformation.ClientChannelEnter += OnClientChannelEnter;
+            proccesReceiverInformation.ClientChannelEnterDeny += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientListChannelJoined += OnClientListChannelJoined;
+            //friends
+            proccesReceiverInformation.ClientAddFriend += OnClientAddFriend;
+            proccesReceiverInformation.ClientAcceptFriend += OnClientAcceptFriend;
+            proccesReceiverInformation.ClientListFriends += OnClientListFriends;
+            proccesReceiverInformation.ClientDeleteFriend += OnClientDeleteFriend;
+            proccesReceiverInformation.ClientDenyFriend += (s, e) => MessageBox.Show("User: " + e.clientFriendName + " doesnt accept your ask to be your friend", "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientIgnoreUser += OnClientIgnoreUser;
+            proccesReceiverInformation.ClientDeleteIgnoredUser += OnClientDeleteIgnoredUser;
+            proccesReceiverInformation.ClientListIgnored += OnClientListIgnored;
+            //ban/kick
+            proccesReceiverInformation.ClientKickFromSerwer += OnClientKickFromSerwer;
+            proccesReceiverInformation.ClientBanFromSerwer += OnClientBanFromSerwer;
+            // InformServerToSendUserLists informServerToSendUserLists = new InformServerToSendUserLists();
+
             MainContent mc = new MainContent();
             var header = new TextBlock { Text = "Main" };
 
@@ -47,37 +84,6 @@ namespace Gold_Client.ViewModel
             controlPanelTab.Content = mc;
 
             tabControlItems.Add(controlPanelTab);
-
-            clientReceiveFromServer.ClientLogin += OnClientLogin;
-            clientReceiveFromServer.ClientLogout += OnClientLogout;
-            clientReceiveFromServer.ClientList += OnClientList;
-            clientReceiveFromServer.ClientPrivMessage += OnClientPrivMessage;
-            clientReceiveFromServer.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            clientReceiveFromServer.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Error);
-            //clientReceiveFromServer.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
-            //channels
-            clientReceiveFromServer.ClientCreateChannel += OnClientCreateChannel;
-            clientReceiveFromServer.ClientDeleteChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            clientReceiveFromServer.ClientEditChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            clientReceiveFromServer.ClientJoinChannel += OnClientJoinChannel;
-            clientReceiveFromServer.ClientExitChannel += OnClientExitChannel;
-            clientReceiveFromServer.ClientListChannel += OnClientListChannel;
-            clientReceiveFromServer.ClientChannelEnter += OnClientChannelEnter;
-            clientReceiveFromServer.ClientChannelEnterDeny += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            clientReceiveFromServer.ClientListChannelJoined += OnClientListChannelJoined;
-            //friends
-            clientReceiveFromServer.ClientAddFriend += OnClientAddFriend;
-            clientReceiveFromServer.ClientAcceptFriend += OnClientAcceptFriend;
-            clientReceiveFromServer.ClientListFriends += OnClientListFriends;
-            clientReceiveFromServer.ClientDeleteFriend += OnClientDeleteFriend;
-            clientReceiveFromServer.ClientDenyFriend += (s, e) => MessageBox.Show("User: " + e.clientFriendName + " doesnt accept your ask to be your friend", "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            clientReceiveFromServer.ClientIgnoreUser += OnClientIgnoreUser;
-            clientReceiveFromServer.ClientDeleteIgnoredUser += OnClientDeleteIgnoredUser;
-            clientReceiveFromServer.ClientListIgnored += OnClientListIgnored;
-            //ban/kick
-            clientReceiveFromServer.ClientKickFromSerwer += OnClientKickFromSerwer;
-            clientReceiveFromServer.ClientBanFromSerwer += OnClientBanFromSerwer;
-            InformServerToSendUserLists informServerToSendUserLists = new InformServerToSendUserLists();
         }
 
         public Client User
@@ -153,6 +159,9 @@ namespace Gold_Client.ViewModel
             controlPanelTab.SetHeader(header, "Control Panel", ref tabControlItems);
             controlPanelTab.Content = ctrl_panel;
 
+            //TabItem ti = new TabItem();
+            //ti.Header = "Control Panel";
+            //ti.Content = ctrl_panel;
             tabControlItems.Add(controlPanelTab);
         });
 
@@ -359,11 +368,20 @@ namespace Gold_Client.ViewModel
 
         private void OnClientList(object sender, ClientEventArgs e)
         {
-            string[] splitNicks = e.clientListMessage.Split('*');
+            string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray();
             foreach (string nick in splitNicks)
             {
                 if (!usersConnected.Contains(nick))
+                {
+                    //// still nothink
+                    //var uiContext = SynchronizationContext.Current;
+                    //uiContext.Send(x => usersConnected.Add(nick), null);
+
+                    //Application.Current.Dispatcher.Invoke(delegate
+                    //{
                     usersConnected.Add(nick);
+                    //});
+                }
             }
             //clientList.AddRange(e.clientListMessage.Split('*'));
             usersConnected.RemoveAt(usersConnected.Count - 1);
@@ -398,11 +416,13 @@ namespace Gold_Client.ViewModel
         {
             if (e.clientChannelMsg == "Send Password" || e.clientChannelMsg == "Wrong Password")
             {
-                //i need programmatically create window
                 MessageBox.Show("Send Password to channel " + e.clientChannelName, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
 
-                //serverAsk sa = new serverAsk(clientManager, e.clientChannelName, e.clientChannelMsg);
-                //sa.Show();
+                ServerAskClient serverAskClient = new ServerAskClient("Send Password", e.clientChannelName);
+                serverAskClient.changeLabelContent("Send Password to channel " + e.clientChannelName);
+                serverAskClient.addPasswordBoxToWindow("pass1");
+                serverAskClient.addButton("button", "send");
+                serverAskClient.Show();
             }
             else if (e.clientChannelMsg2 == "ChannelJoined" || e.clientChannelMsg2 == "CreatedChannel")
             {
@@ -428,7 +448,8 @@ namespace Gold_Client.ViewModel
 
         private void OnClientListChannel(object sender, ClientEventArgs e)
         {
-            string[] splitChannels = e.clientListChannelsMessage.Split('*');
+            //string[] splitChannels = e.clientListChannelsMessage.Split('*');
+            string[] splitChannels = e.clientListChannelsMessage.Split('*').Where(value => value != "").ToArray();
             foreach (string channel in splitChannels)
             {
                 if (!lobbies.Contains(channel))
@@ -444,7 +465,7 @@ namespace Gold_Client.ViewModel
             if (e.clientName == User.strName)
             {
                 string channelName = e.clientChannelName;
-                ChannelControl channelControl = new ChannelControl(channelName);
+                ChannelControl channelControl = new ChannelControl(channelName, e.clientChannelMsg);
 
                 var header = new TextBlock { Text = channelName };
 
@@ -454,26 +475,18 @@ namespace Gold_Client.ViewModel
 
                 tabControlItems.Add(channelTab);
 
-                //var header = new TextBlock { Text = channelName };
-                //// Create the tab
-                //var tab = new CloseableTabItem();
-                //tab.SetHeader(header, channelName, true);
-                //tab.Content = channelPanel;
-
-                //// Add to TabControl
-                //tc.Items.Add(tab);
-
                 ////user enter to channel and want a list of all users in
                 clientSendToServer.SendToServer(Command.List, "ChannelUsers", channelName);
 
-                ////lets print motd 
+                //lets print motd 
                 //channelPanel.channelMessages.Text += "<<< Welcome Message: " + e.clientChannelMsg + " >>>>" + "\r\n";
             }
         }
 
         private void OnClientListChannelJoined(object sender, ClientEventArgs e)
         {
-            string[] splitChannels = e.clientListChannelsMessage.Split('*');
+            string[] splitChannels = e.clientListChannelsMessage.Split('*').Where(value => value != "").ToArray(); ;
+
             foreach (string channel in splitChannels)
             {
                 if (!joinedChannelsList.Contains(channel))
@@ -502,7 +515,7 @@ namespace Gold_Client.ViewModel
 
         private void OnClientListFriends(object sender, ClientEventArgs e)
         {
-            string[] listFriends = e.clientListFriendsMessage.Split('*');
+            string[] listFriends = e.clientListFriendsMessage.Split('*').Where(value => value != "").ToArray(); ;
             foreach (string friendName in listFriends)
             {
                 if (!friendlyUsersConnected.Contains(friendName))
@@ -535,7 +548,7 @@ namespace Gold_Client.ViewModel
 
         private void OnClientListIgnored(object sender, ClientEventArgs e)
         {
-            string[] ignoredUsersFromServer = e.clientListFriendsMessage.Split('*');
+            string[] ignoredUsersFromServer = e.clientListFriendsMessage.Split('*').Where(value => value != "").ToArray(); ;
             foreach (string name in ignoredUsersFromServer)
             {
                 if (!ignoredUsers.Contains(name))

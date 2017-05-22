@@ -1,25 +1,31 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ViewModel.Others;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
 {
     class ChannelPresenter : ObservableObject
     {
-        ClientReceivedFromServer received = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
-        string channelName;
+        string channelName = "";
+        string WelcomeChannelMsg = "";
 
         public ChannelPresenter()
         {
-            received.ClientChannelMessage += OnClientChannelMessage;
-            received.ClientLogout += ClientLogout;
-            received.ClientChannelEnter += OnClientChannelEnter;
-            received.ClientListChannelUsers += OnClientListChannelUsers;
-            received.ClientChannelLeave += OnClientChannelLeave;
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientChannelMessage += OnClientChannelMessage;
+            proccesReceiverInformation.ClientLogout += ClientLogout;
+            proccesReceiverInformation.ClientChannelEnter += OnClientChannelEnter;
+            proccesReceiverInformation.ClientListChannelUsers += OnClientListChannelUsers;
+            proccesReceiverInformation.ClientChannelLeave += OnClientChannelLeave;
+
+            showMessage("<<< Welcome Message: " + WelcomeChannelMsg + " >>>>" + "\r\n");
         }
 
         private readonly ObservableCollection<string> channelUsers = new ObservableCollection<string>();
@@ -61,9 +67,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void OnClientListChannelUsers(object sender, ClientEventArgs e)
         {
-            //List<string> channelUsersList = new List<string>();
-
-            string[] splitNicks = e.clientListMessage.Split('*');
+            string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray(); ;
             //channelUsersList.AddRange(e.clientListMessage.Split('*'));
             //channelUsersList.RemoveAt(channelUsersList.Count - 1);
             foreach (string name in splitNicks)
@@ -111,7 +115,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void showMessage(string message)
         {
-            channelMsgReceived += message;
+            ChannelMsgReceived += message;
         }
 
         private void SendMessage()

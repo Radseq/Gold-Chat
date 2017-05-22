@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using Gold_Client.ViewModel.Others;
+using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
 {

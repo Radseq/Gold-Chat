@@ -7,13 +7,13 @@ namespace Server.ClientService
 {
     class ClientKick : ServerResponds, IPrepareRespond
     {
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -24,11 +24,11 @@ namespace Server.ClientService
 
             if (Client.permission > 0)
             {
-                foreach (Client client in ClientList)
+                foreach (Client client in ListOfClientsOnline)
                 {
                     if (client.strName == userName && client.permission == 0)
                     {
-                        SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ClientList); // Ignored users wont get new channel list
+                        SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline); // Ignored users wont get new channel list
                         sendToAll.ResponseToAll();
                         client.cSocket.Close();
                     }

@@ -10,10 +10,10 @@
         <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <Label Foreground="Blue" Margin="37,1,201,79" Content="Login:"/>
-        <Label Foreground="Blue" Margin="19,36,201,44" Content="Password:"/>
-        <TextBox Text="{Binding LoginTB, UpdateSourceTrigger=PropertyChanged}" Margin="86,1,29,79"/>
-        <PasswordBox Name="passBox" PasswordChanged="PasswordChanged" Margin="86,36,29,44"/>
+        <Label Foreground="Blue" Margin="37,11,201,69" Content="Login:"/>
+        <Label Foreground="Blue" Margin="19,42,201,38" Content="Password:"/>
+        <TextBox Text="{Binding LoginTB, UpdateSourceTrigger=PropertyChanged}" Margin="86,11,29,69"/>
+        <PasswordBox Name="passBox" PasswordChanged="PasswordChanged" Margin="86,42,29,38"/>
         <Button Command="{Binding RegistrationWindowCommand}" Margin="5,73,185,4" Content="Registration"/>
         <Button Command="{Binding LostPasswordWindowCommand}" Margin="102,73,91,4" Content="Lost Password"/>
         <Button Content="Login" Command="{Binding LoginCommand}" Margin="196,73,5,4"/>

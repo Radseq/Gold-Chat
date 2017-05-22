@@ -7,7 +7,7 @@ namespace Server.ClientService.List
     {
         public SendListOfUsersInChannel(List<Channel> channelList, Data send, Data received)
         {
-            ChannelList = channelList;
+            ListOfChannels = channelList;
             Send = send;
             Received = received;
         }
@@ -16,7 +16,7 @@ namespace Server.ClientService.List
         public new void Execute()
         {
             //prepareResponse();
-            foreach (Channel channel in ChannelList)
+            foreach (Channel channel in ListOfChannels)
             {
                 if (channel.ChannelName == Received.strMessage2)
                 {

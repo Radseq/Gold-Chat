@@ -4,6 +4,6 @@ namespace Server
 {
     interface IChannelList
     {
-        List<Channel> ChannelList { get; set; }
+        List<Channel> ListOfChannels { get; set; }
     }
 }

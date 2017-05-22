@@ -6,10 +6,10 @@
              xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel" mc:Ignorable="d"
              d:DesignWidth="550" 
              d:DataContext="{d:DesignInstance ViewModel:MainWindowPresenter}" Height="270">
-
     <Grid>
-        <TabControl ItemsSource="{Binding TabControlItems}" SelectedIndex="0" HorizontalAlignment="Left" Width="420"/>
-        <StackPanel Width="125" HorizontalAlignment="Right" >
+        <TabControl ItemsSource="{Binding TabControlItems}" SelectedIndex="0" Width="420" Margin="0,0,130,0"/>
+        
+        <StackPanel Margin="425,0,0,0" >
             <Expander Header="Menu">
                 <Grid>
                     <UniformGrid Columns="3">

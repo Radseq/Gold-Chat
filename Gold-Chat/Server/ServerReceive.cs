@@ -10,15 +10,15 @@ namespace Server
     class ServerReceive : IServerReceive, IChannelList, IClientList, IClient
     {
         public Data Received { get; set; }
-        public List<Channel> ChannelList { get; set; }
-        public List<Client> ClientList { get; set; }
+        public List<Channel> ListOfChannels { get; set; }
+        public List<Client> ListOfClientsOnline { get; set; }
         public Client Client { get; set; }
 
         public ServerReceive(Client client, List<Client> clientList, List<Channel> channelList)
         {
             Client = client;
-            ClientList = clientList;
-            ChannelList = channelList;
+            ListOfClientsOnline = clientList;
+            ListOfChannels = channelList;
         }
 
         ClientLogin clientLogin = new ClientLogin();
@@ -69,7 +69,7 @@ namespace Server
                 switch (Received.cmdCommand)
                 {
                     case Command.Login:
-                        clientLogin.Load(client, Received, ClientList);
+                        clientLogin.Load(client, Received, ListOfClientsOnline);
                         clientLogin.Execute();
                         clientLogin.Response();
                         break;
@@ -99,30 +99,30 @@ namespace Server
                         break;
 
                     case Command.Logout:
-                        clientLogout.Load(client, Received, ClientList, ChannelList);
+                        clientLogout.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientLogout.Execute();
                         clientLogout.Response();
                         break;
 
                     case Command.Message:
-                        clientMessage.Load(client, Received, ClientList);
+                        clientMessage.Load(client, Received, ListOfClientsOnline);
                         clientMessage.Execute();
                         clientMessage.Response();
                         break;
 
                     case Command.privMessage:
-                        clientPrivateMessage.Load(client, Received, ClientList);
+                        clientPrivateMessage.Load(client, Received, ListOfClientsOnline);
                         clientPrivateMessage.Response();
                         break;
 
                     case Command.createChannel:
-                        clientCreateChannel.Load(client, Received, ClientList, ChannelList);
+                        clientCreateChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientCreateChannel.Execute();
-                        clientCreateChannel.RespondToClient();
+                        //clientCreateChannel.RespondToClient();
                         break;
 
                     case Command.joinChannel:
-                        clientJoinChannel.Load(client, Received, ClientList);
+                        clientJoinChannel.Load(client, Received, ListOfClientsOnline);
                         clientJoinChannel.Execute();
                         clientJoinChannel.RespondToClient();
                         break;
@@ -134,27 +134,27 @@ namespace Server
                         break;
 
                     case Command.deleteChannel:
-                        clientDeleteChannel.Load(client, Received, ClientList, ChannelList);
+                        clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientDeleteChannel.Execute();
                         clientDeleteChannel.Response();
                         break;
                     case Command.enterChannel:
-                        clientEnterChannel.Load(client, Received, ClientList, ChannelList);
+                        clientEnterChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientEnterChannel.Execute();
                         break;
                     case Command.leaveChannel:
-                        clientLeaveChannel.Load(client, Received, ClientList, ChannelList);
+                        clientLeaveChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientLeaveChannel.Execute();
                         clientLeaveChannel.Response();
                         break;
 
                     case Command.List:  // Send the names of all users in the chat room to the new user
-                        clientListManager.Load(client, Received, ClientList, ChannelList);
+                        clientListManager.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientListManager.Execute();
                         break;
 
                     case Command.manageFriend:
-                        manageClientFriend.Load(client, Received, ClientList);
+                        manageClientFriend.Load(client, Received, ListOfClientsOnline);
                         manageClientFriend.Execute();
                         //manageClientFriend.RespondToClient();
                         //SendServerRespond(ref client, msgToSend);
@@ -166,25 +166,25 @@ namespace Server
                         break;
                     /// Not Implement !!!
                     case Command.kick:
-                        clientKick.Load(client, Received, ClientList);
+                        clientKick.Load(client, Received, ListOfClientsOnline);
                         clientKick.Execute();
                         clientKick.RespondToClient();
                         break;
                     /// Not Implement !!!
                     case Command.ban:
-                        clientBan.Load(client, Received, ClientList);
+                        clientBan.Load(client, Received, ListOfClientsOnline);
                         clientBan.Execute();
                         clientBan.RespondToClient();
                         break;
                     /// Not Implement !!!
                     case Command.kickUserChannel:
-                        clientKickFromChannel.Load(client, Received, ClientList, ChannelList);
+                        clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                         clientKickFromChannel.Execute();
                         clientKickFromChannel.RespondToClient();
                         break;
                     /// Not Implement !!!
                     case Command.banUserChannel:
-                        clientBanFromChannel.Load(client, Received, null, ChannelList);
+                        clientBanFromChannel.Load(client, Received, null, ListOfChannels);
                         clientBanFromChannel.Execute();
                         clientBanFromChannel.RespondToClient();
                         break;
@@ -197,7 +197,7 @@ namespace Server
                 // So we make sure that client which got crash or internet close, server will send log out message
                 clientLogout.Send.cmdCommand = Command.Logout;
                 clientLogout.Send.strName = Client.strName;
-                clientLogout.Load(client, Received, ClientList, ChannelList);
+                clientLogout.Load(client, Received, ListOfClientsOnline, ListOfChannels);
                 clientLogout.Execute();
                 string exMessage = ("client: " + client.strName + " " + ex.Message);
                 Console.WriteLine(exMessage);

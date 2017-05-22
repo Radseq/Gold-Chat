@@ -7,7 +7,7 @@ namespace Server.ResponseMessages
 {
     class SendMessageToSomeone : Respond, IServerSend, IServerReceive
     {
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         #region INTERFACE IMPLEMENTATION
         public Data Send { get; set; }
@@ -17,7 +17,7 @@ namespace Server.ResponseMessages
         public SendMessageToSomeone(List<Client> clientList, Data send)
         {
             Send = send;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         //public void prepareResponse()
@@ -27,7 +27,7 @@ namespace Server.ResponseMessages
 
         public void ResponseToSomeone()
         {
-            foreach (Client cInfo in ClientList)
+            foreach (Client cInfo in ListOfClientsOnline)
             {
                 if (cInfo.strName == Received.strMessage2 || Received.strName == cInfo.strName)
                     Response(Send.ToByte(), cInfo);

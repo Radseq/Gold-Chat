@@ -1,5 +1,6 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ViewModel.Others;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -17,10 +18,21 @@ namespace Gold_Client.ViewModel
         private bool emailTBIsFocusable;
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
+
+        public RegistrationPresenter()
+        {
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientRegistration += OnClientReceiveFromServer;
+        }
+
+        private void OnClientReceiveFromServer(object sender, ClientEventArgs e)
+        {
+            MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         public bool RegistrationLoginTBIsFocusable
         {
@@ -130,7 +142,7 @@ namespace Gold_Client.ViewModel
                     clientSendToServer.SendToServer(Command.Registration, clientSendToServer.CalculateChecksum
                         (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password), email);
 
-                    clientReceiveFromServer.ClientRegistration += OnClientRegistration;
+                    proccesReceiverInformation.ClientRegistration += OnClientRegistration;
                 }
             }
             else

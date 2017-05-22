@@ -5,7 +5,7 @@ namespace Server.ResponseMessages
 {
     class SendMessageToNick : Respond, IServerSend, IServerReceive, IClient
     {
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         public Data Send { get; set; }
         public Data Received { get; set; }
@@ -14,7 +14,7 @@ namespace Server.ResponseMessages
         public SendMessageToNick(Client client, List<Client> clientList, Data send, Data received)
         {
             Client = client;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
             Send = send;
             Received = received;
         }
@@ -27,7 +27,7 @@ namespace Server.ResponseMessages
 
         public void ResponseToNick()
         {
-            foreach (Client cInfo in ClientList)
+            foreach (Client cInfo in ListOfClientsOnline)
             {
                 if (cInfo.strName == Send.strName)
                     Response(Send.ToByte(), cInfo);

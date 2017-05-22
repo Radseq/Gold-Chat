@@ -331,7 +331,7 @@ namespace Gold
                         break;
 
                     case Command.createChannel:
-                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strName);
                         break;
 
                     case Command.joinChannel:
@@ -509,9 +509,9 @@ namespace Gold
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
         //channel todo
-        protected virtual void OnClientCreateChannel(string channelMsg, string roomName)
+        protected virtual void OnClientCreateChannel(string channelName, string roomName, string userName)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg2 = roomName, clientName = userName });
         }
         protected virtual void OnClientJoinChannel(string channelName, string channelMsg2, string channelMsg3)
         {

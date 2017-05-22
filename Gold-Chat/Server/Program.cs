@@ -43,7 +43,7 @@ namespace Server
                 //sm.ClientMessage += OnClientMessage;
                 //sm.ClientMessage += servLogg.OnClientMessageLogger;
                 //sm.ClientSendMessage += OnClientSendMessage;
-                //sm.ClientList += OnClientList;
+                //sm.ListOfClientsOnline += OnClientList;
                 //sm.ClientSendMessage += servLogg.OnClientSendMessageLogger;
                 //sm.ClientReceiMessage += OnClientReceiMessage;
                 //sm.ClientReceiMessage += servLogg.OnClientReceiMessageLogger;

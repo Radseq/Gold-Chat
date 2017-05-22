@@ -11,15 +11,16 @@ namespace Server.ClientService
 
         //list of all channels
         //private List<Channel> channels;
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
         DataBaseManager db = DataBaseManager.Instance;
 
+        bool isUserJoinAfterCreate = false;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -30,11 +31,11 @@ namespace Server.ClientService
 
         public void Execute(bool afterCreate)
         {
-            prepareResponse();
-            clientJoinChannel(afterCreate);
+            isUserJoinAfterCreate = afterCreate;
+            clientJoinChannel();
         }
 
-        private void clientJoinChannel(bool afterCreate = false)
+        private void clientJoinChannel()
         {
             string channelName = Received.strMessage;
             string channelPass = Received.strMessage2;
@@ -53,12 +54,12 @@ namespace Server.ClientService
                 else if (channelPass != enterPassword)
                     Send.strMessage2 = "Wrong Password";
                 else
-                    insertUserJoinedChannelToDb(idChannel, channelName, afterCreate);
+                    insertUserJoinedChannelToDb(idChannel, channelName);
             }
             else Send.strMessage2 = "There is no channel that you want to join.";
         }
 
-        private void insertUserJoinedChannelToDb(int idChannelDb, string channelName, bool afterCreate)
+        private void insertUserJoinedChannelToDb(int idChannelDb, string channelName)
         {
             DateTime theDate = DateTime.Now;
             theDate.ToString("MM-dd-yyyy HH:mm");
@@ -68,23 +69,19 @@ namespace Server.ClientService
 
             if (created > 0)
             {
-                if (!afterCreate)
+                if (!isUserJoinAfterCreate)
                 {
                     Send.strMessage2 = "You are joinet to channel " + channelName + ".";
                     Send.strMessage3 = "ChannelJoined";
+                    RespondToClient();
                 }
                 else
                 {
-                    Send.cmdCommand = Command.createChannel;
                     Send.strMessage = channelName;
                     Send.strMessage2 = "CreatedChannel";
-                    //sendChannelList();
-                    SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ClientList); // Ignored users wont get new channel list
-                    sendToAll.ResponseToAll();
 
-                    Send.cmdCommand = Received.cmdCommand;
-                    Send.strMessage = "You are create channel (" + channelName + ")";
-                    Send.strMessage2 = "CreatedChannel";
+                    SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline); // Ignored users wont get new channel list
+                    sendToAll.ResponseToAll();
                 }
                 OnClientJoinChannel(channelName, Client.strName);
             }

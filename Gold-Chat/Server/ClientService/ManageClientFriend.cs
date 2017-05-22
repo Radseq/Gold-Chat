@@ -16,15 +16,15 @@ namespace Server.ClientService
         SendMessageToNick sendToNick;
 
         //The collection of all clients logged into the room
-        private List<Client> ClientList;
+        private List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
             Send.strName = Received.strMessage2;
-            sendToNick = new SendMessageToNick(Client, ClientList, Send, Received);
+            sendToNick = new SendMessageToNick(Client, ListOfClientsOnline, Send, Received);
         }
 
         public void Execute()
@@ -70,7 +70,7 @@ namespace Server.ClientService
                         // Need to send to user and friend list of friends
                         Send.strMessage = "Delete";
                         Send.strMessage2 = friendName;
-                        //SendMessageToSomeone sendToSomeone = new SendMessageToSomeone(ClientList, Send);
+                        //SendMessageToSomeone sendToSomeone = new SendMessageToSomeone(ListOfClientsOnline, Send);
                         //sendToSomeone.ResponseToSomeone();
 
                         RespondToClient();

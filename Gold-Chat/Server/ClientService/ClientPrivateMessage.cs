@@ -6,13 +6,13 @@ namespace Server.ClientService
 {
     class ClientPrivateMessage : ServerResponds
     {
-        List<Client> ClientList;
+        List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList)
         {
             Client = client;
             Received = receive;
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Response()
@@ -21,7 +21,7 @@ namespace Server.ClientService
             Send.strMessage = Received.strName + ": " + Received.strMessage;
             RespondToClient();
 
-            SendMessageToNick sendToNick = new SendMessageToNick(Client, ClientList, Send, Received);
+            SendMessageToNick sendToNick = new SendMessageToNick(Client, ListOfClientsOnline, Send, Received);
             sendToNick.prepareRespond();
             sendToNick.ResponseToNick();
         }

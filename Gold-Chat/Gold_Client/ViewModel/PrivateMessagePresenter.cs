@@ -1,5 +1,6 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ViewModel.Others;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel
@@ -8,15 +9,16 @@ namespace Gold_Client.ViewModel
     {
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
 
         private string incomePrivMessage;
         private string outGoingPrivMessage;
-        public string FriendName;
+        public string FriendName = "";
 
         public PrivateMessagePresenter()
         {
-            clientReceiveFromServer.ClientPrivMessage += OnClientPrivMessage;
+            proccesReceiverInformation.ProccesBuffer();
+            proccesReceiverInformation.ClientPrivMessage += OnClientPrivMessage;
         }
 
         public string IncomePrivMessage
@@ -42,12 +44,12 @@ namespace Gold_Client.ViewModel
         public ICommand SendPrivateMessageCommand => new DelegateCommand(() =>
         {
             if (string.IsNullOrWhiteSpace(OutGoingPrivMessage)) return;
-            clientSendToServer.SendToServer(Command.privMessage, OutGoingPrivMessage, friendName);
+            clientSendToServer.SendToServer(Command.privMessage, OutGoingPrivMessage, FriendName);
         });
 
         private void OnClientPrivMessage(object sender, ClientEventArgs e)
         {
-            friendName = e.clientFriendName;
+            FriendName = e.clientFriendName;
             IncomePrivMessage += e.clientPrivMessage;
         }
     }

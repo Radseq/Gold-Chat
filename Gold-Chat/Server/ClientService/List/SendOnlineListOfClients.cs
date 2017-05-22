@@ -7,7 +7,7 @@ namespace Server.ClientService.List
     {
         public SendOnlineListOfClients(List<Client> clientList, Data send)
         {
-            ClientList = clientList;
+            ListOfClientsOnline = clientList;
             Send = send;
         }
 
@@ -25,7 +25,7 @@ namespace Server.ClientService.List
             Send.strMessage = null;
 
             //Collect the names of the user in the chat room
-            foreach (Client client in ClientList)
+            foreach (Client client in ListOfClientsOnline)
             {
                 //To keep things simple we use asterisk as the marker to separate the user names
                 Send.strMessage2 += client.strName + "*";

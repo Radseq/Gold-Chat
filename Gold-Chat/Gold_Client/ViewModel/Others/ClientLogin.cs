@@ -1,36 +1,34 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
-using Gold_Client.View;
+using Gold_Client.ViewModel.Others;
 using System;
 using System.Security;
-using System.Threading;
 using System.Windows;
 
 namespace Gold_Client.ViewModel
 {
     class ClientLogin : IClient
     {
+        bool loginNotyfi = false;
 
-        //SpeechLib.SpVoice voice = new SpeechLib.SpVoice();
-
-        bool loginNotyfi;
+        public Configuration config = new Configuration();
 
         ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
 
         public Client User
         {
             get; set;
         }
 
-        public ClientLogin(Client client)
+        public ClientLogin()
         {
-            User = client;
-
-            loginNotyfi = clientReceive.config.loginEmailNotyfication; //load config value
+            User = App.Client;
+            proccesReceiverInformation.ProccesBuffer();
+            loginNotyfi = config.loginEmailNotyfication; //load config value
 
             //clientReceive.ClientLogin += OnClientLogin;
-            clientReceive.ClientSuccesLogin += OnClientSuccesLogin;
-            clientReceive.ClientReSendEmail += OnClientReSendEmail;
+            proccesReceiverInformation.ClientReSendEmail += OnClientReSendEmail;
             clientReceive.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Login except Information", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -93,15 +91,24 @@ namespace Gold_Client.ViewModel
             //BeginAnimation(OpacityProperty, anim);
             //clientSocket = e.clientSocket;
 
-            Thread newWindowThread = new Thread(new ThreadStart(() =>
-            {
-                MainProgramWindow mainWindow = new MainProgramWindow();
-                mainWindow.Show();
-                System.Windows.Threading.Dispatcher.Run();
-            }));
-            newWindowThread.SetApartmentState(ApartmentState.STA);
-            newWindowThread.IsBackground = true;
-            newWindowThread.Start();
+            //Thread newWindowThread = new Thread(new ThreadStart(() =>
+            //{
+            //    MainProgramWindow mainWindow = new MainProgramWindow();
+            //    mainWindow.Show();
+            //    System.Windows.Threading.Dispatcher.Run();
+            //}));
+            //newWindowThread.SetApartmentState(ApartmentState.STA);
+            //newWindowThread.IsBackground = true;
+            //newWindowThread.Start();
+
+            //var uiContext = SynchronizationContext.Current;
+            //uiContext.Send(x => App.loginWindow.DialogResult = true, null);
+            //App.loginWindow.DialogResult = true;
+            //Application.Current.Dispatcher.Invoke(delegate
+            // {
+            //loginWindow.DialogResult = true;
+            //});
+
         }
 
         //private void closeButton_Click(object sender, RoutedEventArgs e)

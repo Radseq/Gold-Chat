@@ -10,8 +10,8 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientCreateChannelEvent;
 
         //list of all channels
-        private List<Channel> ChannelList;
-        List<Client> ClientList;
+        private List<Channel> ListOfChannels;
+        List<Client> ListOfClientsOnline;
 
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -19,8 +19,8 @@ namespace Server.ClientService
         {
             Client = client;
             Received = receive;
-            ChannelList = channelList;
-            ClientList = clientList;
+            ListOfChannels = channelList;
+            ListOfClientsOnline = clientList;
         }
 
         public void Execute()
@@ -31,6 +31,7 @@ namespace Server.ClientService
             db.manySelect("SELECT id_user_founder, channel_name FROM channel WHERE id_user_founder = @id_user_f AND channel_name = @channel_n");
             string[] getFromDb = db.tableToRow();
 
+            Send.strName = Received.strName;
             Send.strMessage2 = "NotCreated";
 
             if (getFromDb != null)
@@ -43,9 +44,7 @@ namespace Server.ClientService
                 else if (idOfFounderDB != 0)
                     Send.strMessage = "You are create channel before, you can have one channel at time";
                 else // User not have channel and name is free
-                {
                     insertChannelToDb();
-                }
             }
             else insertChannelToDb(); // There is no exists channelName and idfounder, so we can create channel
         }
@@ -71,26 +70,22 @@ namespace Server.ClientService
             {
                 Send.strMessage = "You are create channel (" + roomName + ")";
                 Send.strMessage2 = "CreatedChannel";
-
+                Send.strMessage3 = null;
+                Send.strMessage4 = null;
+ 
                 // Add channel to as channels list
-                Channel channel = new Channel(roomName, Client.id);
-                ChannelList.Add(channel);
+                ListOfChannels.Add(new Channel(roomName, Client.id));
+
                 ClientJoinChannel clientJoinToChannel = new ClientJoinChannel(); // After user create channel we want to make him join
-                clientJoinToChannel.Load(Client, Received, ClientList);
+                clientJoinToChannel.Send = Send;
+                clientJoinToChannel.Load(Client, Received, ListOfClientsOnline);
                 clientJoinToChannel.Execute(true);
-                clientJoinToChannel.RespondToClient();
             }
             else
                 Send.strMessage = "Channel NOT created with unknown reason.";
 
             OnClientCreateChannel(roomName, Client.strName);
         }
-
-        //public override void Response()
-        //{
-        //    if (Send.strMessage2 != "CreatedChannel")
-        //        base.Response();
-        //}
 
         protected virtual void OnClientCreateChannel(string channelName, string userName)
         {

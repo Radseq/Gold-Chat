@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using Gold_Client.ViewModel.Others;
 using System.Security;
 using System.Windows.Input;
 

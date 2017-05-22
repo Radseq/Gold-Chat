@@ -4,6 +4,6 @@ namespace Server
 {
     interface IClientList
     {
-        List<Client> ClientList { get; set; }
+        List<Client> ListOfClientsOnline { get; set; }
     }
 }

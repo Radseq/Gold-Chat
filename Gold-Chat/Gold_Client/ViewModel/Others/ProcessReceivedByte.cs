@@ -1,17 +1,21 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Gold_Client.ViewModel
+namespace Gold_Client.ViewModel.Others
 {
-    public class ClientReceivedFromServer : IClient
+    class ProcessReceivedByte
     {
+        Client User = App.Client;
+
         //For login
         public event EventHandler<ClientEventArgs> ClientRegistration;
         public event EventHandler<ClientEventArgs> ClientReSendEmail;
-        public event EventHandler<ClientEventArgs> ReceiveLogExcep;
         public event EventHandler<ClientEventArgs> ClientLogin;
         public event EventHandler<ClientEventArgs> ClientSuccesLogin;
         //For Main program
@@ -55,244 +59,142 @@ namespace Gold_Client.ViewModel
         public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
         //public event EventHandler<ClientEventArgs> ClientListIgnored;
 
-        // Singleton
-        static ClientReceivedFromServer instance = null;
-        static readonly object padlock = new object();
-
-        // Singleton
-        public static ClientReceivedFromServer Instance
+        public void ProccesBuffer()
         {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new ClientReceivedFromServer();
-
-                    return instance;
-                }
-            }
+            User.OnBufferChange += User_onBufferChange;
         }
 
-        public Client User
+        private void User_onBufferChange(object sender, EventArgs e)
         {
-            get; set;
-        }
-
-        private byte[] byteData = new byte[1024];
-
-        //lets use config
-        public Configuration config = new Configuration();
-
-        private static ManualResetEvent receiveDone = new ManualResetEvent(false);
-
-        public ClientReceivedFromServer()
-        {
-            config = config.loadConfig();
-            User = App.Client;
-
-            //pingTimer = new System.Timers.Timer();
-            //pingTimer.Interval = 5000;
-            //pingTimer.Elapsed += new ElapsedEventHandler(this.pingServer);
-            //pingTimer.Start();
-
-            //messageTimer = new System.Timers.Timer();
-            //messageTimer.Interval = 1000;
-            //messageTimer.Elapsed += new ElapsedEventHandler(this.pingServer);
-            //messageTimer.Start();
-        }
-
-        //private void pingServer(object sender, EventArgs e)
-        //{
-        //    Ping pinger = new Ping();
-        //    try
-        //    {
-        //        PingReply reply = pinger.Send("127.0.0.1");
-        //        if (reply.Status == IPStatus.Success)
-        //            OnClientPing((int)reply.RoundtripTime, "Server Online");
-        //        OnClientPing(0, "Server Offline");
-
-        //    }
-        //    catch (PingException)
-        //    {
-        //        // Discard PingExceptions and return false;
-        //    }
-        //}
-
-
-        public void BeginReceive()
-        {
-            byteData = new byte[1024];
-            User.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-            receiveDone.WaitOne();
-        }
-
-        private void OnReceive(IAsyncResult ar)
-        {
-            try
+            Data msgReceived = new Data(User.Buffer);
+            //Accordingly process the message received
+            switch (msgReceived.cmdCommand)
             {
-                //var so = (StateObject)ar.AsyncState;
+                case Command.Login:
+                    if (msgReceived.strName == User.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                    {
+                        OnClientSuccesLogin(true, User.cSocket);
+                        User.permission = int.Parse(msgReceived.strMessage2);
+                    }
+                    // else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
+                    break;
 
-                if (!User.cSocket.Connected) return;
+                case Command.Registration:
+                    OnClientRegister(msgReceived.strMessage);
+                    break;
 
-                User.cSocket.EndReceive(ar);
+                case Command.changePassword:
+                    OnClientChangePass(msgReceived.strMessage);
+                    break;
 
-                Data msgReceived = new Data(byteData);
-                //Accordingly process the message received
-                switch (msgReceived.cmdCommand)
-                {
-                    case Command.Login:
-                        if (msgReceived.strName == User.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
-                        {
-                            OnClientSuccesLogin(true, User.cSocket);
-                            User.permission = int.Parse(msgReceived.strMessage2);
-                        }
-                        else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
-                        break;
+                case Command.lostPassword:
+                    OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
+                    break;
 
-                    case Command.Registration:
-                        OnClientRegister(msgReceived.strMessage);
-                        break;
+                case Command.ReSendActiveCode:
+                    OnClientReSendEmail(msgReceived.strMessage);
+                    break;
 
-                    case Command.changePassword:
-                        OnClientChangePass(msgReceived.strMessage);
-                        break;
+                case Command.Logout:
+                    OnClientLogout(msgReceived.strName);
+                    break;
 
-                    case Command.lostPassword:
-                        OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
-                        break;
+                case Command.Message:
+                    if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
+                        OnClientMessage(msgReceived.strMessage + "\r\n");
+                    else
+                        OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
+                    break;
 
-                    case Command.ReSendActiveCode:
-                        OnClientReSendEmail(msgReceived.strMessage);
-                        break;
+                case Command.privMessage:
+                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                    break;
 
-                    case Command.Logout:
-                        OnClientLogout(msgReceived.strName);
-                        break;
+                case Command.createChannel:
+                    OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                    break;
 
-                    case Command.Message:
-                        if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
-                            OnClientMessage(msgReceived.strMessage + "\r\n");
-                        else
-                            OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
-                        break;
+                case Command.joinChannel:
+                    OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    break;
 
-                    case Command.privMessage:
-                        OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
-                        break;
+                case Command.exitChannel:
+                    OnClientExitChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                    break;
 
-                    case Command.createChannel:
-                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
-                        break;
+                case Command.deleteChannel:
+                    OnClientDeleteChannel(msgReceived.strMessage);
+                    break;
 
-                    case Command.joinChannel:
-                        OnClientJoinChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
-                        break;
+                case Command.List:
+                    if (msgReceived.strMessage == "Channel") //if channel and msg is not empty (there is channels names)
+                        OnClientChannelList(msgReceived.strMessage2);
+                    else if (msgReceived.strMessage == "Friends")
+                        OnClientFriendsList(msgReceived.strMessage2);
+                    else if (msgReceived.strMessage == "ChannelsJoined")
+                        OnClientChannelJoinedList(msgReceived.strMessage2);
+                    else if (msgReceived.strMessage == "ChannelUsers")
+                        OnClientChannelUsersList(msgReceived.strMessage2, msgReceived.strMessage3);
+                    else if (msgReceived.strMessage == "IgnoredUsers")
+                        OnClientIgnoredList(msgReceived.strMessage2);
+                    else
+                        OnClientList(msgReceived.strMessage2);
+                    break;
 
-                    case Command.exitChannel:
-                        OnClientExitChannel(msgReceived.strMessage, msgReceived.strMessage2);
-                        break;
+                case Command.manageFriend:
+                    if (msgReceived.strMessage == "Add")
+                        OnClientAddFriend(msgReceived.strName, msgReceived.strMessage2);
+                    else if (msgReceived.strMessage == "Yes")
+                        OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
+                    else if (msgReceived.strMessage == "Delete")
+                        OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage2);
+                    else
+                        OnClientDenyFriend(msgReceived.strName, msgReceived.strMessage2);
+                    break;
 
-                    case Command.deleteChannel:
-                        OnClientDeleteChannel(msgReceived.strMessage);
-                        break;
+                case Command.enterChannel:
+                    if (msgReceived.strMessage2 == "enter")
+                        OnClientEnterChannel(msgReceived.strMessage, msgReceived.strName, msgReceived.strMessage3);
+                    else
+                        OnClientEnterDenyChannel(msgReceived.strMessage3);
+                    //You must first join to channel if you want to enter.
+                    break;
 
-                    case Command.List:
-                        if (msgReceived.strMessage == "Channel") //if channel and msg is not empty (there is channels names)
-                            OnClientChannelList(msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "Friends")
-                            OnClientFriendsList(msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "ChannelsJoined")
-                            OnClientChannelJoinedList(msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "ChannelUsers")
-                            OnClientChannelUsersList(msgReceived.strMessage2, msgReceived.strMessage3);
-                        else if (msgReceived.strMessage == "IgnoredUsers")
-                            OnClientIgnoredList(msgReceived.strMessage2);
-                        else
-                            OnClientList(msgReceived.strMessage2);
-                        break;
+                case Command.leaveChannel:
+                    OnClientLeaveChannel(msgReceived.strName, msgReceived.strMessage);
+                    break;
 
-                    case Command.manageFriend:
-                        if (msgReceived.strMessage == "Add")
-                            OnClientAddFriend(msgReceived.strName, msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "Yes")
-                            OnClientAcceptFriend(msgReceived.strName, msgReceived.strMessage2);
-                        else if (msgReceived.strMessage == "Delete")
-                            OnClientDeleteFriend(msgReceived.strName, msgReceived.strMessage2);
-                        else
-                            OnClientDenyFriend(msgReceived.strName, msgReceived.strMessage2);
-                        break;
+                case Command.ignoreUser:
+                    if (msgReceived.strMessage == "AddIgnore")
+                        OnClientIgnoreUser(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    if (msgReceived.strMessage == "DeleteIgnore")
+                        OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    break;
 
-                    case Command.enterChannel:
-                        if (msgReceived.strMessage2 == "enter")
-                            OnClientEnterChannel(msgReceived.strMessage, msgReceived.strName, msgReceived.strMessage3);
-                        else
-                            OnClientEnterDenyChannel(msgReceived.strMessage3);
-                        //You must first join to channel if you want to enter.
-                        break;
+                /// Not Implement !!!
+                case Command.kick:
+                    OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
+                    break;
 
-                    case Command.leaveChannel:
-                        OnClientLeaveChannel(msgReceived.strName, msgReceived.strMessage);
-                        break;
+                /// Not Implement !!!
+                case Command.ban:
+                    OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    break;
 
-                    case Command.ignoreUser:
-                        if (msgReceived.strMessage == "AddIgnore")
-                            OnClientIgnoreUser(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
-                        if (msgReceived.strMessage == "DeleteIgnore")
-                            OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
-                        break;
+                /// Not Implement !!!
+                case Command.kickUserChannel:
+                    OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    break;
 
-                    /// Not Implement !!!
-                    case Command.kick:
-                        OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
-                        break;
-
-                    /// Not Implement !!!
-                    case Command.ban:
-                        OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
-                        break;
-
-                    /// Not Implement !!!
-                    case Command.kickUserChannel:
-                        OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
-                        break;
-
-                    /// Not Implement !!!
-                    case Command.banUserChannel:
-                        break;
-                }
-                // Procedure listening for server messages.
-                //if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List && msgReceived.cmdCommand != Command.privMessage)
-                //    OnClientMessage(msgReceived.strMessage + "\r\n");
-                //else if (msgReceived.strMessage != null && msgReceived.cmdCommand == Command.privMessage && msgReceived.cmdCommand != Command.List)
-                //{
-                //    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
-                //}
-
-                byteData = new byte[1024];
-                receiveDone.Set();
-
-                User.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                //Trace.WriteLine("[Networking]::NetBase.ReceiveCallback: SocketException");
-                OnReceiveLogExcep(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                OnReceiveLogExcep(ex.Message);
+                /// Not Implement !!!
+                case Command.banUserChannel:
+                    break;
             }
         }
 
         protected virtual void OnClientLostPassword(string strMessage, string strMessage2)
         {
             ClientLostPass?.Invoke(this, new ClientEventArgs() { clientChannelMsg = strMessage, clientChangePassMessage = strMessage2 });
-        }
-
-        protected virtual void OnReceiveLogExcep(string message)
-        {
-            ReceiveLogExcep?.Invoke(this, new ClientEventArgs() { receiveLogExpceMessage = message });
         }
 
         protected virtual void OnClientLogin(string Message, string userName)
