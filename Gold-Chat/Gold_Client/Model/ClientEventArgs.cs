@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Gold_Client.Model
 {
@@ -15,10 +12,9 @@ namespace Gold_Client.Model
         public bool clientLoginSucces { get; set; }
         public Socket clientSocket { get; set; }
         public string clientRegMessage { get; set; }
-        public string clientReSendEmailMessage { get; set; }
+        public string clientSendActivCodeFromEmail { get; set; }
         public string receiveLogExpceMessage { get; set; }
 
-        //or just give this object public ServerManager ServerManager { get; set; }
         //For Main program
         public string clientLogoutMessage { get; set; }
         public string clientListMessage { get; set; }

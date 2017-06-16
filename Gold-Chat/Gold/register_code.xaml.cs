@@ -38,12 +38,12 @@ namespace Gold
 
         private void endReg(object sender, RoutedEventArgs e)
         {
-            clientManager.SendToServer(Command.ReSendActiveCode, registerCode.Text);
+            clientManager.SendToServer(Command.SendActivationCode, registerCode.Text);
         }
 
         private void resendCode(object sender, RoutedEventArgs e)
         {
-            clientManager.SendToServer(Command.ReSendActiveCode, "");
+            clientManager.SendToServer(Command.SendActivationCode, "");
         }
     }
 }

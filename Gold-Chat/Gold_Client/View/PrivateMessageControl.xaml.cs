@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using Gold_Client.ViewModel;
+using System.Windows.Controls;
 
 namespace Gold_Client.View
 {
@@ -6,6 +7,7 @@ namespace Gold_Client.View
     {
         public PrivateMessageControl()
         {
+            DataContext = new PrivateMessagePresenter();
             InitializeComponent();
         }
     }

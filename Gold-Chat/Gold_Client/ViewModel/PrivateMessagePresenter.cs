@@ -9,7 +9,7 @@ namespace Gold_Client.ViewModel
     {
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+        ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         private string incomePrivMessage;
         private string outGoingPrivMessage;
@@ -17,8 +17,8 @@ namespace Gold_Client.ViewModel
 
         public PrivateMessagePresenter()
         {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientPrivMessage += OnClientPrivMessage;
+            getMessageFromServer.ProcessByte();
+            getMessageFromServer.ClientPrivMessage += OnClientPrivMessage;
         }
 
         public string IncomePrivMessage

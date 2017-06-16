@@ -1,4 +1,4 @@
-﻿
+﻿using Gold_Client.ViewModel.TabWindows;
 
 namespace Gold_Client.View.TabWindows
 {
@@ -6,6 +6,7 @@ namespace Gold_Client.View.TabWindows
     {
         public SuggestControl()
         {
+            DataContext = new UserSuggestPresenter();
             InitializeComponent();
         }
     }

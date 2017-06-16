@@ -70,7 +70,7 @@ namespace Gold_Client.ViewModel
             }
             connectDone.WaitOne();
 
-            User.cSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            User.cSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
             User.cSocket.Connect(ServerIpEndPoint);
             //Client.cSocket.BeginConnect(ipEndPoint, new AsyncCallback(OnConnect), null);

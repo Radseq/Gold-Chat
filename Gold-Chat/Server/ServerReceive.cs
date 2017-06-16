@@ -25,7 +25,7 @@ namespace Server
         ClientRegistration clientRegistration = new ClientRegistration();
         ClientChangePassword clientChangePassword = new ClientChangePassword();
         ClientLostPassword clientLostPassword = new ClientLostPassword();
-        ClientReSendActiveCode clientReSendActivCode = new ClientReSendActiveCode();
+        ClientSendActiveCode clientReSendActivCode = new ClientSendActiveCode();
         ClientLogout clientLogout = new ClientLogout();
         ClientMessages clientMessage = new ClientMessages();
 
@@ -59,7 +59,7 @@ namespace Server
         {
             // Retrieve the client and the handler socket  
             // from the asynchronous client.  
-            Client client = (Client)ar.AsyncState; // bad idea but catch need to see client, or maybe not bad idea because object is created and catch will not occur on constructor of class
+            Client client = (Client)ar.AsyncState;
 
             //Transform the array of bytes received from the user into an
             //intelligent form of object Data
@@ -92,7 +92,7 @@ namespace Server
                         clientLostPassword.RespondToClient();
                         break;
 
-                    case Command.ReSendActiveCode:
+                    case Command.SendActivationCode:
                         clientReSendActivCode.Load(client, Received);
                         clientReSendActivCode.Execute();
                         clientReSendActivCode.RespondToClient();

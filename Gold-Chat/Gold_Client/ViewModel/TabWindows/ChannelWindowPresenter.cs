@@ -10,7 +10,7 @@ namespace Gold_Client.ViewModel.TabWindows
 {
     class ChannelPresenter : ObservableObject
     {
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+        ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         string channelName = "";
@@ -18,12 +18,12 @@ namespace Gold_Client.ViewModel.TabWindows
 
         public ChannelPresenter()
         {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientChannelMessage += OnClientChannelMessage;
-            proccesReceiverInformation.ClientLogout += ClientLogout;
-            proccesReceiverInformation.ClientChannelEnter += OnClientChannelEnter;
-            proccesReceiverInformation.ClientListChannelUsers += OnClientListChannelUsers;
-            proccesReceiverInformation.ClientChannelLeave += OnClientChannelLeave;
+            getMessageFromServer.ProcessByte();
+            getMessageFromServer.ClientChannelMessage += OnClientChannelMessage;
+            getMessageFromServer.ClientLogout += ClientLogout;
+            getMessageFromServer.ClientChannelEnter += OnClientChannelEnter;
+            getMessageFromServer.ClientListChannelUsers += OnClientListChannelUsers;
+            getMessageFromServer.ClientChannelLeave += OnClientChannelLeave;
 
             showMessage("<<< Welcome Message: " + WelcomeChannelMsg + " >>>>" + "\r\n");
         }
@@ -53,23 +53,21 @@ namespace Gold_Client.ViewModel.TabWindows
             }
         }
 
-        private void AddToChannelUserList(string item)
+        private void AddToChannelUserList(string userName)
         {
-            if (!channelUsers.Contains(item))
-                channelUsers.Add(item);
+            if (!channelUsers.Contains(userName))
+                channelUsers.Add(userName);
         }
 
-        private void RemoveFromChannelUserList(string item)
+        private void RemoveFromChannelUserList(string userName)
         {
-            if (!channelUsers.Contains(item))
-                channelUsers.Remove(item);
+            if (!channelUsers.Contains(userName))
+                channelUsers.Remove(userName);
         }
 
         private void OnClientListChannelUsers(object sender, ClientEventArgs e)
         {
             string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray(); ;
-            //channelUsersList.AddRange(e.clientListMessage.Split('*'));
-            //channelUsersList.RemoveAt(channelUsersList.Count - 1);
             foreach (string name in splitNicks)
             {
                 AddToChannelUserList(name);

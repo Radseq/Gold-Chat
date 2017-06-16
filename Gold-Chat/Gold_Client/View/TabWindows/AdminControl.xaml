@@ -5,20 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" d:DesignWidth="425" Height="250">
     <Grid>
-        <Button Content="Create Color Scheme" Height="24" HorizontalAlignment="Left" Name="button1"  Width="156"  Click="button1_Click" Margin="10,10,0,216" />
-        <Button Content="Edit Color Scheme" Height="24" HorizontalAlignment="Left" x:Name="button2"  Width="156" Margin="10,45,0,181"  />
-        <Button Margin="10,81,259,145" Content="Delete Color Scheme" Height="24" x:Name="button3"  Width="156" />
+        <Button Content="Create Color Scheme" Height="24" HorizontalAlignment="Left" Name="button1"  Width="140"  Click="button1_Click" Margin="10,10,0,216" />
+        <Button Content="Edit Color Scheme" Height="24" HorizontalAlignment="Left" x:Name="button2"  Width="140" Margin="10,45,0,181"  />
+        <Button Margin="10,81,275,145" Content="Delete Color Scheme" Height="24" x:Name="button3" />
         <Label Content="Scheme Name:" Height="23" HorizontalAlignment="Left" Name="label4" VerticalAlignment="Top" Width="88" Margin="171,10,0,0" />
-        <TextBox Height="23" HorizontalAlignment="Left" Name="textBox1" VerticalAlignment="Top" Width="151" Margin="264,10,0,0" />
+        <TextBox Height="23" HorizontalAlignment="Left" Name="textBox1" VerticalAlignment="Top" Width="141" Margin="264,10,0,0" />
         <Label Content="Background Adjustment:" Height="25" Name="label2" VerticalAlignment="Top" HorizontalContentAlignment="Right" Margin="171,44,109,0" />
-        <Slider Name="RedSlider" Height="20" Background="Red" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="240" ValueChanged="BackgroundRedSlider_ValueChanged" Margin="171,70,10,160" />
-        <Slider Name="GreenSlider" Height="20" Background="Green" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="270" ValueChanged="BackgroundGreenSlider_ValueChanged" Margin="171,97,10,133" />
-        <Slider Name="BlueSlider" Height="20" Background="Blue" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="300" ValueChanged="BackgroundBlueSlider_ValueChanged" Margin="171,122,10,108" />
+        <Slider Name="RedSlider" Height="20" Background="Red" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="240" ValueChanged="BackgroundRedSlider_ValueChanged" Margin="171,70,20,160" />
+        <Slider Name="GreenSlider" Height="20" Background="Green" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="270" ValueChanged="BackgroundGreenSlider_ValueChanged" Margin="171,97,20,133" />
+        <Slider Name="BlueSlider" Height="20" Background="Blue" Maximum="255" Minimum="0" Canvas.Left="30" Canvas.Top="300" ValueChanged="BackgroundBlueSlider_ValueChanged" Margin="171,122,20,108" />
         <Rectangle Height="98" HorizontalAlignment="Left" Name="rectangle1" Stroke="Black" VerticalAlignment="Top" Width="100" Margin="18,112,0,0" />
         <Label Content="Extample" Height="27" HorizontalAlignment="Left" Name="label1" VerticalAlignment="Top" Width="84" Margin="34,146,0,0" FontWeight="Bold" />
         <Label Content="Foreground Adjustment:" Height="25" HorizontalAlignment="Left" Name="label3" VerticalAlignment="Top" Width="126" HorizontalContentAlignment="Right" Margin="171,144,0,0" />
-        <Slider Name="ForegroundRedSlider" Background="Red" Canvas.Left="30" Canvas.Top="240" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundBlueSlider_ValueChanged" Margin="171,169,10,61" />
-        <Slider Name="ForegroundGreenSlider" Background="Green" Canvas.Left="30" Canvas.Top="270" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundGreenSlider_ValueChanged" Margin="171,196,10,34" />
-        <Slider Name="ForegroundBlueSlider" Background="Blue" Canvas.Left="30" Canvas.Top="300" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundBlueSlider_ValueChanged" Margin="171,221,10,9" />
+        <Slider Name="ForegroundRedSlider" Background="Red" Canvas.Left="30" Canvas.Top="240" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundBlueSlider_ValueChanged" Margin="171,169,20,61" />
+        <Slider Name="ForegroundGreenSlider" Background="Green" Canvas.Left="30" Canvas.Top="270" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundGreenSlider_ValueChanged" Margin="171,196,20,34" />
+        <Slider Name="ForegroundBlueSlider" Background="Blue" Canvas.Left="30" Canvas.Top="300" Height="20" Maximum="255" Minimum="0" ValueChanged="ForegroundBlueSlider_ValueChanged" Margin="171,221,20,9" />
     </Grid>
 </UserControl>

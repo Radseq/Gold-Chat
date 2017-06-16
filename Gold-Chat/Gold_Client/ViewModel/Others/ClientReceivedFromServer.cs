@@ -1,14 +1,17 @@
-﻿using CommandClient;
-using Gold_Client.Model;
+﻿using Gold_Client.Model;
 using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
+using System.Windows;
 
 namespace Gold_Client.ViewModel
 {
     public class ClientReceivedFromServer
     {
         public event EventHandler<ClientEventArgs> ReceiveLogExcep;
+
+        public event EventHandler OnBufferChange;
 
         // Singleton
         static ClientReceivedFromServer instance = null;
@@ -29,21 +32,9 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        //public Client User
-        //{
-        //    get; set;
-        //}
-
-        //lets use config
-        //public Configuration config = new Configuration();
+        //private byte[] byteData = new byte[1024];
 
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
-
-        //public ClientReceivedFromServer()
-        //{
-        //    config = config.loadConfig();
-        //    //User = App.Client;
-        //}
 
         public void BeginReceive()
         {
@@ -55,25 +46,26 @@ namespace Gold_Client.ViewModel
         {
             try
             {
-                //var so = (StateObject)ar.AsyncState;
-
                 if (!App.Client.cSocket.Connected) return;
 
                 Client user = (Client)ar.AsyncState;
                 Socket socket = user.cSocket;
                 socket.EndReceive(ar);
-
                 receiveDone.Set();
-
                 socket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), user);
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    OnBufferChange?.Invoke(this, EventArgs.Empty);
+                });
+
             }
             catch (ObjectDisposedException ex)
             {
-                //Trace.WriteLine("[Networking]::NetBase.ReceiveCallback: SocketException");
                 OnReceiveLogExcep(ex.Message);
             }
             catch (Exception ex)
             {
+                Trace.WriteLine("[Networking]::ClientReceivedFromServer.ReceiveCallback:" + ex);
                 OnReceiveLogExcep(ex.Message);
             }
         }

@@ -76,7 +76,7 @@
     <Compile Include="ClientService\ClientMessages.cs" />
     <Compile Include="ClientService\ClientPrivateMessage.cs" />
     <Compile Include="ClientService\ClientRegistration.cs" />
-    <Compile Include="ClientService\ClientReSendActiveCode.cs" />
+    <Compile Include="ClientService\ClientSendActiveCode.cs" />
     <Compile Include="ClientService\ClientCreateChannel.cs" />
     <Compile Include="ClientService\GetListOfChannlsFromDataBase.cs" />
     <Compile Include="ClientService\List\SendChannelList.cs" />

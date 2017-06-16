@@ -38,7 +38,7 @@ namespace Server
             else if (query[0] != "") // query[0] Activation code must be "" if user want to login
             {
                 // User wont send activation code
-                Send.cmdCommand = Command.ReSendActiveCode;
+                Send.cmdCommand = Command.SendActivationCode;
                 Send.strMessage = "You must activate your account first.";
             }
             else

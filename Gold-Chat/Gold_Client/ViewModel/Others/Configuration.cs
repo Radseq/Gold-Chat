@@ -9,7 +9,7 @@ namespace Gold_Client.ViewModel
     {
         public bool loginEmailNotyfication { get; set; }
 
-        public void SaveConfig(Configuration conf) //Write Data
+        public void SaveConfig(Configuration conf)
         {
             try
             {
@@ -26,24 +26,21 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public Configuration loadConfig() //Load Data
+        public Configuration loadConfig()
         {
             Configuration conf;
             try
             {
                 string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
-                //If file exists
+
                 if (File.Exists(m_ConfigFileName))
                 {
                     XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
                     StreamReader sReader = new StreamReader(m_ConfigFileName);
                     return conf = (Configuration)xmlSer.Deserialize(sReader);
-                    //sReader.Close();
                 }
 
                 return new Configuration();
-                //Show Data
-                //ConfigToForm();
             }
             catch (Exception ex)
             {

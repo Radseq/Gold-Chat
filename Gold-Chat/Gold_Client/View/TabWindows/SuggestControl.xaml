@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel.TabWindows" mc:Ignorable="d" Height="250"
-             d:DataContext="{d:DesignInstance ViewModel:UserSuggestPresenter}" Width="420">
+             mc:Ignorable="d" Height="250"
+             Width="420">
 
     <Grid>
         <Label Content="Topic:" Height="25"  Margin="16,10,363,215" Name="label1"  Width="41" />

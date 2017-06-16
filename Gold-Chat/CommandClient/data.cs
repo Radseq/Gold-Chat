@@ -15,7 +15,7 @@ namespace CommandClient
         privMessage,    //Support private message from friend
 
         Registration,   //Registration 
-        ReSendActiveCode,    //Resend activation name to client
+        SendActivationCode,    //Resend activation name to client
 
         changePassword, //when client want to change password
         lostPassword,   //used to remember password

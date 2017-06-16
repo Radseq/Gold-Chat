@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Gold_Client.ViewModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Gold_Client.View
@@ -7,6 +8,8 @@ namespace Gold_Client.View
     {
         public LoginControl()
         {
+            LoginPresenter presenter = new LoginPresenter();
+            DataContext = presenter;
             InitializeComponent();
         }
 

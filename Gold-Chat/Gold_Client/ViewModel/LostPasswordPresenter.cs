@@ -13,8 +13,7 @@ namespace Gold_Client.ViewModel
         private string userCodeFromEmailTB = "0";
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+        ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
@@ -46,8 +45,8 @@ namespace Gold_Client.ViewModel
 
         public LostPasswordPresenter()
         {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientLostPass += OnClientLostPass;
+            getMessageFromServer.ProcessByte();
+            getMessageFromServer.ClientLostPass += OnClientLostPass;
         }
 
         private void OnClientLostPass(object sender, ClientEventArgs e)

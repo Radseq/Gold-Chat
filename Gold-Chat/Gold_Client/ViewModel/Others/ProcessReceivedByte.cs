@@ -1,21 +1,36 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gold_Client.ViewModel.Others
 {
     class ProcessReceivedByte
     {
-        Client User = App.Client;
+        //static Client User = App.Client;
+
+        // Singleton
+        static ProcessReceivedByte instance = null;
+        static readonly object padlock = new object();
+
+        // Singleton
+        public static ProcessReceivedByte Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                        instance = new ProcessReceivedByte();
+
+                    return instance;
+                }
+            }
+        }
 
         //For login
         public event EventHandler<ClientEventArgs> ClientRegistration;
-        public event EventHandler<ClientEventArgs> ClientReSendEmail;
+        public event EventHandler<ClientEventArgs> ClientSendActivCodeFromEmail;
         public event EventHandler<ClientEventArgs> ClientLogin;
         public event EventHandler<ClientEventArgs> ClientSuccesLogin;
         //For Main program
@@ -33,8 +48,8 @@ namespace Gold_Client.ViewModel.Others
         public event EventHandler<ClientEventArgs> ClientCreateChannel;
         public event EventHandler<ClientEventArgs> ClientJoinChannel;
         public event EventHandler<ClientEventArgs> ClientDeleteChannel;
-        public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
-        public event EventHandler<ClientEventArgs> ClientEditChannel; //edit
+        public event EventHandler<ClientEventArgs> ClientExitChannel;
+        public event EventHandler<ClientEventArgs> ClientEditChannel;
         public event EventHandler<ClientEventArgs> ClientListChannel;
         public event EventHandler<ClientEventArgs> ClientListChannelJoined;
         public event EventHandler<ClientEventArgs> ClientListChannelUsers;
@@ -59,24 +74,26 @@ namespace Gold_Client.ViewModel.Others
         public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
         //public event EventHandler<ClientEventArgs> ClientListIgnored;
 
-        public void ProccesBuffer()
+        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+
+        public void ProcessByte()
         {
-            User.OnBufferChange += User_onBufferChange;
+            clientReceive.OnBufferChange += User_onBufferChange;
         }
 
         private void User_onBufferChange(object sender, EventArgs e)
         {
-            Data msgReceived = new Data(User.Buffer);
+            Data msgReceived = new Data(App.Client.Buffer);
             //Accordingly process the message received
             switch (msgReceived.cmdCommand)
             {
                 case Command.Login:
-                    if (msgReceived.strName == User.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                    if (msgReceived.strName == App.Client.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
                     {
-                        OnClientSuccesLogin(true, User.cSocket);
-                        User.permission = int.Parse(msgReceived.strMessage2);
+                        OnClientSuccesLogin(true, App.Client.cSocket);
+                        App.Client.permission = int.Parse(msgReceived.strMessage2);
                     }
-                    // else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
+                    else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                     break;
 
                 case Command.Registration:
@@ -91,8 +108,8 @@ namespace Gold_Client.ViewModel.Others
                     OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
                     break;
 
-                case Command.ReSendActiveCode:
-                    OnClientReSendEmail(msgReceived.strMessage);
+                case Command.SendActivationCode:
+                    OnClientSendActivCodeFromEmail(msgReceived.strMessage);
                     break;
 
                 case Command.Logout:
@@ -127,7 +144,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.List:
-                    if (msgReceived.strMessage == "Channel") //if channel and msg is not empty (there is channels names)
+                    if (msgReceived.strMessage == "Channel")
                         OnClientChannelList(msgReceived.strMessage2);
                     else if (msgReceived.strMessage == "Friends")
                         OnClientFriendsList(msgReceived.strMessage2);
@@ -212,9 +229,9 @@ namespace Gold_Client.ViewModel.Others
             ClientRegistration?.Invoke(this, new ClientEventArgs() { clientRegMessage = ReceiveMessage });
         }
 
-        protected virtual void OnClientReSendEmail(string ReSendEmailMessage)
+        protected virtual void OnClientSendActivCodeFromEmail(string activCodeFromEmailMessage)
         {
-            ClientReSendEmail?.Invoke(this, new ClientEventArgs() { clientReSendEmailMessage = ReSendEmailMessage });
+            ClientSendActivCodeFromEmail?.Invoke(this, new ClientEventArgs() { clientSendActivCodeFromEmail = activCodeFromEmailMessage });
         }
 
         //For Main program

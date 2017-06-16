@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientReSendActiveCode : ServerResponds, IPrepareRespond
+    class ClientSendActiveCode : ServerResponds, IPrepareRespond
     {
         public event EventHandler<ClientEventArgs> ClientReSendAckCode;
 
@@ -39,7 +39,7 @@ namespace Server.ClientService
                 db.manySelect("SELECT register_id, email FROM users WHERE login = @login");
                 string[] query = db.tableToRow();
                 if (query != null)
-                    resentActivatonCodeToUser(query[0], userName, query[1]);
+                    sendActivatonCodeToUserEmail(query[0], userName, query[1]);
                 else Send.strMessage = "You are not registred";
             }
         }
@@ -60,19 +60,19 @@ namespace Server.ClientService
                 Send.strMessage = "Activation code not match.";
         }
 
-        private void resentActivatonCodeToUser(string regCode, string userName, string userEmail)
+        private void sendActivatonCodeToUserEmail(string regCode, string userName, string userEmail)
         {
             if (regCode != "")
             {
                 emailSender.SendEmail(userName, userEmail, "Gold Chat: Resended Register Code", "Here is your activation code: " + regCode);
-                Send.strMessage = "Activation code resended.";
-                OnClientReSendAckCode(userName, userEmail);
+                Send.strMessage = "Activation code sended.";
+                OnClientSendAckCode(userName, userEmail);
             }
             else
                 Send.strMessage = "You account is activ.";
         }
 
-        protected virtual void OnClientReSendAckCode(string cName, string cEmail)
+        protected virtual void OnClientSendAckCode(string cName, string cEmail)
         {
             ClientReSendAckCode?.Invoke(this, new ClientEventArgs() { clientName = cName, clientEmail = cEmail });
         }

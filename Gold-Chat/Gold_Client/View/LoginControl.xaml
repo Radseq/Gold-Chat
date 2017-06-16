@@ -3,9 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel" mc:Ignorable="d"
-             d:DesignWidth="282" 
-             d:DataContext="{d:DesignInstance ViewModel:LoginPresenter}" Height="106">
+             mc:Ignorable="d"
+             d:DesignWidth="282" Height="106">
     <UserControl.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
     </UserControl.InputBindings>

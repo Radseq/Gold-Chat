@@ -311,7 +311,7 @@ namespace Gold
                         OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
-                    case Command.ReSendActiveCode:
+                    case Command.SendActivationCode:
                         OnClientReSendEmail(msgReceived.strMessage);
                         break;
 

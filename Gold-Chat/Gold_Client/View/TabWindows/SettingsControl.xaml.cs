@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Gold_Client.ViewModel.TabWindows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Gold_Client.View.TabWindows
@@ -7,6 +8,7 @@ namespace Gold_Client.View.TabWindows
     {
         public SettingsControl()
         {
+            DataContext = new UserSettingsPresenter();
             InitializeComponent();
         }
 

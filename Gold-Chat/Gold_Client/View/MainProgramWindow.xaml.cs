@@ -5,6 +5,7 @@
     {
         public MainProgramWindow()
         {
+            //DataContext = new MainWindowPresenter();
             InitializeComponent();
         }
     }

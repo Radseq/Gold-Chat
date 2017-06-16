@@ -79,6 +79,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModel\MainContentPresenter.cs" />
     <Compile Include="ViewModel\Others\CloseableTabItem.cs" />
     <Compile Include="ViewModel\Others\ListsTakesFromServer.cs" />
     <Compile Include="ViewModel\Others\ProcessReceivedByte.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="ViewModel\TabWindows\ChannelWindowPresenter.cs" />
     <Compile Include="ViewModel\LostPasswordPresenter.cs" />
     <Compile Include="ViewModel\TabWindows\CreateRoomPresenter.cs" />
-    <Compile Include="ViewModel\TabWindows\MainContentPresenter.cs" />
+    <Compile Include="ViewModel\TabWindows\GlobalMessageContentPresenter.cs" />
     <Compile Include="ViewModel\TabWindows\UserSettingsPresenter.cs" />
     <Compile Include="ViewModel\TabWindows\UserSuggestPresenter.cs" />
     <Compile Include="View\LoginControl.xaml.cs">
@@ -101,6 +102,9 @@
     </Compile>
     <Compile Include="View\LostPasswordWindow.xaml.cs">
       <DependentUpon>LostPasswordWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MainContent.xaml.cs">
+      <DependentUpon>MainContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainProgramControl.xaml.cs">
       <DependentUpon>MainProgramControl.xaml</DependentUpon>
@@ -126,8 +130,8 @@
     <Compile Include="View\TabWindows\ChannelControl.xaml.cs">
       <DependentUpon>ChannelControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\TabWindows\MainContent.xaml.cs">
-      <DependentUpon>MainContent.xaml</DependentUpon>
+    <Compile Include="View\TabWindows\GlobalMessageContent.xaml.cs">
+      <DependentUpon>GlobalMessageContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TabWindows\AbouseControl.xaml.cs">
       <DependentUpon>AbouseControl.xaml</DependentUpon>
@@ -153,16 +157,16 @@
     <Compile Include="View\TabWindows\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>
-    <Page Include="App.xaml">
+    <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </Page>
+    </ApplicationDefinition>
     <Compile Include="Model\Client.cs" />
     <Compile Include="Model\ClientEventArgs.cs" />
     <Compile Include="Model\IClient.cs" />
     <Compile Include="ViewModel\Others\ClientConnectToServer.cs" />
     <Compile Include="ViewModel\Others\ClientLogin.cs" />
     <Compile Include="ViewModel\Others\ClientReceivedFromServer.cs" />
-    <Compile Include="ViewModel\ClientSendToServer.cs" />
+    <Compile Include="ViewModel\Others\ClientSendToServer.cs" />
     <Compile Include="ViewModel\Others\Configuration.cs" />
     <Compile Include="ViewModel\Others\DelegateCommand.cs" />
     <Compile Include="ViewModel\MainWindowPresenter.cs" />
@@ -188,6 +192,10 @@
     <Page Include="View\LostPasswordWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MainContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainProgramControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -221,7 +229,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\TabWindows\MainContent.xaml">
+    <Page Include="View\TabWindows\GlobalMessageContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

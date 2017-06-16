@@ -5,20 +5,20 @@ using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
 {
-    public class MainContentPresenter : ObservableObject
+    public class GlobalMessageContentPresenter : ObservableObject
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+        ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         private string incomeMsg;
         private string outcomeMsg;
 
-        public MainContentPresenter()
+        public GlobalMessageContentPresenter()
         {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientLogin += OnClientLogin;
-            proccesReceiverInformation.ClientLogout += OnClientLogout;
-            proccesReceiverInformation.ClientMessage += OnClientMessage;
+            getMessageFromServer.ProcessByte();
+            getMessageFromServer.ClientLogin += OnClientLogin;
+            getMessageFromServer.ClientLogout += OnClientLogout;
+            getMessageFromServer.ClientMessage += OnClientMessage;
         }
 
         public string IncomeMessageTB
@@ -50,16 +50,11 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
-            //if (!usersConnected.Contains(e.clientLoginName))
-            //{
-            //    usersConnected.Add(e.clientLoginName);
             IncomeMessageTB += e.clientLoginMessage + "\r\n";
-            // }
         }
 
         private void OnClientLogout(object sender, ClientEventArgs e)
         {
-            // usersConnected.Remove(e.clientLogoutMessage);
             IncomeMessageTB += "<<<" + e.clientLogoutMessage + " has left the room>>>" + "\r\n";
         }
 

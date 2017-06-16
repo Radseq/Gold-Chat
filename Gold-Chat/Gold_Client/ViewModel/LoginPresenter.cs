@@ -1,10 +1,8 @@
 ﻿using Gold_Client.View;
 using Gold_Client.ViewModel.Others;
-using System;
 using System.Security;
 using System.Windows;
 using System.Windows.Input;
-using Gold_Client.Model;
 
 namespace Gold_Client.ViewModel
 {
@@ -12,23 +10,7 @@ namespace Gold_Client.ViewModel
     {
         private string login;
 
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
-
         public SecureString SecurePassword { private get; set; }
-
-        public Action CloseAction { get; set; }
-
-        public LoginPresenter()
-        {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientSuccesLogin += OnClientSuccesLogin;
-        }
-
-        private void OnClientSuccesLogin(object sender, ClientEventArgs e)
-        {
-            CloseAction();
-        }
 
         public string LoginTB
         {
@@ -40,7 +22,7 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public ICommand LoginCommand => new DelegateCommand(p =>
+        public ICommand LoginCommand => new DelegateCommand(() =>
         {
             if (!string.IsNullOrWhiteSpace(login) && !string.IsNullOrWhiteSpace(new System.Net.NetworkCredential(string.Empty, SecurePassword).Password))
             {
@@ -52,14 +34,13 @@ namespace Gold_Client.ViewModel
 
         });
 
-        public ICommand RegistrationWindowCommand => new DelegateCommand(p =>
+        public ICommand RegistrationWindowCommand => new DelegateCommand(() =>
         {
             RegistrationWindow registration = new RegistrationWindow();
             registration.Show();
-
         });
 
-        public ICommand LostPasswordWindowCommand => new DelegateCommand(p =>
+        public ICommand LostPasswordWindowCommand => new DelegateCommand(() =>
         {
             LostPasswordWindow lostPassWindow = new LostPasswordWindow();
             lostPassWindow.Show();

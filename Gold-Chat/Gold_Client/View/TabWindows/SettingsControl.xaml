@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel.TabWindows" mc:Ignorable="d" Height="250"
-             d:DataContext="{d:DesignInstance ViewModel:UserSettingsPresenter}" Width="425">
+             mc:Ignorable="d" Height="250"
+             Width="425">
     <Grid>
         <Label Content="Colour Sheme" Height="28" Margin="98.5,1,111.5,221" x:Name="label1"  Width="111" />
         <Label Content="New Password" Height="28"  Margin="98.5,56,105.5,166" x:Name="label2"  Width="117" />

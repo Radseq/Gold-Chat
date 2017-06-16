@@ -18,15 +18,15 @@ namespace Gold_Client.ViewModel
         private bool emailTBIsFocusable;
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ProcessReceivedByte proccesReceiverInformation = new ProcessReceivedByte();
+        ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
         public RegistrationPresenter()
         {
-            proccesReceiverInformation.ProccesBuffer();
-            proccesReceiverInformation.ClientRegistration += OnClientReceiveFromServer;
+            getMessageFromServer.ProcessByte();
+            getMessageFromServer.ClientRegistration += OnClientReceiveFromServer;
         }
 
         private void OnClientReceiveFromServer(object sender, ClientEventArgs e)
@@ -142,7 +142,7 @@ namespace Gold_Client.ViewModel
                     clientSendToServer.SendToServer(Command.Registration, clientSendToServer.CalculateChecksum
                         (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password), email);
 
-                    proccesReceiverInformation.ClientRegistration += OnClientRegistration;
+                    getMessageFromServer.ClientRegistration += OnClientRegistration;
                 }
             }
             else

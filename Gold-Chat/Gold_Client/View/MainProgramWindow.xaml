@@ -9,6 +9,14 @@
 
         Title="Gold Chat" ResizeMode="NoResize"
         SizeToContent="WidthAndHeight">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type ViewModel:LoginPresenter}">
+            <View:LoginControl/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ViewModel:MainContentPresenter}">
+            <View:MainContent/>
+        </DataTemplate>
+    </Window.Resources>
     <Window.DataContext>
         <ViewModel:MainWindowPresenter/>
     </Window.DataContext>
