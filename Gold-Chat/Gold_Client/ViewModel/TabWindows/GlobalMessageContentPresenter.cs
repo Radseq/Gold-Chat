@@ -15,7 +15,6 @@ namespace Gold_Client.ViewModel.TabWindows
 
         public GlobalMessageContentPresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientLogin += OnClientLogin;
             getMessageFromServer.ClientLogout += OnClientLogout;
             getMessageFromServer.ClientMessage += OnClientMessage;

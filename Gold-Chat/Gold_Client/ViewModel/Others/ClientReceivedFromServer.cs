@@ -11,7 +11,7 @@ namespace Gold_Client.ViewModel
     {
         public event EventHandler<ClientEventArgs> ReceiveLogExcep;
 
-        public event EventHandler OnBufferChange;
+        public event EventHandler OnDataReceived;
 
         // Singleton
         static ClientReceivedFromServer instance = null;
@@ -39,6 +39,10 @@ namespace Gold_Client.ViewModel
         public void BeginReceive()
         {
             App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), App.Client);
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                OnDataReceived?.Invoke(this, EventArgs.Empty);
+            });
             receiveDone.WaitOne();
         }
 
@@ -50,12 +54,13 @@ namespace Gold_Client.ViewModel
 
                 Client user = (Client)ar.AsyncState;
                 Socket socket = user.cSocket;
-                socket.EndReceive(ar);
-                receiveDone.Set();
+                int bytesRead = socket.EndReceive(ar);
+
                 socket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), user);
+                receiveDone.Set();
                 Application.Current.Dispatcher.Invoke(delegate
                 {
-                    OnBufferChange?.Invoke(this, EventArgs.Empty);
+                    OnDataReceived?.Invoke(this, EventArgs.Empty);
                 });
 
             }

@@ -7,7 +7,7 @@ namespace Gold_Client.ViewModel.Others
 {
     class ProcessReceivedByte
     {
-        //static Client User = App.Client;
+        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
 
         // Singleton
         static ProcessReceivedByte instance = null;
@@ -26,6 +26,11 @@ namespace Gold_Client.ViewModel.Others
                     return instance;
                 }
             }
+        }
+
+        private ProcessReceivedByte()
+        {
+            clientReceive.OnDataReceived += ProccesData;
         }
 
         //For login
@@ -74,14 +79,7 @@ namespace Gold_Client.ViewModel.Others
         public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
         //public event EventHandler<ClientEventArgs> ClientListIgnored;
 
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
-
-        public void ProcessByte()
-        {
-            clientReceive.OnBufferChange += User_onBufferChange;
-        }
-
-        private void User_onBufferChange(object sender, EventArgs e)
+        private void ProccesData(object sender, EventArgs e)
         {
             Data msgReceived = new Data(App.Client.Buffer);
             //Accordingly process the message received

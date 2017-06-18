@@ -25,7 +25,6 @@ namespace Gold_Client.ViewModel
 
         public RegistrationPresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientRegistration += OnClientReceiveFromServer;
         }
 

@@ -45,7 +45,6 @@ namespace Gold_Client.ViewModel
 
         public LostPasswordPresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientLostPass += OnClientLostPass;
         }
 

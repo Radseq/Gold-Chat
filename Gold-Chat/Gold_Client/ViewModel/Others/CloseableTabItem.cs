@@ -39,11 +39,8 @@ namespace Gold_Client.ViewModel
             ObservableCollection<object> tb = tabControlItems;
 
             if (isChannel)
-            {
-                // a moze tutaj lepiej
-                getMessageFromServer.ProcessByte();
                 getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
-            }
+            
 
             // Close button to remove the tab
             var closeButton = new TabCloseButton();
@@ -55,13 +52,7 @@ namespace Gold_Client.ViewModel
                     //tabControl.Items.Remove(this);
                     tb.Remove(this);
                     if (isChannel)
-                    {
-                        //przeniesione z konstruktora tej klasy, nie wiem czy zadziala 
-                        //getMessageFromServer.ProcessByte();
-                        //getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
-                        //lub jak w lini 41
                         clientSendToServer.SendToServer(Command.leaveChannel, tabControlName);
-                    }
                 };
             dockPanel.Children.Add(closeButton);
 

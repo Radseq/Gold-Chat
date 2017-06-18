@@ -18,7 +18,6 @@ namespace Gold_Client.ViewModel.TabWindows
 
         public ChannelPresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientChannelMessage += OnClientChannelMessage;
             getMessageFromServer.ClientLogout += ClientLogout;
             getMessageFromServer.ClientChannelEnter += OnClientChannelEnter;

@@ -15,7 +15,6 @@ namespace Gold_Client.ViewModel
 
         public MainWindowPresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientSuccesLogin += OnClientSuccesLogin;
 
             LoginCommand = new DelegateCommand(OpenLogin);

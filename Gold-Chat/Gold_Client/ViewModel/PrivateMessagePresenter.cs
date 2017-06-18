@@ -17,7 +17,6 @@ namespace Gold_Client.ViewModel
 
         public PrivateMessagePresenter()
         {
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientPrivMessage += OnClientPrivMessage;
         }
 

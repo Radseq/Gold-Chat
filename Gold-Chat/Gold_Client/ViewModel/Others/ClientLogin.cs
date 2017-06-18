@@ -27,8 +27,6 @@ namespace Gold_Client.ViewModel
             User = App.Client;
 
             loginNotyfi = config.loginEmailNotyfication; //load config value
-
-            getMessageFromServer.ProcessByte();
             getMessageFromServer.ClientSendActivCodeFromEmail += OnClientReSendEmail;
             clientReceive.ReceiveLogExcep += OnReceiveLogExcep;
         }

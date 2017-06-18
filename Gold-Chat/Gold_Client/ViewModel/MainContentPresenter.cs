@@ -45,7 +45,6 @@ namespace Gold_Client.ViewModel
 
         public MainContentPresenter()
         {
-            proccesReceiverInformation.ProcessByte();
             proccesReceiverInformation.ClientLogin += OnClientLogin;
             proccesReceiverInformation.ClientLogout += OnClientLogout;
             proccesReceiverInformation.ClientList += OnClientList;
