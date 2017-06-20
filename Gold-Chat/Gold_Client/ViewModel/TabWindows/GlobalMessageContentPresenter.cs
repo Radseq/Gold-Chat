@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using Gold_Client.ViewModel.Others;
+using System;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
@@ -59,7 +60,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void OnClientMessage(object sender, ClientEventArgs e)
         {
-            IncomeMessageTB += e.clientMessage;
+            IncomeMessageTB += e.clientMessage + Environment.NewLine;
         }
     }
 }

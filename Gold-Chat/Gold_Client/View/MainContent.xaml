@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              d:DesignWidth="550"  Height="270">
     <Grid>
-        <TabControl ItemsSource="{Binding TabControlItems}" SelectedIndex="0" Width="420" Margin="0,0,130,0"/>
+        <TabControl ItemsSource="{Binding TabControlItems}" SelectedIndex="{Binding SelectedTabControlIndex}" Width="420" Margin="0,0,130,0"/>
 
         <StackPanel Margin="425,0,0,0" >
             <Expander Header="Menu">
@@ -84,9 +84,8 @@
                 <ListBox ItemsSource="{Binding UsersConnected}" SelectedItem="{Binding SelectedUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Click" Command="{Binding AddFriendHandleCommand}" />
-                            <MenuItem Header="Click" Command="{Binding PrivateMsgToUserCommand}" />
-                            <MenuItem Header="Click" Command="{Binding IgnoreUserCommand}" />
+                            <MenuItem Header="{Binding AddFriendHeaderCommand}" Command="{Binding AddFriendHandleCommand}" />
+                            <MenuItem Header="{Binding AddToIgnoreHeaderCommand}" Command="{Binding IgnoreUserCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -96,8 +95,8 @@
                     <!--MouseDoubleClick="{Binding PrivateMsgToFriendCommand}"-->
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Click" Command="{Binding DeleteFriendCommand}" />
-                            <MenuItem Header="Click" Command="{Binding PrivateMsgToFriendCommand}" />
+                            <MenuItem Header="{Binding DeleteFriendHeaderCommand}" Command="{Binding DeleteFriendCommand}" />
+                            <MenuItem Header="{Binding PrivMsgHeaderCommand}" Command="{Binding PrivateMsgToFriendCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -106,7 +105,7 @@
                 <ListBox ItemsSource="{Binding IgnoredUsers}" SelectedItem="{Binding SelectedIgnoredUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Click" Command="{Binding DeleteIgnoredUserCommand}" />
+                            <MenuItem Header="{Binding DeleteIgnoredHeaderCommand}" Command="{Binding DeleteIgnoredUserCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -115,7 +114,7 @@
                 <ListBox ItemsSource="{Binding Lobbies}" SelectedItem="{Binding SelectedLobbie}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Click" Command="{Binding JoinToLobbieCommand}" />
+                            <MenuItem Header="{Binding JoinToLobbieHeaderCommand}" Command="{Binding JoinToLobbieCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -123,13 +122,13 @@
             <Expander Header="JoinedChannels">
                 <ListBox ItemsSource="{Binding JoinedChannelsList}" SelectedItem="{Binding SelectedJoinedLobbie}" 
                     IsSynchronizedWithCurrentItem="True">
-                    <!--MouseDoubleClick="{Binding EnterToJoinedChannelCommand}"-->
+                    <!-- MouseDoubleClick="{Binding EnterToJoinedChannelCommand}" give error -> (cry) -->
                     <ListBox.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Click" Command="{Binding EnterToJoinedChannelCommand}" />
-                            <MenuItem Header="Click" Command="{Binding LeaveChannelCommand}" />
-                            <MenuItem Header="Click" Command="{Binding ExitChannelCommand}" />
-                            <MenuItem Header="Click" Command="{Binding DeleteChannelCommand}" />
+                            <MenuItem Header="{Binding EnterToLobbieHeaderCommand}" Command="{Binding EnterToJoinedChannelCommand}" />
+                            <MenuItem Header="{Binding LeaveLobbieHeaderCommand}" Command="{Binding LeaveChannelCommand}" />
+                            <MenuItem Header="{Binding ExitLobbieHeaderCommand}" Command="{Binding ExitChannelCommand}" />
+                            <MenuItem Header="{Binding DeleteToLobbieHeaderCommand}" Command="{Binding DeleteChannelCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>

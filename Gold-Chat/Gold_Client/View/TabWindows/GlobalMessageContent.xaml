@@ -9,7 +9,7 @@
         <KeyBinding Key="Enter" Command="{Binding MessageCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <TextBox Text="{Binding IncomeMessageTB, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" TextWrapping="Wrap" Margin="10,10,10,60" />
+        <TextBox Text="{Binding IncomeMessageTB, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" Margin="10,10,10,60" />
         <TextBox Text="{Binding OutcomeMessageTB, UpdateSourceTrigger=PropertyChanged}" Margin="10,195,86,10"/>
         <Button Content="Send" Command="{Binding MessageCommand}" Margin="319,195,10,10" />
     </Grid>

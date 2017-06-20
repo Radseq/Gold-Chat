@@ -4,13 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"
-             d:DesignWidth="425" Height="267">
+             d:DesignWidth="425" Height="245">
     <UserControl.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding SendChannelMsgCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <TextBox Text="{Binding ChannelMsgRe}" HorizontalAlignment="Left" Height="208" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" IsEnabled="False"/>
-        <TextBox Text="{Binding ChannelMsgToSend, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="35" Margin="10,223,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="405"/>
-        <ListBox ItemsSource="{Binding ChannelUsers}" HorizontalAlignment="Left" Height="208" Margin="315,10,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox Text="{Binding ChannelMsgReceived}" HorizontalAlignment="Left" Height="186" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" IsEnabled="False"/>
+        <TextBox Text="{Binding ChannelMsgToSend, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="35" Margin="10,201,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="405"/>
+        <ListBox ItemsSource="{Binding ChannelUsers}" HorizontalAlignment="Left" Height="186" Margin="315,10,0,0" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </UserControl>

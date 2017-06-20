@@ -10,8 +10,9 @@ namespace Gold_Client.View
     {
         public MainContent()
         {
-            MainContentPresenter presenter = new MainContentPresenter();
-            DataContext = presenter;
+            //MainContentPresenter presenter = new MainContentPresenter();
+            //DataContext = presenter;
+            // DataContext is added in MainProgramWindow.xaml file line:20
             InitializeComponent();
         }
     }

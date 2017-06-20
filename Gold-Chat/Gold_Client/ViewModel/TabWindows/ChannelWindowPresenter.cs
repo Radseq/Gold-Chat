@@ -13,8 +13,8 @@ namespace Gold_Client.ViewModel.TabWindows
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
-        string channelName = "";
-        string WelcomeChannelMsg = "";
+        public string channelName = "";
+        public string WelcomeChannelMsg = "";
 
         public ChannelPresenter()
         {

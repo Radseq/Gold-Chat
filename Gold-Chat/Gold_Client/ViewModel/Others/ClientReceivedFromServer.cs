@@ -31,18 +31,11 @@ namespace Gold_Client.ViewModel
                 }
             }
         }
-
-        //private byte[] byteData = new byte[1024];
-
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         public void BeginReceive()
         {
             App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), App.Client);
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                OnDataReceived?.Invoke(this, EventArgs.Empty);
-            });
             receiveDone.WaitOne();
         }
 
@@ -55,14 +48,14 @@ namespace Gold_Client.ViewModel
                 Client user = (Client)ar.AsyncState;
                 Socket socket = user.cSocket;
                 int bytesRead = socket.EndReceive(ar);
+                //working too slow, thats why user must loggin many times
+                Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    OnDataReceived?.Invoke(this, EventArgs.Empty);
+                }));
 
                 socket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), user);
                 receiveDone.Set();
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    OnDataReceived?.Invoke(this, EventArgs.Empty);
-                });
-
             }
             catch (ObjectDisposedException ex)
             {

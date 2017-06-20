@@ -116,7 +116,7 @@ namespace Gold_Client.ViewModel.Others
 
                 case Command.Message:
                     if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
-                        OnClientMessage(msgReceived.strMessage + "\r\n");
+                        OnClientMessage(msgReceived.strMessage);
                     else
                         OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
                     break;

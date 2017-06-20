@@ -5,7 +5,7 @@ namespace Gold_Client
 {
     public partial class App : Application
     {
-        public static Client Client = Client.Instance;
+        public static Client Client = new Client();
 
         //[STAThread]
         //static void Main()

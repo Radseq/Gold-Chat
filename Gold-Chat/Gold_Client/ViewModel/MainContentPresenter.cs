@@ -26,6 +26,8 @@ namespace Gold_Client.ViewModel
         //public IEnumerable<object> TabControlItems => tabControlItems;
         public ObservableCollection<object> TabControlItems { get { return tabControlItems; } }
 
+        public int selectedTabControlIndex = 0;
+
         private readonly ObservableCollection<string> usersConnected = new ObservableCollection<string>();
         private readonly ObservableCollection<string> friendlyUsersConnected = new ObservableCollection<string>();
         private readonly ObservableCollection<string> ignoredUsers = new ObservableCollection<string>();
@@ -45,6 +47,8 @@ namespace Gold_Client.ViewModel
 
         public MainContentPresenter()
         {
+            User = App.Client;
+
             proccesReceiverInformation.ClientLogin += OnClientLogin;
             proccesReceiverInformation.ClientLogout += OnClientLogout;
             proccesReceiverInformation.ClientList += OnClientList;
@@ -62,6 +66,7 @@ namespace Gold_Client.ViewModel
             proccesReceiverInformation.ClientListChannel += OnClientListChannel;
             proccesReceiverInformation.ClientChannelEnter += OnClientChannelEnter;
             proccesReceiverInformation.ClientChannelEnterDeny += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+
             proccesReceiverInformation.ClientListChannelJoined += OnClientListChannelJoined;
             //friends
             proccesReceiverInformation.ClientAddFriend += OnClientAddFriend;
@@ -78,11 +83,23 @@ namespace Gold_Client.ViewModel
             InformServerToSendUserLists informServerToSendUserLists = new InformServerToSendUserLists();
 
             addTab(new GlobalMessageContent(), "Main");
+            SelectedTabControlIndex = 0;
         }
 
         public Client User
         {
             get; set;
+        }
+
+        public int SelectedTabControlIndex
+        {
+            get { return selectedTabControlIndex; }
+
+            set
+            {
+                selectedTabControlIndex = value;
+                RaisePropertyChangedEvent(nameof(SelectedTabControlIndex));
+            }
         }
 
         #region Selected ListBox Commands
@@ -271,7 +288,20 @@ namespace Gold_Client.ViewModel
             string joinedChannel = selectedJoinedLobbie;
             if (joinedChannelsList.Contains(joinedChannel))
                 clientSendToServer.SendToServer(Command.enterChannel, joinedChannel);
+
+            SelectedTabControlIndex = GetLastTabControlElement();
         });
+
+        // Can do some function in CloseableTabItem to get tab name and use that name to select index
+        private int GetLastTabControlElement()
+        {
+            int index = 0;
+            foreach (var closeTableItem in tabControlItems)
+            {
+                index++;
+            }
+            return index;
+        }
 
         public ICommand LeaveChannelCommand => new DelegateCommand(() =>
         {
@@ -305,6 +335,58 @@ namespace Gold_Client.ViewModel
         });
         #endregion
 
+        #endregion
+
+        #region Selected Lists Headers
+        public string AddFriendHeaderCommand
+        {
+            get { return "Add " + selectedUser + " to friend list"; }
+        }
+
+        public string AddToIgnoreHeaderCommand
+        {
+            get { return "Add " + selectedUser + " to ignored list"; }
+        }
+
+        public string DeleteFriendHeaderCommand
+        {
+            get { return "Delete " + selectedFriendlyUser + " from friend list?"; }
+        }
+
+        public string PrivMsgHeaderCommand
+        {
+            get { return "Send private message to " + selectedFriendlyUser; }
+        }
+
+        public string DeleteIgnoredHeaderCommand
+        {
+            get { return  "Delete " + selectedIgnoredUser + " from ignored list?"; }
+        }
+
+        public string JoinToLobbieHeaderCommand
+        {
+            get { return  "Join to " + selectedLobbie; }
+        }
+
+        public string EnterToLobbieHeaderCommand
+        {
+            get { return  "Enter to " + selectedJoinedLobbie; }
+        }
+
+        public string LeaveLobbieHeaderCommand
+        {
+            get { return  "Leave from " + selectedJoinedLobbie + "?"; }
+        }
+
+        public string ExitLobbieHeaderCommand
+        { // Todo function thats return string and shows message box (yes|no)
+            get { return  "Exit from" + selectedJoinedLobbie + "?"; }
+        }
+
+        public string DeleteToLobbieHeaderCommand
+        { // Todo function thats chceck if you are owner of channel
+            get { return  "Delete channel " + selectedJoinedLobbie + "?"; }
+        }
         #endregion
 
         private void OnClientLogin(object sender, ClientEventArgs e)

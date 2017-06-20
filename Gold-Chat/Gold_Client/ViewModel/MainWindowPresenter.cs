@@ -22,7 +22,7 @@ namespace Gold_Client.ViewModel
 
             dispatcherTimer.Tick += new EventHandler(SendToServerAsk);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Start();
+            //dispatcherTimer.Start();
 
             LoginCommand.Execute(null); // Firt navigate to login window
         }
@@ -52,9 +52,8 @@ namespace Gold_Client.ViewModel
             //newWindowThread.SetApartmentState(ApartmentState.STA);
             //newWindowThread.IsBackground = true;
             //newWindowThread.Start();
+            MainWindowCommand.Execute(null);
             isUserLogged = true;
-
-            //MainWindowCommand.CanExecute(null);
         }
 
         public ICommand LoginCommand { get; set; }
