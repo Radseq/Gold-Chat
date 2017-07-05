@@ -46,9 +46,8 @@ namespace Server.ClientService
         private int inserUserLostPasswordCodeToDb(string[] respond, string generatedCode)
         {
             int id_user = Int32.Parse(respond[0]);
-            DateTime theDate = DateTime.Now;
-            theDate.ToString("MM-dd-yyyy HH:mm");
-            db.bind(new string[] { "idUser", id_user.ToString(), "Code", generatedCode, "CodeCreateDate", theDate.ToString() });
+
+            db.bind(new string[] { "idUser", id_user.ToString(), "Code", generatedCode, "CodeCreateDate", Utilities.getDataTimeNow() });
             int created = db.delUpdateInsertDb("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
             return created;
         }

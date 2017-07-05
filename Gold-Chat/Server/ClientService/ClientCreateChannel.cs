@@ -10,7 +10,7 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientCreateChannelEvent;
 
         //list of all channels
-        private List<Channel> ListOfChannels;
+        private List<Channel> ChannelsList;
         List<Client> ListOfClientsOnline;
 
         DataBaseManager db = DataBaseManager.Instance;
@@ -19,7 +19,7 @@ namespace Server.ClientService
         {
             Client = client;
             Received = receive;
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
             ListOfClientsOnline = clientList;
         }
 
@@ -59,10 +59,8 @@ namespace Server.ClientService
 
             prepareResponse();
 
-            DateTime theDate = DateTime.Now;
-            theDate.ToString("MM-dd-yyyy HH:mm");
-
-            db.bind(new string[] { "idUser", Client.id.ToString(), "channelName", roomName, "enterPass", enterPassword, "adminPass", adminPassword, "maxUsers", 5.ToString(), "createDate", theDate.ToString(), "welcomeMessage", welcomeMsg });
+            db.bind(new string[] { "idUser", Client.id.ToString(), "channelName", roomName, "enterPass", enterPassword, "adminPass",
+                adminPassword, "maxUsers", 5.ToString(), "createDate", Utilities.getDataTimeNow(), "welcomeMessage", welcomeMsg });
             int insertChannelIntoDbResult = db.delUpdateInsertDb("INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
                 "VALUES (@idUser, @channelName, @enterPass, @adminPass, @maxUsers, @createDate, @welcomeMessage)");
 
@@ -72,9 +70,9 @@ namespace Server.ClientService
                 Send.strMessage2 = "CreatedChannel";
                 Send.strMessage3 = null;
                 Send.strMessage4 = null;
- 
+
                 // Add channel to as channels list
-                ListOfChannels.Add(new Channel(roomName, Client.id));
+                ChannelsList.Add(new Channel(db.getLastInsertedID(), roomName, Client.id));
 
                 ClientJoinChannel clientJoinToChannel = new ClientJoinChannel(); // After user create channel we want to make him join
                 clientJoinToChannel.Send = Send;

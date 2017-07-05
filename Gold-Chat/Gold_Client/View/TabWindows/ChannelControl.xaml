@@ -11,6 +11,14 @@
     <Grid>
         <TextBox Text="{Binding ChannelMsgReceived}" HorizontalAlignment="Left" Height="186" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" IsEnabled="False"/>
         <TextBox Text="{Binding ChannelMsgToSend, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="35" Margin="10,201,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="405"/>
-        <ListBox ItemsSource="{Binding ChannelUsers}" HorizontalAlignment="Left" Height="186" Margin="315,10,0,0" VerticalAlignment="Top" Width="100"/>
+        <ListBox ItemsSource="{Binding ChannelUsers}"  SelectedItem="{Binding SelectedUser}" HorizontalAlignment="Left" Height="186" Margin="315,10,0,0" VerticalAlignment="Top" Width="100">
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{Binding KickUserHeaderCommand}" Command="{Binding KickUserCommand}" />
+                    <MenuItem Header="{Binding DeleteUserHeaderCommand}" Command="{Binding DeleteUserCommand}" />
+                    <MenuItem Header="{Binding BanUserHeaderCommand}" Command="{Binding BanUserCommand}" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
     </Grid>
 </UserControl>

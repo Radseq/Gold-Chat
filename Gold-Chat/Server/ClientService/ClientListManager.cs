@@ -11,7 +11,7 @@ namespace Server.ClientService
         protected DataBaseManager db = DataBaseManager.Instance;
 
         public event EventHandler<ClientEventArgs> ClientListEvent;
-        protected List<Channel> ListOfChannels;
+        protected List<Channel> ChannelsList;
         protected List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
@@ -19,7 +19,7 @@ namespace Server.ClientService
             Received = receive;
             Client = client;
             ListOfClientsOnline = clientList;
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
         }
 
         public void Execute()
@@ -42,12 +42,12 @@ namespace Server.ClientService
             }
             else if (Received.strMessage == "Channel")
             {
-                SendChannelList sendChannelList = new SendChannelList(ListOfChannels, Send);
+                SendChannelList sendChannelList = new SendChannelList(ChannelsList, Send);
                 sendChannelList.Execute();
             }
             else if (Received.strMessage == "ChannelUsers") //send user with enter to channel list of users
             {
-                SendListOfUsersInChannel sendListOfUsersInChannel = new SendListOfUsersInChannel(ListOfChannels, Send, Received);
+                SendListOfUsersInChannel sendListOfUsersInChannel = new SendListOfUsersInChannel(ChannelsList, Send, Received);
                 sendListOfUsersInChannel.Execute();
             }
             else {

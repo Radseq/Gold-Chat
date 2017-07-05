@@ -3,35 +3,30 @@ using System.Collections.Generic;
 
 namespace Server.ResponseMessages
 {
-    class SendMessageToNick : Respond, IServerSend, IServerReceive, IClient
+    class SendMessageToNick : Respond, IServerSend
     {
         List<Client> ListOfClientsOnline;
 
         public Data Send { get; set; }
-        public Data Received { get; set; }
-        public Client Client { get; set; }
 
-        public SendMessageToNick(Client client, List<Client> clientList, Data send, Data received)
+        public SendMessageToNick(List<Client> clientList, Data send)
         {
-            Client = client;
             ListOfClientsOnline = clientList;
             Send = send;
-            Received = received;
         }
 
-        public void prepareRespond()
-        {
-            Send.strMessage2 = Client.strName;
-            Send.strName = Received.strMessage2;
-        }
+        //public void prepareRespond()
+        //{
+        //    Send.strMessage2 = Client.strName;
+        //    Send.strName = Received.strMessage2;
+        //}
 
         public void ResponseToNick()
         {
-            foreach (Client cInfo in ListOfClientsOnline)
-            {
-                if (cInfo.strName == Send.strName)
-                    Response(Send.ToByte(), cInfo);
-            }
+            Client client = ClientGets.getClinetByName(ListOfClientsOnline, Send.strName);
+            if (client != null)
+                Response(Send.ToByte(), client);
+
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Server.ClientService.List
     {
         public SendListOfUsersInChannel(List<Channel> channelList, Data send, Data received)
         {
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
             Send = send;
             Received = received;
         }
@@ -16,14 +16,13 @@ namespace Server.ClientService.List
         public new void Execute()
         {
             //prepareResponse();
-            foreach (Channel channel in ListOfChannels)
+            Channel channel = ChannelGets.getChannelByName(ChannelsList, Received.strMessage2);
+            if (channel != null)
             {
-                if (channel.ChannelName == Received.strMessage2)
-                {
-                    foreach (string userName in channel.Users)
-                        Send.strMessage3 += userName + "*";
-                }
+                foreach (string userName in channel.Users)
+                    Send.strMessage3 += userName + "*";
             }
+
         }
     }
 }

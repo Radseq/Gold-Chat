@@ -7,7 +7,6 @@ namespace Gold_Client.ViewModel
 {
     class PrivateMessagePresenter : ObservableObject
     {
-
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
@@ -18,6 +17,17 @@ namespace Gold_Client.ViewModel
         public PrivateMessagePresenter()
         {
             getMessageFromServer.ClientPrivMessage += OnClientPrivMessage;
+            getMessageFromServer.ClientLogout += OnClientLogout;
+        }
+
+        private void OnClientLogout(object sender, ClientEventArgs e)
+        {
+            IncomePrivMessage += "<<<" + e.clientLogoutMessage + " has logout >>>" + "\r\n";
+        }
+
+        public void ShowFirstMessageWhenWindowShow(string message)
+        {
+            IncomePrivMessage = message;
         }
 
         public string IncomePrivMessage
@@ -44,6 +54,7 @@ namespace Gold_Client.ViewModel
         {
             if (string.IsNullOrWhiteSpace(OutGoingPrivMessage)) return;
             clientSendToServer.SendToServer(Command.privMessage, OutGoingPrivMessage, FriendName);
+            OutGoingPrivMessage = null;
         });
 
         private void OnClientPrivMessage(object sender, ClientEventArgs e)

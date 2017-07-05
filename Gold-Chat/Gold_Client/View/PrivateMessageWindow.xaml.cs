@@ -4,12 +4,15 @@ namespace Gold_Client.View
 {
     public partial class PrivateMessageWindow : Window
     {
-        public PrivateMessageWindow(string FriendName)
+        public PrivateMessageWindow(string FriendName, string firstMessage = null)
         {
             InitializeComponent();
-            //TODO Debug and see because should be in Control not window
             if (DataContext != null)
-            { ((dynamic)DataContext).FriendName = FriendName; }
+            {
+                ((dynamic)DataContext).FriendName = FriendName;
+                if (firstMessage != null)
+                    ((dynamic)DataContext).ShowFirstMessageWhenWindowShow(firstMessage);
+            }
         }
     }
 }

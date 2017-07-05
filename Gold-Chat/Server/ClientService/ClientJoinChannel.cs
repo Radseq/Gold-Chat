@@ -61,10 +61,7 @@ namespace Server.ClientService
 
         private void insertUserJoinedChannelToDb(int idChannelDb, string channelName)
         {
-            DateTime theDate = DateTime.Now;
-            theDate.ToString("MM-dd-yyyy HH:mm");
-
-            db.bind(new string[] { "idUser", Client.id.ToString(), "idChannel", idChannelDb.ToString(), "joinDate", theDate.ToString() });
+            db.bind(new string[] { "idUser", Client.id.ToString(), "idChannel", idChannelDb.ToString(), "joinDate", Utilities.getDataTimeNow() });
             int created = db.delUpdateInsertDb("INSERT INTO user_channel (id_user, id_channel, join_date) " + "VALUES (@idUser, @idChannel, @joinDate)");
 
             if (created > 0)
@@ -73,7 +70,6 @@ namespace Server.ClientService
                 {
                     Send.strMessage2 = "You are joinet to channel " + channelName + ".";
                     Send.strMessage3 = "ChannelJoined";
-                    RespondToClient();
                 }
                 else
                 {

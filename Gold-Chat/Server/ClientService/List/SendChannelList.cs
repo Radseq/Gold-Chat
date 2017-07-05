@@ -8,7 +8,7 @@ namespace Server.ClientService.List
     {
         public SendChannelList(List<Channel> channelListe, Data send)
         {
-            ListOfChannels = channelListe;
+            ChannelsList = channelListe;
             Send = send;
         }
 
@@ -25,7 +25,7 @@ namespace Server.ClientService.List
             Send.strMessage = "Channel";
             Send.strMessage2 = null;
 
-            foreach (Channel channel in ListOfChannels)
+            foreach (Channel channel in ChannelsList)
                 Send.strMessage2 += channel.ChannelName + "*";
 
             OnClientList(Send.strMessage, Send.strMessage2);

@@ -86,6 +86,8 @@
                         <ContextMenu>
                             <MenuItem Header="{Binding AddFriendHeaderCommand}" Command="{Binding AddFriendHandleCommand}" />
                             <MenuItem Header="{Binding AddToIgnoreHeaderCommand}" Command="{Binding IgnoreUserCommand}" />
+                            <MenuItem Header="{Binding BanUserHeaderCommand}" Command="{Binding BanUserCommand}" />
+                            <MenuItem Header="{Binding KickUserHeaderCommand}" Command="{Binding KickUserCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
                 </ListBox>
@@ -97,8 +99,21 @@
                         <ContextMenu>
                             <MenuItem Header="{Binding DeleteFriendHeaderCommand}" Command="{Binding DeleteFriendCommand}" />
                             <MenuItem Header="{Binding PrivMsgHeaderCommand}" Command="{Binding PrivateMsgToFriendCommand}" />
+                            <MenuItem Header="{Binding SendFileHeaderCommand}" Command="{Binding SendFileCommand}" />
                         </ContextMenu>
                     </ListBox.ContextMenu>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FriendLoginColor}" Value="true">
+                                    <Setter Property="Background" Value="Green" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FriendLoginColor}" Value="false">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                 </ListBox>
             </Expander>
             <Expander Header="Ignored">

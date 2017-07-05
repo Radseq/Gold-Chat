@@ -67,6 +67,18 @@ CREATE TABLE IF NOT EXISTS `user_bans` (
   `id_ban` bigint(20) NOT NULL AUTO_INCREMENT,
   `id_user` bigint(20) NOT NULL,
   `reason` varchar(255) NOT NULL,
+  `start_ban` DATETIME NOT NULL,
+  `end_ban` DATETIME NOT NULL,
+  FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (id_ban)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `channel_user_bans` (
+  `id_ban` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_user` bigint(20) NOT NULL,
+  `id_channel` bigint(20) NOT NULL,
+  `reason` varchar(255) NOT NULL,
+  `start_ban` DATETIME NOT NULL,
   `end_ban` DATETIME NOT NULL,
   FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id_ban)

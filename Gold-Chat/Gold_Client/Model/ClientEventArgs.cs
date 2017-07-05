@@ -43,5 +43,9 @@ namespace Gold_Client.Model
         public string clientBanReason { get; set; }
         public string clientBanTime { get; set; }
         public string clientKickReason { get; set; }
+        //FileReceive
+        public string FileLen { get; set; }
+        public string FileName { get; set; }
+        public Byte[] FileByte { get; set; }
     }
 }

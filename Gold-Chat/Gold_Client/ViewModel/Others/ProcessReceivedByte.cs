@@ -75,9 +75,11 @@ namespace Gold_Client.ViewModel.Others
         public event EventHandler<ClientEventArgs> ClientListIgnored;
         //kick/ban
         public event EventHandler<ClientEventArgs> ClientKickFromChannel;
-        public event EventHandler<ClientEventArgs> ClientKickFromSerwer;
-        public event EventHandler<ClientEventArgs> ClientBanFromSerwer;
+        public event EventHandler<ClientEventArgs> ClientBanFromChannel;
+        public event EventHandler<ClientEventArgs> ClientKickFromServer;
+        public event EventHandler<ClientEventArgs> ClientBanFromServer;
         //public event EventHandler<ClientEventArgs> ClientListIgnored;
+        public event EventHandler<ClientEventArgs> ClientReceiveFile;
 
         private void ProccesData(object sender, EventArgs e)
         {
@@ -118,11 +120,11 @@ namespace Gold_Client.ViewModel.Others
                     if (msgReceived.strMessage2 == null) //strMessage2 -> ChannelName
                         OnClientMessage(msgReceived.strMessage);
                     else
-                        OnClientChannelMessage(msgReceived.strMessage + "\r\n"); //strMessage -> ChannelMessage
+                        OnClientChannelMessage(msgReceived.strMessage); //strMessage -> ChannelMessage
                     break;
 
                 case Command.privMessage:
-                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strMessage2);
                     break;
 
                 case Command.createChannel:
@@ -186,23 +188,24 @@ namespace Gold_Client.ViewModel.Others
                         OnClientDeleteIgnored(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                     break;
 
-                /// Not Implement !!!
                 case Command.kick:
                     OnClientKickFromSerwer(msgReceived.strMessage, msgReceived.strMessage2);
                     break;
 
-                /// Not Implement !!!
                 case Command.ban:
-                    OnClientBanFromSerwer(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
+                    OnClientBanFromServer(msgReceived.strMessage, msgReceived.strMessage2);
                     break;
 
-                /// Not Implement !!!
                 case Command.kickUserChannel:
                     OnClientKickFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3);
                     break;
 
-                /// Not Implement !!!
                 case Command.banUserChannel:
+                    OnClientBanFromChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage4);
+                    break;
+
+                case Command.sendFile:
+                    OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strFileMsg);
                     break;
             }
         }
@@ -350,13 +353,22 @@ namespace Gold_Client.ViewModel.Others
         {
             ClientKickFromChannel?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason, clientChannelName = channelName });
         }
+        protected virtual void OnClientBanFromChannel(string userName, string banReason, string channelName)
+        {
+            ClientBanFromChannel?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanReason = banReason, clientChannelName = channelName });
+        }
         protected virtual void OnClientKickFromSerwer(string userName, string kickReason)
         {
-            ClientKickFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason });
+            ClientKickFromServer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientKickReason = kickReason });
         }
-        protected virtual void OnClientBanFromSerwer(string userName, string time, string kickReason)
+        protected virtual void OnClientBanFromServer(string userName, string banReason)
         {
-            ClientBanFromSerwer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanTime = time, clientBanReason = kickReason });
+            ClientBanFromServer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanReason = banReason });
+        }
+        // File or Respond From server
+        protected virtual void OnClientReceiveFile(string fileLen, string fileName, string friendName, Byte[] fileByteReceive)
+        {
+            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { FileLen = fileLen, FileName = fileName, clientFriendName = friendName, FileByte = fileByteReceive });
         }
     }
 }

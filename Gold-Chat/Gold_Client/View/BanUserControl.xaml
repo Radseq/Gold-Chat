@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="Gold_Client.View.BanUserControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Height="145" Width="228">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding BanCommand}"/>
+    </UserControl.InputBindings>
+    <Grid>
+        <Button Content="Ban User" HorizontalAlignment="Left" Margin="145,118,0,0" VerticalAlignment="Top" Width="75" Command="{Binding BanCommand}"/>
+        <Label Content="Ban Time" HorizontalAlignment="Left" Margin="10,7,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="69,10,0,0" TextWrapping="Wrap" Text="{Binding DateTimeValue,  StringFormat='yyyy-MM-dd HH:mm:ss'}" VerticalAlignment="Top" Width="151"/>
+        <Label Content="Ban Reason" HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Height="25"/>
+        <TextBox HorizontalAlignment="Left" Height="47" Margin="10,66,0,0" TextWrapping="Wrap" Text="{Binding BanReasonTextBox, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="210"/>
+
+    </Grid>
+</UserControl>

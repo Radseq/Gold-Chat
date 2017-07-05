@@ -56,8 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channel.cs" />
+    <Compile Include="ChannelGets.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientEventArgs.cs" />
+    <Compile Include="ClientGets.cs" />
     <Compile Include="ClientService\ClientBan.cs" />
     <Compile Include="ClientService\ClientBanFromChannel.cs" />
     <Compile Include="ClientService\ClientChangePassword.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="ClientService\ClientJoinChannel.cs" />
     <Compile Include="ClientService\ClientKick.cs" />
     <Compile Include="ClientService\ClientKickFromChannel.cs" />
+    <Compile Include="ClientService\ClientSendFile.cs" />
     <Compile Include="ClientService\List\ClientLeaveChannel.cs" />
     <Compile Include="ClientService\ClientListManager.cs" />
     <Compile Include="ClientService\ClientLogin.cs" />
@@ -108,6 +111,7 @@
     <Compile Include="ResponseMessages\ServerResponds.cs" />
     <Compile Include="ServerReceive.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

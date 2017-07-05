@@ -1,9 +1,9 @@
 ﻿using CommandClient;
 using Server.ResponseMessages;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Collections.Generic;
 
 namespace Server.ClientService
 {

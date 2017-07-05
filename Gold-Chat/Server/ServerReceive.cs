@@ -10,7 +10,7 @@ namespace Server
     class ServerReceive : IServerReceive, IChannelList, IClientList, IClient
     {
         public Data Received { get; set; }
-        public List<Channel> ListOfChannels { get; set; }
+        public List<Channel> ChannelsList { get; set; }
         public List<Client> ListOfClientsOnline { get; set; }
         public Client Client { get; set; }
 
@@ -18,7 +18,7 @@ namespace Server
         {
             Client = client;
             ListOfClientsOnline = clientList;
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
         }
 
         ClientLogin clientLogin = new ClientLogin();
@@ -44,6 +44,7 @@ namespace Server
         ClientBan clientBan = new ClientBan();
         ClientKickFromChannel clientKickFromChannel = new ClientKickFromChannel();
         ClientBanFromChannel clientBanFromChannel = new ClientBanFromChannel();
+        ClientSendFile clientSendFile = new ClientSendFile();
 
         byte[] byteData = new byte[1024];
 
@@ -99,7 +100,7 @@ namespace Server
                         break;
 
                     case Command.Logout:
-                        clientLogout.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientLogout.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientLogout.Execute();
                         clientLogout.Response();
                         break;
@@ -116,7 +117,7 @@ namespace Server
                         break;
 
                     case Command.createChannel:
-                        clientCreateChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientCreateChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientCreateChannel.Execute();
                         //clientCreateChannel.RespondToClient();
                         break;
@@ -134,22 +135,22 @@ namespace Server
                         break;
 
                     case Command.deleteChannel:
-                        clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientDeleteChannel.Execute();
-                        clientDeleteChannel.Response();
+                        //clientDeleteChannel.Response();
                         break;
                     case Command.enterChannel:
-                        clientEnterChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientEnterChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientEnterChannel.Execute();
                         break;
                     case Command.leaveChannel:
-                        clientLeaveChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientLeaveChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientLeaveChannel.Execute();
                         clientLeaveChannel.Response();
                         break;
 
                     case Command.List:  // Send the names of all users in the chat room to the new user
-                        clientListManager.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientListManager.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientListManager.Execute();
                         break;
 
@@ -164,29 +165,31 @@ namespace Server
                         clientIgnoreUser.Execute();
                         clientIgnoreUser.RespondToClient();
                         break;
-                    /// Not Implement !!!
                     case Command.kick:
                         clientKick.Load(client, Received, ListOfClientsOnline);
                         clientKick.Execute();
                         clientKick.RespondToClient();
                         break;
-                    /// Not Implement !!!
                     case Command.ban:
                         clientBan.Load(client, Received, ListOfClientsOnline);
                         clientBan.Execute();
                         clientBan.RespondToClient();
                         break;
-                    /// Not Implement !!!
                     case Command.kickUserChannel:
-                        clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                        clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientKickFromChannel.Execute();
                         clientKickFromChannel.RespondToClient();
                         break;
-                    /// Not Implement !!!
                     case Command.banUserChannel:
-                        clientBanFromChannel.Load(client, Received, null, ListOfChannels);
+                        clientBanFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientBanFromChannel.Execute();
                         clientBanFromChannel.RespondToClient();
+                        break;
+
+                    case Command.sendFile:
+                        clientSendFile.Load(client, Received, ListOfClientsOnline);
+                        clientSendFile.Execute();
+                        clientSendFile.RespondToClient();
                         break;
                 }
 
@@ -197,7 +200,7 @@ namespace Server
                 // So we make sure that client which got crash or internet close, server will send log out message
                 clientLogout.Send.cmdCommand = Command.Logout;
                 clientLogout.Send.strName = Client.strName;
-                clientLogout.Load(client, Received, ListOfClientsOnline, ListOfChannels);
+                clientLogout.Load(client, Received, ListOfClientsOnline, ChannelsList);
                 clientLogout.Execute();
                 string exMessage = ("client: " + client.strName + " " + ex.Message);
                 Console.WriteLine(exMessage);

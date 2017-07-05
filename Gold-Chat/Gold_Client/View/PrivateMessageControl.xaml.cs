@@ -7,7 +7,6 @@ namespace Gold_Client.View
     {
         public PrivateMessageControl()
         {
-            DataContext = new PrivateMessagePresenter();
             InitializeComponent();
         }
     }

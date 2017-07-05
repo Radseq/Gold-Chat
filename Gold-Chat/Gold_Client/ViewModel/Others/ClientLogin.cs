@@ -27,12 +27,12 @@ namespace Gold_Client.ViewModel
             User = App.Client;
 
             loginNotyfi = config.loginEmailNotyfication; //load config value
-            getMessageFromServer.ClientSendActivCodeFromEmail += OnClientReSendEmail;
+            getMessageFromServer.ClientSendActivCodeFromEmail += OnSendActivateCodeFromEmail;
             clientReceive.ReceiveLogExcep += OnReceiveLogExcep;
             getMessageFromServer.ClientLogin += OnClientLogin;
         }
 
-        private void OnClientReSendEmail(object sender, ClientEventArgs e)
+        private void OnSendActivateCodeFromEmail(object sender, ClientEventArgs e)
         {
             if (e.clientSendActivCodeFromEmail == "You must activate your account first.")
             {

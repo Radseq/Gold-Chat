@@ -35,28 +35,28 @@ namespace Server.ClientService
                 int id_channel_db = Int32.Parse(respond[0]);
                 string motd = respond[1];
 
-                foreach (Channel channel in Channels)
+                Channel channel = ChannelGets.getChannelByName(Channels, channelName);
+
+                if (channel != null)
                 {
-                    if (channel.ChannelName == channelName)
+                    if (!channel.Users.Contains(Received.strName) && (!Client.enterChannels.Contains(channelName)))
                     {
-                        if (!channel.Users.Contains(Received.strName) && (!Client.enterChannels.Contains(channelName)))
-                        {
-                            channel.Users.Add(Received.strName);
-                            Client.enterChannels.Add(channelName);
+                        channel.Users.Add(Received.strName);
+                        Client.enterChannels.Add(channelName);
 
-                            Send.strMessage2 = "enter";
-                            Send.strMessage3 = motd;
+                        Send.strMessage2 = "enter";
+                        Send.strMessage3 = motd;
 
-                            // Because user is in channel now, msg will send to him aswell
-                            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
-                            sendToChannel.ResponseToChannel();
-                        }
-                        else
-                        {
-                            userWontJoinToServer("Cannot enter Because you already entered to ", channelName);
-                        }
+                        // Because user is in channel now, msg will send to him aswell
+                        SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
+                        sendToChannel.ResponseToChannel();
+                    }
+                    else
+                    {
+                        userWontJoinToServer("Cannot enter Because you already entered to ", channelName);
                     }
                 }
+
                 //OnClientEnterChannel(channelName, client.strName); //todo
             }
             else

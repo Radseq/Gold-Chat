@@ -11,7 +11,7 @@ namespace Server.ClientService
         //The collection of all clients logged into the room
         private List<Client> ListOfClientsOnline;
         //list of all channels
-        private List<Channel> ListOfChannels;
+        private List<Channel> ChannelsList;
 
         public event EventHandler<ClientEventArgs> ClientLogoutEvent;
 
@@ -21,7 +21,7 @@ namespace Server.ClientService
         {
             Client = client;
             Received = receive;
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
             ListOfClientsOnline = clientList;
         }
 
@@ -40,7 +40,7 @@ namespace Server.ClientService
                 }
                 ++nIndex;
 
-                foreach (Channel ch in ListOfChannels) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
+                foreach (Channel ch in ChannelsList) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
                 {
                     if (ch.Users.Contains(Client.strName))
                         ch.Users.Remove(Client.strName);

@@ -62,7 +62,7 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public void SendToServer(Command command, string strMessage = null, string strMessage2 = null, string strMessage3 = null, string strMessage4 = null)
+        public void SendToServer(Command command, string strMessage = null, string strMessage2 = null, string strMessage3 = null, string strMessage4 = null, byte[] fileByte = null)
         {
             Data msgToSend = new Data();
             msgToSend.cmdCommand = command;
@@ -71,16 +71,19 @@ namespace Gold_Client.ViewModel
             msgToSend.strMessage2 = strMessage2;
             msgToSend.strMessage3 = strMessage3;
             msgToSend.strMessage4 = strMessage4;
+            msgToSend.strFileMsg = fileByte;
 
             byte[] toSendByteData = new byte[1024];
             toSendByteData = msgToSend.ToByte();
 
-            if (!User.cSocket.Connected)
+            if (!User.cSocket.Connected && msgToSend.cmdCommand != Command.Logout)
             {
                 ClientConnectToServer clientConnectToServer = ClientConnectToServer.Instance;
                 clientConnectToServer.BeginConnect();
                 BeginSend(toSendByteData);
             }
+            else if (msgToSend.cmdCommand == Command.Logout)
+                Send(toSendByteData);
             else BeginSend(toSendByteData);
         }
 
@@ -90,16 +93,13 @@ namespace Gold_Client.ViewModel
             sendDone.WaitOne();
         }
 
-        public void LogoutSend()
+        private void Send(byte[] byteData)
         {
-            //Send a message to logout of the server
-            Data msgToSend = new Data();
-            msgToSend.cmdCommand = Command.Logout;
-            msgToSend.strName = User.strName;
+            User.cSocket.Send(byteData, 0, byteData.Length, SocketFlags.None);
+        }
 
-            byte[] logoutMessage = msgToSend.ToByte();
-
-            User.cSocket.Send(logoutMessage, 0, logoutMessage.Length, SocketFlags.None);
+        public void Logout()
+        {
             // Release the socket.
             User.cSocket.Shutdown(SocketShutdown.Both);
             User.cSocket.Close();

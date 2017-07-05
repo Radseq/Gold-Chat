@@ -6,14 +6,14 @@ namespace Server.ClientService
 {
     class ClientLeaveChannel : ServerResponds, IPrepareRespond
     {
-        List<Channel> ListOfChannels;
+        List<Channel> ChannelsList;
         List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList, List<Channel> channelList)
         {
             Client = client;
             Received = receive;
-            ListOfChannels = channelList;
+            ChannelsList = channelList;
             ListOfClientsOnline = clientList;
         }
 
@@ -23,9 +23,9 @@ namespace Server.ClientService
             string channelName = Received.strMessage;
             Client.enterChannels.Remove(channelName);
             // Remove user form channel users
-            foreach (Channel channel in ListOfChannels)
-                if (channel.ChannelName == channelName)
-                    channel.Users.Remove(Client.strName);
+            Channel channel = ChannelGets.getChannelByName(ChannelsList, channelName);
+            if (channel != null)
+                channel.Users.Remove(Client.strName);
 
             //OnClientLeaveChannel(channelName, client.strName); //todo
         }

@@ -46,6 +46,8 @@ namespace Server
         // Prevet SQL Injection
         private List<string> parameters;
 
+        Int64 lastInsertedID;
+
         // Singleton
         public static DataBaseManager Instance
         {
@@ -66,6 +68,11 @@ namespace Server
             connectToDb();
             table = table = new DataTable();
             parameters = new List<string>();
+        }
+
+        public Int64 getLastInsertedID()
+        {
+            return lastInsertedID;
         }
 
         private void connectToDb()
@@ -174,6 +181,7 @@ namespace Server
             {
                 dBCommand(query);
                 affected = mySqlCommand.ExecuteNonQuery();
+                lastInsertedID = mySqlCommand.LastInsertedId;
             }
             catch (MySqlException ex)
             {
@@ -193,6 +201,7 @@ namespace Server
         public int delUpdateInsertDb(string query)
         {
             int affectedRows = nonQuery(query);
+
             return affectedRows;
         }
         /// <summary>

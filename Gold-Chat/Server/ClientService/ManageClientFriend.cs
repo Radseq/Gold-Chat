@@ -24,7 +24,7 @@ namespace Server.ClientService
             Received = receive;
             ListOfClientsOnline = clientList;
             Send.strName = Received.strMessage2;
-            sendToNick = new SendMessageToNick(Client, ListOfClientsOnline, Send, Received);
+            sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
         }
 
         public void Execute()
@@ -47,10 +47,10 @@ namespace Server.ClientService
                     {
                         OnClientAddFriend(Client.strName, friendName);
                         Send.strMessage = "Yes";
-                        Send.strMessage2 = friendName;
                         RespondToClient();
                         sendToNick.Send = Send;
-                        sendToNick.prepareRespond();
+                        sendToNick.Send.strMessage2 = Client.strName;
+                        sendToNick.Send.strName = friendName;
                         sendToNick.ResponseToNick();
                     }
                     else
@@ -69,13 +69,14 @@ namespace Server.ClientService
                         // So user delete friend, friend delete user
                         // Need to send to user and friend list of friends
                         Send.strMessage = "Delete";
-                        Send.strMessage2 = friendName;
+                        //Send.strMessage2 = friendName;
                         //SendMessageToSomeone sendToSomeone = new SendMessageToSomeone(ListOfClientsOnline, Send);
                         //sendToSomeone.ResponseToSomeone();
 
                         RespondToClient();
                         sendToNick.Send = Send;
-                        sendToNick.prepareRespond();
+                        sendToNick.Send.strMessage2 = Client.strName;
+                        sendToNick.Send.strName = friendName;
                         sendToNick.ResponseToNick();
 
                         //when client get delete then  he will send to server list ask
@@ -85,7 +86,8 @@ namespace Server.ClientService
                 else if (type == "Add")
                 {
                     sendToNick.Send = Send;
-                    sendToNick.prepareRespond();
+                    sendToNick.Send.strMessage2 = Client.strName;
+                    sendToNick.Send.strName = friendName;
                     sendToNick.ResponseToNick();
                 }
                 else if (type == "No")
@@ -93,7 +95,8 @@ namespace Server.ClientService
                     // Friend type no: he dont want be as friend
                     Send.strMessage = "No";
                     sendToNick.Send = Send;
-                    sendToNick.prepareRespond();
+                    sendToNick.Send.strMessage2 = Client.strName;
+                    sendToNick.Send.strName = friendName;
                     sendToNick.ResponseToNick();
                 }
             }

@@ -16,15 +16,25 @@ namespace Gold_Client.ViewModel
         string tabControlName;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
+        ObservableCollection<object> tb;
 
         bool isChannel = false;
 
         private void OnClientKickFromChannel(object sender, ClientEventArgs e)
         {
-            if (tabControlName == e.clientChannelName)
+            if (tabControlName == e.clientChannelName && e.clientName == App.Client.strName)
             {
-                var tabControl = Parent as ItemsControl;
-                tabControl.Items.Remove(this);
+                MessageBox.Show("You are" + e.clientKickReason, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                removeTab();
+            }
+        }
+
+        private void OnClientDeleteChannel(object sender, ClientEventArgs e)
+        {
+            if (e.clientChannelMsg == tabControlName)
+            {
+                MessageBox.Show("Channel owner delete channel " + tabControlName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                removeTab();
             }
         }
 
@@ -36,11 +46,15 @@ namespace Gold_Client.ViewModel
             var dockPanel = new DockPanel();
             dockPanel.Children.Add(header);
 
-            ObservableCollection<object> tb = tabControlItems;
+            tb = tabControlItems;
 
             if (isChannel)
+            {
                 getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
-            
+                getMessageFromServer.ClientDeleteChannel += OnClientDeleteChannel;
+                getMessageFromServer.ClientBanFromChannel += OnClientBanFromChannel;
+            }
+
 
             // Close button to remove the tab
             var closeButton = new TabCloseButton();
@@ -58,6 +72,21 @@ namespace Gold_Client.ViewModel
 
             // Set the header
             Header = dockPanel;
+        }
+
+        private void OnClientBanFromChannel(object sender, ClientEventArgs e)
+        {
+            if (e.clientName == App.Client.strName && e.clientChannelName == tabControlName)
+            {
+                MessageBox.Show("You are" + e.clientBanReason, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                removeTab();
+            }
+        }
+
+        private void removeTab()
+        {
+            //var tabControl = Parent as ItemsControl;
+            tb.Remove(this);
         }
     }
 }

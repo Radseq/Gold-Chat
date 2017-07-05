@@ -1,5 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ProgramableWindow;
+using Gold_Client.View;
 using Gold_Client.ViewModel.Others;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,6 +18,8 @@ namespace Gold_Client.ViewModel.TabWindows
         public string channelName = "";
         public string WelcomeChannelMsg = "";
 
+        string selectedUser;
+
         public ChannelPresenter()
         {
             getMessageFromServer.ClientChannelMessage += OnClientChannelMessage;
@@ -23,8 +27,26 @@ namespace Gold_Client.ViewModel.TabWindows
             getMessageFromServer.ClientChannelEnter += OnClientChannelEnter;
             getMessageFromServer.ClientListChannelUsers += OnClientListChannelUsers;
             getMessageFromServer.ClientChannelLeave += OnClientChannelLeave;
+            getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
+            getMessageFromServer.ClientBanFromChannel += OnClientBanFromChannel;
 
-            showMessage("<<< Welcome Message: " + WelcomeChannelMsg + " >>>>" + "\r\n");
+            showMessage("<<< Welcome Message: " + WelcomeChannelMsg + " >>>>");
+        }
+
+        private void OnClientBanFromChannel(object sender, ClientEventArgs e)
+        {
+            if (e.clientName != App.Client.strName)
+            {
+                showMessage("User " + e.clientName + e.clientBanReason);
+            }
+        }
+
+        private void OnClientKickFromChannel(object sender, ClientEventArgs e)
+        {
+            if (e.clientName != App.Client.strName)
+            {
+                showMessage("User " + e.clientName + e.clientKickReason);
+            }
         }
 
         private readonly ObservableCollection<string> channelUsers = new ObservableCollection<string>();
@@ -79,7 +101,7 @@ namespace Gold_Client.ViewModel.TabWindows
             {
                 if (user == e.clientName)
                 {
-                    showMessage("<<< " + e.clientName + " has leave this channel>>>" + "\r\n");
+                    showMessage("<<< " + e.clientName + " has leave this channel>>>");
                     RemoveFromChannelUserList(user);
                     break;
                 }
@@ -88,7 +110,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void OnClientChannelEnter(object sender, ClientEventArgs e)
         {
-            showMessage("<<< " + e.clientName + " log into channel" + "\r\n");
+            showMessage("<<< " + e.clientName + " log into channel");
             channelUsers.Add(e.clientName);
         }
 
@@ -98,7 +120,7 @@ namespace Gold_Client.ViewModel.TabWindows
             {
                 if (user == e.clientLogoutMessage)
                 {
-                    showMessage("<<< " + e.clientLogoutMessage + " has logout>>>" + "\r\n");
+                    showMessage("<<< " + e.clientLogoutMessage + " has logout>>>");
                     RemoveFromChannelUserList(user);
                     break;
                 }
@@ -112,7 +134,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void showMessage(string message)
         {
-            ChannelMsgReceived += message;
+            ChannelMsgReceived += message + "\r\n";
         }
 
         private void SendMessage()
@@ -125,6 +147,58 @@ namespace Gold_Client.ViewModel.TabWindows
             if (string.IsNullOrWhiteSpace(ChannelMsgToSend)) return;
             SendMessage();
             ChannelMsgToSend = string.Empty;
+        });
+
+        public string SelectedUser
+        {
+            get { return selectedUser; }
+
+            set
+            {
+                selectedUser = value;
+                RaisePropertyChangedEvent(nameof(SelectedUser));
+            }
+        }
+
+        public string KickUserHeaderCommand
+        {
+            get { return "Kick " + selectedUser + " from channel?"; }
+        }
+
+        public ICommand KickUserCommand => new DelegateCommand(() =>
+        {
+            if (ChannelUsers.Contains(selectedUser))
+            {
+                GenerateTexBoxWindow createTextWindow = new GenerateTexBoxWindow();
+                ChannelKickUserReason.ChannelName = channelName;
+                ChannelKickUserReason.UserName = selectedUser;
+                createTextWindow.OnClickOrEnter += ChannelKickUserReason.OnClickOrEnter;
+                createTextWindow.createWindow("Kick: " + selectedUser + " reason", "Give reason of kicking: " + selectedUser);
+            }
+        });
+
+        public string DeleteUserHeaderCommand
+        {
+            get { return "Delete " + selectedUser + " from channel?"; }
+        }
+
+        public ICommand DeleteUserCommand => new DelegateCommand(() =>
+        { // todo msg box yes|no to delete user, user will need to join again using password
+            //if (ChannelUsers.Contains(selectedUser))
+        });
+
+        public string BanUserHeaderCommand
+        {
+            get { return "Ban " + selectedUser + " from channel?"; }
+        }
+
+        public ICommand BanUserCommand => new DelegateCommand(() =>
+        {
+            if (ChannelUsers.Contains(selectedUser))
+            {
+                BanUserWindow banWindow = new BanUserWindow(selectedUser, channelName);
+                banWindow.Show();
+            }
         });
     }
 }

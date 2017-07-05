@@ -1,11 +1,12 @@
-﻿using System.Windows;
+﻿using Gold_Client.ViewModel;
+using System.Windows;
 using System.Windows.Controls;
 
-namespace Gold_Client.ViewModel.Others
+namespace Gold_Client.ProgramableWindow
 {
-    class ServerAskClient : Window
+    class CreateWindow : Window
     {
-        ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
+        static ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         Grid grid = new Grid();
         Label label = new Label();
@@ -13,22 +14,22 @@ namespace Gold_Client.ViewModel.Others
         private TextBox textBox = new TextBox();
         private PasswordBox passwordBox = new PasswordBox();
 
-        public ServerAskClient(string nameOfWindow)
+        public CreateWindow(string nameOfWindow)
         {
             Topmost = true;
             Title = nameOfWindow;
             Width = 290;
-            Height = 150;
+            Height = 200;
             label.Margin = new Thickness(10, 10, 10, 71);
             grid.Children.Add(label);
             Content = grid;
         }
 
-        public TextBox addTextBoxToWindow(string textboxName)
+        public TextBox addTextBoxToWindow(string textboxName, Thickness pos)
         {
             textBox.Height = 23;
             textBox.Width = 262;
-            textBox.Margin = new Thickness(10, 43, 10, 10);
+            textBox.Margin = pos;
             textBox.Name = textboxName;
             grid.Children.Add(textBox);
             return textBox;
@@ -39,21 +40,21 @@ namespace Gold_Client.ViewModel.Others
             label.Content = contentText;
         }
 
-        public Button addButton(string buttonName, string buttonContent)
+        public Button addButton(string buttonName, string buttonContent, Thickness pos)
         {
             Button button = new Button();
             button.Name = buttonName;
             button.Content = buttonContent;
-            button.Margin = new Thickness(202, 71, 10, 10);
+            button.Margin = pos;
             grid.Children.Add(button);
             return button;
         }
 
-        public PasswordBox addPasswordBoxToWindow(string passwordBoxName)
+        public PasswordBox addPasswordBoxToWindow(string passwordBoxName, Thickness pos)
         {
             passwordBox.Height = 23;
             passwordBox.Width = 262;
-            passwordBox.Margin = new Thickness(10, 43, 10, 10);
+            passwordBox.Margin = pos;
             passwordBox.Name = passwordBoxName;
             grid.Children.Add(passwordBox);
             return passwordBox;

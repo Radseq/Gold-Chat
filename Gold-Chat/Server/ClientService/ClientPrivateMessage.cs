@@ -21,8 +21,10 @@ namespace Server.ClientService
             Send.strMessage = Received.strName + ": " + Received.strMessage;
             RespondToClient();
 
-            SendMessageToNick sendToNick = new SendMessageToNick(Client, ListOfClientsOnline, Send, Received);
-            sendToNick.prepareRespond();
+            SendMessageToNick sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
+            sendToNick.Send.strName = Received.strMessage2;
+            sendToNick.Send.strMessage2 = Client.strName;
+
             sendToNick.ResponseToNick();
         }
     }

@@ -1,7 +1,5 @@
-﻿using System;
+﻿using CommandClient;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using CommandClient;
 
 namespace Server.ResponseMessages
 {
@@ -21,10 +19,10 @@ namespace Server.ResponseMessages
 
         public void ResponseToChannel()
         {
-            foreach (Client cInfo in ListOfClientsOnline)
+            Client client = ClientGets.getClientEnterChannel(ListOfClientsOnline, ChannelName);
+            if (client != null)
             {
-                if (cInfo.enterChannels.Contains(ChannelName))
-                    Response(Send.ToByte(), cInfo);
+                Response(Send.ToByte(), client);
             }
         }
     }

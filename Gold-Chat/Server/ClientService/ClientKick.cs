@@ -1,13 +1,18 @@
 ﻿using CommandClient;
 using Server.ResponseMessages;
 using System.Collections.Generic;
-using System;
 
 namespace Server.ClientService
 {
     class ClientKick : ServerResponds, IPrepareRespond
     {
         List<Client> ListOfClientsOnline;
+
+        private string KickReason;
+        private string KickedUserName;
+        private Client KickeUser;
+
+        bool isKicked = false;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
@@ -19,22 +24,34 @@ namespace Server.ClientService
         public void Execute()
         {
             prepareResponse();
-            string userName = Received.strMessage;       // Nick of kicked user
-            string kickReason = Received.strMessage2;    // Reason of kick
+            KickedUserName = Received.strMessage;   // Nick of kicked user
+            KickReason = Received.strMessage2;      // Reason of kick
 
-            if (Client.permission > 0)
-            {
-                foreach (Client client in ListOfClientsOnline)
+            KickeUser = ClientGets.getClinetByName(ListOfClientsOnline, KickedUserName);
+
+            if (KickeUser != null)
+                if (Client.permission > 0)
                 {
-                    if (client.strName == userName && client.permission == 0)
+                    if (KickeUser.permission == 0)
                     {
-                        SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline); // Ignored users wont get new channel list
-                        sendToAll.ResponseToAll();
-                        client.cSocket.Close();
+                        isKicked = true;
+                        Send.strMessage2 = " kicked Reason: " + KickReason;
                     }
+                    else Send.strMessage2 = "You cannot kick " + KickedUserName + " because client is admin or there is no user with this name";
+
                 }
+                else Send.strMessage2 = "You cannot kick " + KickedUserName + " because you dont have permissions";
+        }
+
+        public override void RespondToClient()
+        {
+            if (isKicked)
+            {
+                SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline); // Ignored users wont get this msg
+                sendToAll.ResponseToAll();
+                KickeUser.cSocket.Close();
             }
-            else Send.strMessage = "You cannot kick " + userName + " because you dont have permissions";
+            base.RespondToClient();
         }
     }
 }

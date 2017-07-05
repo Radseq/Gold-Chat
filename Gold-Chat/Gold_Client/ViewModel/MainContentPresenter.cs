@@ -1,9 +1,9 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
+using Gold_Client.ProgramableWindow;
 using Gold_Client.View;
 using Gold_Client.View.TabWindows;
 using Gold_Client.ViewModel.Others;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -59,9 +59,9 @@ namespace Gold_Client.ViewModel
             //proccesReceiverInformation.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             //channels
             proccesReceiverInformation.ClientCreateChannel += OnClientCreateChannel;
-            proccesReceiverInformation.ClientDeleteChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientDeleteChannel += OnClientDeleteChannel;
             proccesReceiverInformation.ClientEditChannel += (s, e) => MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-            //proccesReceiverInformation.ClientJoinChannel += OnClientJoinChannel; // all in new class
+            proccesReceiverInformation.ClientJoinChannel += OnClientJoinChannel; // all in new class
             proccesReceiverInformation.ClientExitChannel += OnClientExitChannel;
             proccesReceiverInformation.ClientListChannel += OnClientListChannel;
             proccesReceiverInformation.ClientChannelEnter += OnClientChannelEnter;
@@ -78,12 +78,25 @@ namespace Gold_Client.ViewModel
             proccesReceiverInformation.ClientDeleteIgnoredUser += OnClientDeleteIgnoredUser;
             proccesReceiverInformation.ClientListIgnored += OnClientListIgnored;
             //ban/kick
-            proccesReceiverInformation.ClientKickFromSerwer += OnClientKickFromSerwer;
-            proccesReceiverInformation.ClientBanFromSerwer += OnClientBanFromSerwer;
+            proccesReceiverInformation.ClientKickFromServer += OnClientKickFromServer;
+            proccesReceiverInformation.ClientBanFromServer += OnClientBanFromServer;
+            proccesReceiverInformation.ClientReceiveFile += OnClientReceiveFile;
             InformServerToSendUserLists informServerToSendUserLists = new InformServerToSendUserLists();
 
             addTab(new GlobalMessageContent(), "Main");
             SelectedTabControlIndex = 0;
+        }
+
+        private void OnClientReceiveFile(object sender, ClientEventArgs e)
+        {
+            if (e.clientFriendName == App.Client.strName)
+            {
+                // TODO first message is send about fileName length etc, then file bytes
+
+                SaveReceivedFile saveFile = new SaveReceivedFile();
+                saveFile.OpenFile(e.FileName);
+                saveFile.SaveFile(e.FileByte);
+            }
         }
 
         public Client User
@@ -159,6 +172,17 @@ namespace Gold_Client.ViewModel
         }
         #endregion
 
+        private bool background;
+        public bool FriendLoginColor
+        {
+            get { return background; }
+            set
+            {
+                background = value;
+                RaisePropertyChangedEvent(nameof(FriendLoginColor));
+            }
+        }
+
         #region User Buttons Command
 
         private void addTab<T>(T tabInstance, string tabName, bool channel = false)
@@ -216,7 +240,7 @@ namespace Gold_Client.ViewModel
         public ICommand LogoutCommand => new DelegateCommand(() =>
         {
             // Close here main window here somehow
-            clientSendToServer.LogoutSend();
+            clientSendToServer.SendToServer(Command.Logout);
 
             //clientManager.config.SaveConfig(clientManager.config);// when user exit from program, we save configuration
         });
@@ -224,33 +248,51 @@ namespace Gold_Client.ViewModel
         #region ListBox Menu Items Buttons
         public ICommand AddFriendHandleCommand => new DelegateCommand(() =>
         {
-            string friendName = selectedUser;
-            if (usersConnected.Contains(friendName) && friendName != App.Client.strName)
-                clientSendToServer.SendToServer(Command.manageFriend, "Add", friendName); // There is send information to server that i add someone to friend list
+            if (usersConnected.Contains(selectedUser) && selectedUser != App.Client.strName)
+                clientSendToServer.SendToServer(Command.manageFriend, "Add", selectedUser); // There is send information to server that i add someone to friend list
         });
 
         private void PrivateMessage(string usernName)
         {
+            bool? isPrivateWindowClosed = false;
             if (privateMessage == null)
             {
                 privateMessage = new PrivateMessageWindow(usernName);
-                privateMessage.Show();
+                isPrivateWindowClosed = privateMessage.ShowDialog();
             }
             else MessageBox.Show("You allready private talk with " + usernName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public ICommand PrivateMsgToUserCommand => new DelegateCommand(() =>
         {
-            string usernName = selectedUser;
-            if (usersConnected.Contains(usernName) && usernName != App.Client.strName)
-                PrivateMessage(usernName);
+            if (usersConnected.Contains(selectedUser) && selectedUser != App.Client.strName)
+                PrivateMessage(selectedUser);
         });
 
         public ICommand IgnoreUserCommand => new DelegateCommand(() =>
         {
-            string usernName = selectedUser;
-            if (usersConnected.Contains(usernName) && usernName != App.Client.strName)
-                clientSendToServer.SendToServer(Command.ignoreUser, "AddIgnore", usernName);
+            if (usersConnected.Contains(selectedUser) && selectedUser != App.Client.strName)
+                clientSendToServer.SendToServer(Command.ignoreUser, "AddIgnore", selectedUser);
+        });
+
+        public ICommand BanUserCommand => new DelegateCommand(() =>
+        {
+            if (usersConnected.Contains(selectedUser) && selectedUser != App.Client.strName)
+            {
+                BanUserWindow banWindow = new BanUserWindow(selectedUser, null);
+                banWindow.Show();
+            }
+        });
+
+        public ICommand KickUserCommand => new DelegateCommand(() =>
+        {
+            if (usersConnected.Contains(selectedUser) && selectedUser != App.Client.strName)
+            {
+                GenerateTexBoxWindow createTextWindow = new GenerateTexBoxWindow();
+                ChannelKickUserReason.UserName = selectedUser;
+                createTextWindow.OnClickOrEnter += ChannelKickUserReason.OnClickOrEnter;
+                createTextWindow.createWindow("Kick: " + selectedUser + " reason", "Give reason of kicking: " + selectedUser);
+            }
         });
 
         public ICommand PrivateMsgToFriendCommand => new DelegateCommand(() =>
@@ -260,6 +302,12 @@ namespace Gold_Client.ViewModel
             if (friendlyUsersConnected.Contains(friendName) && usersConnected.Contains(friendName)) // Now if friend is in our friend list + his online(exists in clientList) 
                 PrivateMessage(friendName);
             else MessageBox.Show("Your Friend " + friendName + " is offline", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+        });
+
+        public ICommand SendFileCommand => new DelegateCommand(() =>
+        {
+            SendFileWindow sendFileWindow = new SendFileWindow(selectedFriendlyUser);
+            sendFileWindow.Show();
         });
 
         public ICommand DeleteFriendCommand => new DelegateCommand(() =>
@@ -313,7 +361,7 @@ namespace Gold_Client.ViewModel
         public ICommand ExitChannelCommand => new DelegateCommand(() =>
         {
             string channelName = selectedJoinedLobbie;
-            if (joinedChannelsList.Contains(channelName))
+            if (joinedChannelsList.Contains(channelName)) //Todo messagebox yes|no exic cuse next time user need to post password
                 clientSendToServer.SendToServer(Command.exitChannel, channelName);
         });
 
@@ -322,15 +370,10 @@ namespace Gold_Client.ViewModel
             string channeName = selectedJoinedLobbie;
             if (joinedChannelsList.Contains(channeName))
             {
-                //todo All think in client side (also show window to ask admin password to delete)
-                //Data msgToSend = new Data();
-
-                //msgToSend.strName = clientManager.userName;
-                //msgToSend.strMessage = strMessage;
-                //msgToSend.cmdCommand = Command.deleteChannel;
-
-                //byte[] byteData = msgToSend.ToByte();
-                //clientManager.BeginSend(byteData);
+                GenerateChannelPassWindow sendPassword = new GenerateChannelPassWindow();
+                DeleteChannelSend.ChannelName = channeName;
+                sendPassword.OnClickOrEnter += DeleteChannelSend.OnClickOrEnter;
+                sendPassword.createWindow("Send Password: " + channeName, "Send Password to delete " + channeName);
             }
         });
         #endregion
@@ -348,6 +391,16 @@ namespace Gold_Client.ViewModel
             get { return "Add " + selectedUser + " to ignored list"; }
         }
 
+        public string BanUserHeaderCommand
+        {
+            get { return "Ban " + selectedUser; }
+        }
+
+        public string KickUserHeaderCommand
+        {
+            get { return "Kick " + selectedUser; }
+        }
+
         public string DeleteFriendHeaderCommand
         {
             get { return "Delete " + selectedFriendlyUser + " from friend list?"; }
@@ -358,41 +411,52 @@ namespace Gold_Client.ViewModel
             get { return "Send private message to " + selectedFriendlyUser; }
         }
 
+        public string SendFileHeaderCommand
+        {
+            get { return "Send file to " + selectedFriendlyUser; }
+        }
+
         public string DeleteIgnoredHeaderCommand
         {
-            get { return  "Delete " + selectedIgnoredUser + " from ignored list?"; }
+            get { return "Delete " + selectedIgnoredUser + " from ignored list?"; }
         }
 
         public string JoinToLobbieHeaderCommand
         {
-            get { return  "Join to " + selectedLobbie; }
+            get { return "Join to " + selectedLobbie; }
         }
 
         public string EnterToLobbieHeaderCommand
         {
-            get { return  "Enter to " + selectedJoinedLobbie; }
+            get { return "Enter to " + selectedJoinedLobbie; }
         }
 
         public string LeaveLobbieHeaderCommand
         {
-            get { return  "Leave from " + selectedJoinedLobbie + "?"; }
+            get { return "Leave from " + selectedJoinedLobbie + "?"; }
         }
 
         public string ExitLobbieHeaderCommand
-        { // Todo function thats return string and shows message box (yes|no)
-            get { return  "Exit from" + selectedJoinedLobbie + "?"; }
+        {
+            get { return "Exit from" + selectedJoinedLobbie + "?"; }
         }
 
         public string DeleteToLobbieHeaderCommand
-        { // Todo function thats chceck if you are owner of channel
-            get { return  "Delete channel " + selectedJoinedLobbie + "?"; }
+        {
+            get { return "Delete channel " + selectedJoinedLobbie + "?"; }
         }
         #endregion
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
             if (!usersConnected.Contains(e.clientLoginName))
+            {
                 usersConnected.Add(e.clientLoginName);
+                if (friendlyUsersConnected.Contains(e.clientLoginName))
+                {
+                    FriendLoginColor = true;
+                }
+            }
         }
 
         private void OnClientLogout(object sender, ClientEventArgs e)
@@ -402,11 +466,14 @@ namespace Gold_Client.ViewModel
 
         private void OnClientList(object sender, ClientEventArgs e)
         {
-            string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray();
-            foreach (string nick in splitNicks)
+            if (e.clientListMessage != null)
             {
-                if (!usersConnected.Contains(nick))
-                    usersConnected.Add(nick);
+                string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray();
+                foreach (string nick in splitNicks)
+                {
+                    if (!usersConnected.Contains(nick))
+                        usersConnected.Add(nick);
+                }
             }
         }
 
@@ -414,7 +481,7 @@ namespace Gold_Client.ViewModel
         {
             if (privateMessage == null)
             {
-                privateMessage = new PrivateMessageWindow(e.clientFriendName);
+                privateMessage = new PrivateMessageWindow(e.clientFriendName, e.clientPrivMessage);
                 privateMessage.Show();
             }
         }
@@ -427,41 +494,24 @@ namespace Gold_Client.ViewModel
                 lobbies.Add(e.clientChannelName);
             }
         }
-        /// todo ALL IN NEW CLASS
-        //private void OnClientJoinChannel(object sender, ClientEventArgs e)
-        //{
-        //    if (e.clientChannelMsg == "Send Password" || e.clientChannelMsg == "Wrong Password")
-        //    {
-        //        MessageBox.Show("Send Password to channel " + e.clientChannelName, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
 
-        //        ServerAskClient serverAskClient = new ServerAskClient("Send Password", e.clientChannelName);
-        //        serverAskClient.changeLabelContent("Send Password to channel " + e.clientChannelName);
-        //        PasswordBox pb = serverAskClient.addPasswordBoxToWindow("pass1");
-        //        pb.PreviewKeyDown += EnterClicked;
-        //        Button button = serverAskClient.addButton("button", "send");
-        //        button.Click += new RoutedEventHandler(button_Click);
-        //        serverAskClient.Show();
-        //    }
-        //    else if (e.clientChannelMsg2 == "ChannelJoined" || e.clientChannelMsg2 == "CreatedChannel")
-        //    {
-        //        joinedChannelsList.Add(e.clientChannelName);
-        //        MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-        //    }
-        //    else
-        //        MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-        //}
-        //void EnterClicked(object sender, KeyEventArgs e)
-        //{
-        //    if (e.Key == Key.Return)
-        //    {
-        //        clientSendToServer.SendToServer(Command.joinChannel, ClientNameInChannel, clientSendToServer.CalculateChecksum(getMessage()));
-        //        e.Handled = true;
-        //    }
-        //}
-        //private void button_Click(object sender, RoutedEventArgs e)
-        //{
-        //    clientSendToServer.SendToServer(Command.joinChannel, ClientNameInChannel, clientSendToServer.CalculateChecksum(getMessage()));
-        //}
+        private void OnClientJoinChannel(object sender, ClientEventArgs e)
+        {
+            if (e.clientChannelMsg == "Send Password" || e.clientChannelMsg == "Wrong Password")
+            {
+                GenerateChannelPassWindow sendPassword = new GenerateChannelPassWindow();
+                JoinChannelSend.ChannelName = e.clientChannelName;
+                sendPassword.OnClickOrEnter += JoinChannelSend.OnClickOrEnter;
+                sendPassword.createWindow("Send Password: " + e.clientChannelName, "Send Password to channel " + e.clientChannelName + " for join");
+            }
+            else if (e.clientChannelMsg2 == "ChannelJoined" || e.clientChannelMsg2 == "CreatedChannel" && joinedChannelsList.Contains(e.clientChannelName))
+            {
+                joinedChannelsList.Add(e.clientChannelName);
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         private void OnClientExitChannel(object sender, ClientEventArgs e)
         {
@@ -529,11 +579,14 @@ namespace Gold_Client.ViewModel
             foreach (string friendName in listFriends)
             {
                 if (!friendlyUsersConnected.Contains(friendName))
+                {
                     friendlyUsersConnected.Add(friendName);
+                    if (!usersConnected.Contains(friendName))
+                        FriendLoginColor = false;
+                }
             }
         }
 
-        //After we got msg from server that we/friend delete as/friend we need got list of friends
         private void OnClientDeleteFriend(object sender, ClientEventArgs e)
         {
             friendlyUsersConnected.Remove(e.clientFriendName == User.strName ? e.clientName : e.clientFriendName);
@@ -566,23 +619,40 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        private void OnClientKickFromSerwer(object sender, ClientEventArgs e)
+        private void OnClientKickFromServer(object sender, ClientEventArgs e)
         {
             if (e.clientName == User.strName)
             {
-                MessageBox.Show("You are kicked reason: " + e.clientKickReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You are" + e.clientKickReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
                 //Close();
             }
             else
-            {
                 usersConnected.Remove(e.clientName);
-                //incomeMsg += e.clientName + " has kicked reason: " + e.clientKickReason + "\r\n";
-            }
         }
 
-        private void OnClientBanFromSerwer(object sender, ClientEventArgs e)
+        private void OnClientBanFromServer(object sender, ClientEventArgs e)
         {
-            throw new NotImplementedException();
+            if (e.clientName != User.strName)
+            {
+                if (usersConnected.Contains(e.clientName))
+                    usersConnected.Remove(e.clientName);
+                if (friendlyUsersConnected.Contains(e.clientName))
+                    friendlyUsersConnected.Remove(e.clientName);
+            }
+            else if (e.clientName == User.strName)
+            {
+                MessageBox.Show(e.clientBanReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                //and close aplication
+            }
+
+        }
+
+        private void OnClientDeleteChannel(object sender, ClientEventArgs e)
+        {
+            if (Lobbies.Contains(e.clientChannelMsg))
+                lobbies.Remove(e.clientChannelMsg);
+            if (JoinedChannelsList.Contains(e.clientChannelMsg))
+                joinedChannelsList.Remove(e.clientChannelMsg);
         }
     }
 }

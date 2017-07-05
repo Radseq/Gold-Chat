@@ -33,7 +33,6 @@ namespace Server.ClientService
             {
                 SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
                 sendToAll.ResponseToAll();
-                //base.Response();
             }
             else
             {
