@@ -84,37 +84,37 @@ namespace CommandClient
             //The next four store the length of the strMessage4
             int strMessage4Len = BitConverter.ToInt32(data, 20);
 
-            int strFileMsgLen = BitConverter.ToInt32(data, 28); // long has 8 bytes
+            int strFileMsgLen = BitConverter.ToInt32(data, 24);
 
             if (nameLen > 0)
-                strName = Encoding.UTF8.GetString(data, 32, nameLen); // 28 po wprowadeniu byte
+                strName = Encoding.UTF8.GetString(data, 28, nameLen); // 28 po wprowadeniu byte
             else
                 strName = null;
 
             //This check makes sure that strName has been passed in the array of bytes
             if (strMessageLen > 0)
-                strMessage = Encoding.UTF8.GetString(data, 32 + nameLen, strMessageLen);
+                strMessage = Encoding.UTF8.GetString(data, 28 + nameLen, strMessageLen);
             else
                 strMessage = null;
 
             //This checks for a null message field
             if (strMessage2Len > 0)
-                strMessage2 = Encoding.UTF8.GetString(data, 32 + nameLen + strMessageLen, strMessage2Len);
+                strMessage2 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen, strMessage2Len);
             else
                 strMessage2 = null;
 
             if (strMessage3Len > 0)
-                strMessage3 = Encoding.UTF8.GetString(data, 32 + nameLen + strMessageLen + strMessage2Len, strMessage3Len);
+                strMessage3 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len, strMessage3Len);
             else
                 strMessage3 = null;
 
             if (strMessage4Len > 0)
-                strMessage4 = Encoding.UTF8.GetString(data, 32 + nameLen + strMessageLen + strMessage2Len + strMessage3Len, strMessage4Len);
+                strMessage4 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len, strMessage4Len);
             else
                 strMessage4 = null;
 
             if (strFileMsgLen > 0)
-                strFileMsg = data.Skip(32 + nameLen + strMessageLen + strMessage2Len + strMessage3Len + strMessage4Len).Take(strFileMsgLen).ToArray();
+                strFileMsg = data.Skip(28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len + strMessage4Len).Take(strFileMsgLen).ToArray();
             else
                 strFileMsg = null;
         }
