@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.ViewModel.Others;
 using System.Security;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
@@ -8,6 +9,7 @@ namespace Gold_Client.ViewModel.TabWindows
     public class UserSettingsPresenter : ObservableObject
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
+        ProcessReceivedByte proccesReceiverInformation = ProcessReceivedByte.Instance;
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
@@ -33,6 +35,8 @@ namespace Gold_Client.ViewModel.TabWindows
 
         public UserSettingsPresenter()
         {
+            proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+
             Configuration config = new Configuration();
             if (config.loginEmailNotyfication == false)
                 LoginNotyfiIsChecked = false;

@@ -124,7 +124,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.privMessage:
-                    OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strMessage2);
+                    OnClientPrivMessage(msgReceived.strMessage, msgReceived.strMessage2);
                     break;
 
                 case Command.createChannel:
@@ -137,6 +137,10 @@ namespace Gold_Client.ViewModel.Others
 
                 case Command.exitChannel:
                     OnClientExitChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                    break;
+
+                case Command.editChannel:
+                    // ToDo All
                     break;
 
                 case Command.deleteChannel:
@@ -205,7 +209,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.sendFile:
-                    OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strFileMsg);
+                    OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strMessage4, msgReceived.strFileMsg);
                     break;
             }
         }
@@ -366,9 +370,9 @@ namespace Gold_Client.ViewModel.Others
             ClientBanFromServer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanReason = banReason });
         }
         // File or Respond From server
-        protected virtual void OnClientReceiveFile(string fileLen, string fileName, string friendName, Byte[] fileByteReceive)
+        protected virtual void OnClientReceiveFile(string fileLen, string friendName, string fileName, string respond, Byte[] fileByteReceive)
         {
-            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { FileLen = fileLen, FileName = fileName, clientFriendName = friendName, FileByte = fileByteReceive });
+            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { FileLen = fileLen, clientFriendName = friendName, FileName = fileName, clientMessage = respond, FileByte = fileByteReceive });
         }
     }
 }

@@ -134,6 +134,10 @@ namespace Server
                         clientExitChannel.RespondToClient();
                         break;
 
+                    case Command.editChannel:
+                        // TODO ALL
+                        break;
+
                     case Command.deleteChannel:
                         clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientDeleteChannel.Execute();

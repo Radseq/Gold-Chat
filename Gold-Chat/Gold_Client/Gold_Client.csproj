@@ -66,6 +66,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -93,6 +94,7 @@
     <Compile Include="ProgramableWindow\DeleteChannelSend.cs" />
     <Compile Include="ProgramableWindow\GenerateChannelPassWindow.cs" />
     <Compile Include="ProgramableWindow\CreateWindow.cs" />
+    <Compile Include="ViewModel\Others\ReceiveFilePresenter.cs" />
     <Compile Include="ViewModel\PrivateMessagePresenter.cs" />
     <Compile Include="ViewModel\SendFilePresenter.cs" />
     <Compile Include="ViewModel\TabWindows\ChannelWindowPresenter.cs" />
@@ -127,6 +129,12 @@
     </Compile>
     <Compile Include="View\MainProgramWindow.xaml.cs">
       <DependentUpon>MainProgramWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Others\ReceiveFileControl.xaml.cs">
+      <DependentUpon>ReceiveFileControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Others\ReceiveFileWindow.xaml.cs">
+      <DependentUpon>ReceiveFileWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\PrivateMessageControl.xaml.cs">
       <DependentUpon>PrivateMessageControl.xaml</DependentUpon>
@@ -234,6 +242,14 @@
     <Page Include="View\MainProgramWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Others\ReceiveFileControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Others\ReceiveFileWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\PrivateMessageControl.xaml">
       <SubType>Designer</SubType>

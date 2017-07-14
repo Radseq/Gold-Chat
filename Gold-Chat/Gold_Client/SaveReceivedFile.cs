@@ -7,15 +7,30 @@ namespace Gold_Client
     {
         private BinaryWriter writer;
 
+        private string fileSavePath = "C:/";
+
+        public string FileSavePath
+        {
+            get
+            {
+                return fileSavePath;
+            }
+            set
+            {
+                fileSavePath = value.Replace("\\", "/");
+            }
+        }
+
         public void OpenFile(string fileName)
         {
-            if (!File.Exists(fileName))
+            fileSavePath = fileSavePath + "/" + fileName;
+            if (!File.Exists(fileSavePath))
             {
-                writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+                writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Create));
             }
             else
             {
-                writer = new BinaryWriter(File.Open(fileName, FileMode.Append));
+                writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Append));
             }
         }
 

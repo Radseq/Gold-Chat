@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Gold_Client.View.Others.ReceiveFileControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignWidth="300" Height="192">
+    <Grid>
+        <Label Content="{Binding ReceiveFileMessage, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="65" Width="280"/>
+        <TextBox Text="{Binding SavePatchTextBox, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" HorizontalAlignment="Left" Height="23" Margin="10,105,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="280"/>
+        <Button Content="Save To" Command="{Binding SelectPatchCommand}" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Width="75"/>
+        <ProgressBar Value="{Binding CurrentDownloadProgress, Mode=OneWay}" HorizontalAlignment="Left" Height="19" Margin="10,164,0,0" VerticalAlignment="Top" Width="280"/>
+        <Label Content="Receive progress:" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top" Width="105"/>
+        <Button Content="Receive" Command="{Binding StartReceiveCommand}" HorizontalAlignment="Left" Margin="215,80,0,0" VerticalAlignment="Top" Width="75"/>
+
+    </Grid>
+</UserControl>

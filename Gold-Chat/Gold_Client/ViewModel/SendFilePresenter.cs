@@ -17,6 +17,7 @@ namespace Gold_Client.ViewModel
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         private string filePatchTextBox;
+        private string sendingStep;
 
         public SendFilePresenter()
         {
@@ -25,9 +26,15 @@ namespace Gold_Client.ViewModel
 
         private void GetMessageFromServer(object sender, ClientEventArgs e)
         {
+            // should we received message that user accept receive or deny if accept use SendMethod else stop
             if (e.clientFriendName != App.Client.strName)
             {
                 MessageBox.Show(e.FileLen, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                if (e.clientMessage == "AcceptReceive")
+                {
+                    SendFile();
+                    SendingStep = e.clientFriendName + " starting receive file from you";
+                }
             }
         }
 
@@ -41,15 +48,31 @@ namespace Gold_Client.ViewModel
             }
         }
 
+        public string SendingStep
+        {
+            get { return sendingStep; }
+            set
+            {
+                sendingStep = value;
+                RaisePropertyChangedEvent(nameof(SendingStep));
+            }
+        }
+
         public ICommand BrowseFileCommand => new DelegateCommand(() =>
         {
             FileToSend = BrowseFileDialog();
+            FilePatchTextBox = FileToSend;
         });
 
         public ICommand SendFileCommand => new DelegateCommand(() =>
         {
             if (!string.IsNullOrWhiteSpace(NameOfUserToSendFile) && !string.IsNullOrWhiteSpace(FileToSend))
-                Send();
+            {
+                SendingStep = "Send File Info to user Waiting for accept";
+                //SendFileInfo and then Send();
+                SendFileInfo();
+                //Send();
+            }
         });
 
         private string parseDirIntoFileName()
@@ -80,6 +103,10 @@ namespace Gold_Client.ViewModel
             return fileName;
         }
 
+        private void SendFileInfo()
+        {
+            clientSendToServer.SendToServer(Command.sendFile, getFileLen().ToString(), NameOfUserToSendFile, parseDirIntoFileName());
+        }
 
         private long getFileLen()
         {
@@ -87,10 +114,10 @@ namespace Gold_Client.ViewModel
             return fileInfo.Length;
         }
 
-        public void Send()
+        public void SendFile()
         {
             int readBytes = 0;
-            byte[] buffer = new byte[512];
+            byte[] buffer = new byte[980];
 
             // Blocking read file and send to the clients asynchronously.
             using (FileStream stream = new FileStream(FileToSend, FileMode.Open))
@@ -100,7 +127,7 @@ namespace Gold_Client.ViewModel
                     stream.Flush();
                     readBytes = stream.Read(buffer, 0, buffer.Length);
 
-                    clientSendToServer.SendToServer(Command.sendFile, getFileLen().ToString(), parseDirIntoFileName(), NameOfUserToSendFile, null, buffer);
+                    clientSendToServer.SendToServer(Command.sendFile, NameOfUserToSendFile, null, null, null, buffer);
                 }
                 while (readBytes > 0);
             }

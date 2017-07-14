@@ -1,5 +1,10 @@
 ### What is Gold-Chat?
 
+### Attention!
+### To log in you need fill login and password then press many times enter key.
+because i still suffer with receive login
+
+
 Gold-Chat its a communicator which allow ppl to talk in 3 diffrent ways(Global channel, Own channel, private)
 using asynchronous sockets, and mysql. <br />
 Serwer is manage connections, querys etc with DataBase. <br />
@@ -47,7 +52,7 @@ Please create an issue in our [bug tracker](https://github.com/Radseq/Gold-Chat/
 ### Contributing
 
 You can make pull requests of any improvement in our github page.
-[Contributors List)](https://github.com/Radseq/Gold-Chat/graphs/contributors)
+[Contributors List](https://github.com/Radseq/Gold-Chat/graphs/contributors)
 
 ### Contact
 

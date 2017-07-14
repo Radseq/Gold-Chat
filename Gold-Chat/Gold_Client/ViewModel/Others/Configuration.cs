@@ -8,6 +8,7 @@ namespace Gold_Client.ViewModel
     public class Configuration
     {
         public bool loginEmailNotyfication { get; set; }
+        public string SaveFilePatch { get; set; }
 
         public void SaveConfig(Configuration conf)
         {

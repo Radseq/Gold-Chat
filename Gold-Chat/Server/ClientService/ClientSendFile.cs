@@ -51,8 +51,10 @@ namespace Server.ClientService
             if (IsNoError)
             {
                 SendMessageToNick sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
-                sendToNick.Send.strName = FriendName;
                 sendToNick.Send.strFileMsg = fileSendByte;
+                sendToNick.Send.strMessage3 = Client.strName;
+                sendToNick.Send.strName = FriendName;
+
                 sendToNick.ResponseToNick();
             }
             else

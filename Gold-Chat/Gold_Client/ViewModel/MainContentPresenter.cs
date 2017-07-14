@@ -7,6 +7,7 @@ using Gold_Client.ViewModel.Others;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -52,8 +53,6 @@ namespace Gold_Client.ViewModel
             proccesReceiverInformation.ClientLogin += OnClientLogin;
             proccesReceiverInformation.ClientLogout += OnClientLogout;
             proccesReceiverInformation.ClientList += OnClientList;
-            proccesReceiverInformation.ClientPrivMessage += OnClientPrivMessage;
-            proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
 
             clientReceiveFromServer.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Error);
             //proccesReceiverInformation.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -92,10 +91,14 @@ namespace Gold_Client.ViewModel
             if (e.clientFriendName == App.Client.strName)
             {
                 // TODO first message is send about fileName length etc, then file bytes
+                Task t = Task.Factory.StartNew(() =>
+                {
+                    SaveReceivedFile saveFile = new SaveReceivedFile();
+                    saveFile.OpenFile(e.FileName);
+                    saveFile.SaveFile(e.FileByte);
+                });
+                t.Wait();
 
-                SaveReceivedFile saveFile = new SaveReceivedFile();
-                saveFile.OpenFile(e.FileName);
-                saveFile.SaveFile(e.FileByte);
             }
         }
 

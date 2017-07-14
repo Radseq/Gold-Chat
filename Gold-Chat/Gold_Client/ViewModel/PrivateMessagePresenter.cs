@@ -60,7 +60,7 @@ namespace Gold_Client.ViewModel
         private void OnClientPrivMessage(object sender, ClientEventArgs e)
         {
             FriendName = e.clientFriendName;
-            IncomePrivMessage += e.clientPrivMessage;
+            IncomePrivMessage += e.clientPrivMessage + "\r\n";
         }
     }
 }
