@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Gold_Client.ViewModel
 {
@@ -36,6 +37,10 @@ namespace Gold_Client.ViewModel
         public void BeginReceive()
         {
             App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), App.Client);
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+            {
+                OnDataReceived?.Invoke(this, EventArgs.Empty);
+            }));
             //Task<byte[]> t = Task.Run(() => ReceiveAMessage());
             //t.ContinueWith((t1) =>
             //{
@@ -76,7 +81,7 @@ namespace Gold_Client.ViewModel
                 //{
                 //    OnDataReceived?.Invoke(this, EventArgs.Empty);
                 //}));
-                Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(() =>
                 {
                     OnDataReceived?.Invoke(this, EventArgs.Empty);
                 }));

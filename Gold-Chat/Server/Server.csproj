@@ -71,6 +71,7 @@
     <Compile Include="ClientService\ClientKick.cs" />
     <Compile Include="ClientService\ClientKickFromChannel.cs" />
     <Compile Include="ClientService\ClientSendFile.cs" />
+    <Compile Include="ClientService\ClientSendFileInfo.cs" />
     <Compile Include="ClientService\List\ClientLeaveChannel.cs" />
     <Compile Include="ClientService\ClientListManager.cs" />
     <Compile Include="ClientService\ClientLogin.cs" />

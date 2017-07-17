@@ -6,10 +6,10 @@
              xmlns:local="clr-namespace:Gold_Client.View"
              mc:Ignorable="d" d:DesignWidth="300" Height="101.695">
     <Grid>
-        <Button Content="Browse..." HorizontalAlignment="Left" Command="{Binding BrowseFileCommand}" Margin="215,10,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button Content="Browse..." HorizontalAlignment="Left" Command="{Binding BrowseFileCommand}" Margin="235,10,0,0" VerticalAlignment="Top" Width="55"/>
         <Label Content="File:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="70"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="10,42,0,0" Text="{Binding FilePatchTextBox, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top" Width="280"/>
-        <Button Content="Send File" HorizontalAlignment="Left" Command="{Binding SendFileCommand}" Margin="215,72,0,0" VerticalAlignment="Top" Width="75"/>
+        <TextBox HorizontalAlignment="Left" Height="23" IsEnabled="False" Margin="10,42,0,0" Text="{Binding FilePatchTextBox, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top" Width="280"/>
+        <Button Content="Send File" HorizontalAlignment="Left" Command="{Binding SendFileCommand}" Margin="235,72,0,0" VerticalAlignment="Top" Width="55"/>
         <Label Content="{Binding SendingStep}" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
 
     </Grid>

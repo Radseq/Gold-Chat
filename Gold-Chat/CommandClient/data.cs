@@ -87,7 +87,7 @@ namespace CommandClient
             int strFileMsgLen = BitConverter.ToInt32(data, 24);
 
             if (nameLen > 0)
-                strName = Encoding.UTF8.GetString(data, 28, nameLen); // 28 po wprowadeniu byte
+                strName = Encoding.UTF8.GetString(data, 28, nameLen);
             else
                 strName = null;
 

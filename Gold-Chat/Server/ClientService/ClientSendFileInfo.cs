@@ -4,16 +4,17 @@ using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientSendFile : ServerResponds, IClient, IPrepareRespond
+    class ClientSendFileInfo : ServerResponds, IClient, IPrepareRespond
     {
 
         //getFileLen().ToString(), parseDirIntoFileName(), NameOfUserToSendFile, null, buffer
         List<Client> ListOfClientsOnline;
 
-        private string FriendName;
+        private string fileLen;
         private string FileName;
+        private string FriendName;
         private Client UserToSend;
-        private byte[] fileSendByte;
+
         private bool IsNoError = false;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
@@ -27,13 +28,19 @@ namespace Server.ClientService
         {
             prepareResponse();
             FriendName = Received.strMessage;
-            FileName = Received.strMessage2;
-            fileSendByte = Received.strFileMsg;
+            fileLen = Received.strMessage2;
+            FileName = Received.strMessage3;
+
+            Send.strMessage4 = null;
 
             UserToSend = ClientGets.getClinetByName(ListOfClientsOnline, FriendName);
 
-            if (UserToSend != null && FileName != null)
+            if (UserToSend != null && fileLen != null && FileName != null)
                 IsNoError = true;
+            else if (fileLen == "AcceptReceive")
+            {
+                IsNoError = true;
+            }
             else
             {
                 Send.strMessage = "No user or no file";
@@ -47,7 +54,6 @@ namespace Server.ClientService
             if (IsNoError)
             {
                 SendMessageToNick sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
-                sendToNick.Send.strFileMsg = fileSendByte;
                 sendToNick.Send.strMessage = Client.strName;
                 sendToNick.Send.strName = FriendName;
 

@@ -103,6 +103,7 @@
     <Compile Include="ViewModel\TabWindows\GlobalMessageContentPresenter.cs" />
     <Compile Include="ViewModel\TabWindows\UserSettingsPresenter.cs" />
     <Compile Include="ViewModel\TabWindows\UserSuggestPresenter.cs" />
+    <Compile Include="ViewModel\TextBoxBehaviour.cs" />
     <Compile Include="View\BanUserControl.xaml.cs">
       <DependentUpon>BanUserControl.xaml</DependentUpon>
     </Compile>

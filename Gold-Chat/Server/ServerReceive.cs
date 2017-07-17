@@ -45,6 +45,7 @@ namespace Server
         ClientKickFromChannel clientKickFromChannel = new ClientKickFromChannel();
         ClientBanFromChannel clientBanFromChannel = new ClientBanFromChannel();
         ClientSendFile clientSendFile = new ClientSendFile();
+        ClientSendFileInfo clientSendFileInfo = new ClientSendFileInfo();
 
         byte[] byteData = new byte[1024];
 
@@ -191,9 +192,18 @@ namespace Server
                         break;
 
                     case Command.sendFile:
-                        clientSendFile.Load(client, Received, ListOfClientsOnline);
-                        clientSendFile.Execute();
-                        clientSendFile.RespondToClient();
+                        if (Received.strFileMsg != null)
+                        {
+                            clientSendFile.Load(client, Received, ListOfClientsOnline);
+                            clientSendFile.Execute();
+                            clientSendFile.RespondToClient();
+                        }
+                        else
+                        {
+                            clientSendFileInfo.Load(client, Received, ListOfClientsOnline);
+                            clientSendFileInfo.Execute();
+                            clientSendFileInfo.RespondToClient();
+                        }
                         break;
                 }
 

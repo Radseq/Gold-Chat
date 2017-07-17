@@ -2,12 +2,13 @@
 using Gold_Client.Model;
 using Gold_Client.ProgramableWindow;
 using Gold_Client.View;
+using Gold_Client.View.Others;
 using Gold_Client.View.TabWindows;
 using Gold_Client.ViewModel.Others;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -79,26 +80,19 @@ namespace Gold_Client.ViewModel
             //ban/kick
             proccesReceiverInformation.ClientKickFromServer += OnClientKickFromServer;
             proccesReceiverInformation.ClientBanFromServer += OnClientBanFromServer;
-            proccesReceiverInformation.ClientReceiveFile += OnClientReceiveFile;
+            proccesReceiverInformation.ClientReceiveFileInfo += OnClientReceiveFileInfo;
             InformServerToSendUserLists informServerToSendUserLists = new InformServerToSendUserLists();
 
             addTab(new GlobalMessageContent(), "Main");
             SelectedTabControlIndex = 0;
         }
 
-        private void OnClientReceiveFile(object sender, ClientEventArgs e)
+        private void OnClientReceiveFileInfo(object sender, ClientEventArgs e)
         {
-            if (e.clientFriendName == App.Client.strName)
+            if (e.clientName == App.Client.strName && e.FileLen != "AcceptReceive")
             {
-                // TODO first message is send about fileName length etc, then file bytes
-                Task t = Task.Factory.StartNew(() =>
-                {
-                    SaveReceivedFile saveFile = new SaveReceivedFile();
-                    saveFile.OpenFile(e.FileName);
-                    saveFile.SaveFile(e.FileByte);
-                });
-                t.Wait();
-
+                ReceiveFileWindow getFileInfo = new ReceiveFileWindow(e.clientFriendName, e.FileName, Convert.ToInt64(e.FileLen));
+                getFileInfo.Show();
             }
         }
 
@@ -485,7 +479,7 @@ namespace Gold_Client.ViewModel
             if (privateMessage == null)
             {
                 privateMessage = new PrivateMessageWindow(e.clientFriendName, e.clientPrivMessage);
-                privateMessage.Show();
+                privateMessage.ShowDialog();
             }
         }
 

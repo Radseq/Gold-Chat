@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace Gold_Client.ViewModel.Others
 {
-    class ProcessReceivedByte
+    public class ProcessReceivedByte
     {
         ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
 
@@ -75,11 +75,13 @@ namespace Gold_Client.ViewModel.Others
         public event EventHandler<ClientEventArgs> ClientListIgnored;
         //kick/ban
         public event EventHandler<ClientEventArgs> ClientKickFromChannel;
+
         public event EventHandler<ClientEventArgs> ClientBanFromChannel;
         public event EventHandler<ClientEventArgs> ClientKickFromServer;
         public event EventHandler<ClientEventArgs> ClientBanFromServer;
         //public event EventHandler<ClientEventArgs> ClientListIgnored;
         public event EventHandler<ClientEventArgs> ClientReceiveFile;
+        public event EventHandler<ClientEventArgs> ClientReceiveFileInfo;
 
         private void ProccesData(object sender, EventArgs e)
         {
@@ -209,7 +211,10 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.sendFile:
-                    OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strMessage4, msgReceived.strFileMsg);
+                    if (msgReceived.strFileMsg != null)
+                        OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strFileMsg);
+                    else
+                        OnClientReceiveFileInfo(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strName);
                     break;
             }
         }
@@ -369,10 +374,15 @@ namespace Gold_Client.ViewModel.Others
         {
             ClientBanFromServer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanReason = banReason });
         }
-        // File or Respond From server
-        protected virtual void OnClientReceiveFile(string fileLen, string friendName, string fileName, string respond, Byte[] fileByteReceive)
+        // File or Respond From server need to change names to messages because names wrong tells whats happend
+        protected virtual void OnClientReceiveFile(string friendName, string fileName, Byte[] fileByteReceive)
         {
-            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { FileLen = fileLen, clientFriendName = friendName, FileName = fileName, clientMessage = respond, FileByte = fileByteReceive });
+            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { clientFriendName = friendName, FileName = fileName, FileByte = fileByteReceive });
+        }
+
+        protected virtual void OnClientReceiveFileInfo(string friendName, string fileLen, string fileName, string ClientName)
+        {
+            ClientReceiveFileInfo?.Invoke(this, new ClientEventArgs() { clientFriendName = friendName, FileLen = fileLen, FileName = fileName, clientName = ClientName });
         }
     }
 }
