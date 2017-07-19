@@ -3,8 +3,7 @@
 Gold-Chat its a communicator which allow ppl to talk in 3 diffrent ways(Global channel, Own channel, private)
 using asynchronous sockets, and mysql. <br />
 Serwer is manage connections, querys etc with DataBase. <br />
-I write this program to increase my programming skill, have a fun, satisfaction
-and i do realize with that. It's probably very bad written! :D.
+I write this program to increase my programming skill, have a fun, satisfaction.
 
 ### Features
 
@@ -21,7 +20,7 @@ Adding To friend list | ignored list <br />
 Delete from friend list | ignored list <br />
 List of channels, friends, ignored, joined channels <br />
 
-* Channels: <br />
+Channels: <br />
 * Create. <br />
 * Delete, by owner. <br />
 * Leave, on close channel tab or leave on JoinedChannels menu. <br />
