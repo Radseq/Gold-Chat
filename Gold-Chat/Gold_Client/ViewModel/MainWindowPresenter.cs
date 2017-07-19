@@ -8,6 +8,7 @@ namespace Gold_Client.ViewModel
     public class MainWindowPresenter : ObservableObject
     {
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
+        public Action CloseAction { get; set; }
 
         public MainWindowPresenter()
         {
@@ -45,7 +46,7 @@ namespace Gold_Client.ViewModel
         }
         private void OpenMainWindow(object obj)
         {
-            SelectedViewModel = new MainContentPresenter();
+            SelectedViewModel = new MainContentPresenter(CloseAction);
         }
     }
 }

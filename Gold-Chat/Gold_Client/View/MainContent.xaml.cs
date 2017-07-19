@@ -1,5 +1,4 @@
-﻿using Gold_Client.ViewModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace Gold_Client.View
 {

@@ -31,12 +31,11 @@ namespace Gold_Client.ViewModel
             }
             else
                 MessageBox.Show("Login or password cant be null", "Login Information", MessageBoxButton.OK, MessageBoxImage.Error);
-
         });
 
         public ICommand RegistrationWindowCommand => new DelegateCommand(() =>
         {
-            RegistrationWindow registration = new RegistrationWindow();
+            RegistrationWindow registration = new RegistrationWindow(this);
             registration.Show();
         });
 

@@ -3,6 +3,7 @@ using Gold_Client.Model;
 using Gold_Client.ViewModel.Others;
 using Microsoft.Win32;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -119,18 +120,23 @@ namespace Gold_Client.ViewModel
         {
             int readBytes = 0;
             byte[] buffer = new byte[980];
-
+            Task task;
             // Blocking read file and send to the clients asynchronously.
             using (FileStream stream = new FileStream(FileToSend, FileMode.Open))
             {
-                do
+                task = new Task(() => // Send every 500ms bytes of file
                 {
-                    stream.Flush();
-                    readBytes = stream.Read(buffer, 0, buffer.Length);
+                    do
+                    {
+                        stream.Flush();
+                        readBytes = stream.Read(buffer, 0, buffer.Length);
 
-                    clientSendToServer.SendToServer(Command.sendFile, NameOfUserToSendFile, parseDirIntoFileName(), null, null, buffer);
-                }
-                while (readBytes > 0);
+                        clientSendToServer.SendToServer(Command.sendFile, NameOfUserToSendFile, parseDirIntoFileName(), null, null, buffer);
+                        Task wait = Task.Delay(500);
+
+                    }
+                    while (readBytes > 0);
+                });
             }
         }
     }

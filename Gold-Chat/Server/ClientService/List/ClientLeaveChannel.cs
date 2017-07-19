@@ -9,6 +9,8 @@ namespace Server.ClientService
         List<Channel> ChannelsList;
         List<Client> ListOfClientsOnline;
 
+        string ChannelName;
+
         public void Load(Client client, Data receive, List<Client> clientList, List<Channel> channelList)
         {
             Client = client;
@@ -20,10 +22,10 @@ namespace Server.ClientService
         public void Execute()
         {
             prepareResponse();
-            string channelName = Received.strMessage;
-            Client.enterChannels.Remove(channelName);
+            ChannelName = Received.strMessage;
+            Client.enterChannels.Remove(ChannelName);
             // Remove user form channel users
-            Channel channel = ChannelGets.getChannelByName(ChannelsList, channelName);
+            Channel channel = ChannelGets.getChannelByName(ChannelsList, ChannelName);
             if (channel != null)
                 channel.Users.Remove(Client.strName);
 
@@ -33,7 +35,7 @@ namespace Server.ClientService
         public void Response()
         {
             RespondToClient();
-            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, Received.strMessage/*ChannelName*/);
+            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, ChannelName);
             sendToChannel.ResponseToChannel();
         }
     }

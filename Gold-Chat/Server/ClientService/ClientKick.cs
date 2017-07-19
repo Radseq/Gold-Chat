@@ -51,7 +51,8 @@ namespace Server.ClientService
                 sendToAll.ResponseToAll();
                 KickeUser.cSocket.Close();
             }
-            base.RespondToClient();
+            else
+                base.RespondToClient();
         }
     }
 }

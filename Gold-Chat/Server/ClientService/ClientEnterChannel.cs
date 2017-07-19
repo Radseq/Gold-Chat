@@ -10,6 +10,8 @@ namespace Server.ClientService
         //list of all channels
         private List<Channel> Channels;
         List<Client> ListOfClientsOnline;
+        bool IsUserEnter = false;
+        string ChannelName;
 
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -24,9 +26,9 @@ namespace Server.ClientService
         public void Execute()
         {
             prepareResponse();
-            string channelName = Received.strMessage;
+            ChannelName = Received.strMessage;
 
-            db.bind(new string[] { "channelName", channelName, "idUser", Client.id.ToString() });
+            db.bind(new string[] { "channelName", ChannelName, "idUser", Client.id.ToString() });
             db.manySelect("SELECT uc.id_channel, c.welcome_message FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser");
 
             string[] respond = db.tableToRow();
@@ -35,25 +37,22 @@ namespace Server.ClientService
                 int id_channel_db = Int32.Parse(respond[0]);
                 string motd = respond[1];
 
-                Channel channel = ChannelGets.getChannelByName(Channels, channelName);
+                Channel channel = ChannelGets.getChannelByName(Channels, ChannelName);
 
                 if (channel != null)
                 {
-                    if (!channel.Users.Contains(Received.strName) && (!Client.enterChannels.Contains(channelName)))
+                    if (!channel.Users.Contains(Received.strName) && (!Client.enterChannels.Contains(ChannelName)))
                     {
                         channel.Users.Add(Received.strName);
-                        Client.enterChannels.Add(channelName);
+                        Client.enterChannels.Add(ChannelName);
 
                         Send.strMessage2 = "enter";
                         Send.strMessage3 = motd;
-
-                        // Because user is in channel now, msg will send to him aswell
-                        SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
-                        sendToChannel.ResponseToChannel();
+                        IsUserEnter = true;
                     }
                     else
                     {
-                        userWontJoinToServer("Cannot enter Because you already entered to ", channelName);
+                        userWontJoinToServer("Cannot enter Because you already entered to ");
                     }
                 }
 
@@ -61,15 +60,26 @@ namespace Server.ClientService
             }
             else
             {
-                userWontJoinToServer("Cannot Enter Because you not join to ", channelName);
+                userWontJoinToServer("Cannot Enter Because you not join to ");
             }
         }
 
-        private void userWontJoinToServer(string serverMessage, string channelName)
+        private void userWontJoinToServer(string serverMessage)
         {
             Send.strMessage2 = "deny";
-            Send.strMessage3 = serverMessage + channelName;
+            Send.strMessage3 = serverMessage + ChannelName;
             RespondToClient();
+        }
+
+        public override void RespondToClient()
+        {
+            if (IsUserEnter)
+            {
+                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, ChannelName);
+                sendToChannel.ResponseToChannel();
+            }
+            else
+                base.RespondToClient();
         }
     }
 }

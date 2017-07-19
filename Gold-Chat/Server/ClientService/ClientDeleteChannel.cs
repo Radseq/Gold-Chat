@@ -34,27 +34,23 @@ namespace Server.ClientService
             channelName = Received.strMessage;
             string adminPass = Received.strMessage2;
 
-            Send.strMessage2 = null; // We dont want send admin password to clients
+            Send.strMessage2 = "Deny";
 
             db.bind(new string[] { "channelName", channelName, "idUserFounder", Client.id.ToString() });
 
             string admPass = db.singleSelect("SELECT admin_password FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUserFounder");
-            if (adminPass != "")
-            {
-                if (adminPass == admPass)
-                    deleteChannelFromDb(channelName);// Delete channel from db
-                else
-                    Send.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
-            }
+
+            if (adminPass == admPass)
+                deleteChannelFromDb(channelName);
             else
-                Send.strMessage = "You cannot delete channel that you not own";
+                Send.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
         }
 
         private void deleteChannelFromDb(string channelName)
         {
             db.bind(new string[] { "channelName", channelName, "idUser", Client.id.ToString() });
-            int deleteChannelResult = db.delUpdateInsertDb("DELETE FROM channel c, user_channel uc WHERE c.id_channel = uc.id_channel AND c.channel_name = @channelName AND c.id_user_founder = @idUser");
-
+            int deleteChannelResult = db.delUpdateInsertDb("DELETE FROM channel WHERE channel.channel_name = @channelName AND channel.id_user_founder = @idUser");
+            // user_channel will be also deleted cuse of - on delete cascade
             if (deleteChannelResult > 0)
             {
                 channelToDelete = ChannelGets.getChannelByName(ChannelsList, channelName);
@@ -62,13 +58,14 @@ namespace Server.ClientService
                 {
                     UsersThatEnterToThisChanel = ClientGets.getClientEnterChannels(ListOfClientsOnline, channelName);
                     isChannelExists = true;
+                    Send.strMessage2 = Client.strName;
                 }
                 else Send.strMessage = "You channel not exists";
             }
             else Send.strMessage = "You cannot delete your channel by exit with unknown reason (error).";
         }
 
-        private void usersEnteredChannelsDelete_DeletedChannel() // i mean clint have list of channel where entered and users need delete that deleted channel
+        private void usersEnteredChannelsDeleteChannel() // i mean clint have list of channel where entered and users need delete that deleted channel
         {
             Client client = ClientGets.getClientEnterChannel(UsersThatEnterToThisChanel, channelName);
             if (client != null)
@@ -83,12 +80,13 @@ namespace Server.ClientService
                 SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
                 sendToChannel.ResponseToChannel();
 
-                usersEnteredChannelsDelete_DeletedChannel();
+                usersEnteredChannelsDeleteChannel();
                 ChannelsList.Remove(channelToDelete);
 
                 OnClientDeleteChannel(channelName, Client.strName);
             }
-            base.RespondToClient();
+            else
+                base.RespondToClient();
         }
 
         protected virtual void OnClientDeleteChannel(string channelName, string userName)

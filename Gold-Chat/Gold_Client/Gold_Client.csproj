@@ -88,6 +88,7 @@
     <Compile Include="SaveReceivedFile.cs" />
     <Compile Include="ViewModel\BanUserPresenter.cs" />
     <Compile Include="ViewModel\MainContentPresenter.cs" />
+    <Compile Include="ViewModel\Others\ActivationUserPresenter.cs" />
     <Compile Include="ViewModel\Others\CloseableTabItem.cs" />
     <Compile Include="ViewModel\Others\ListsTakesFromServer.cs" />
     <Compile Include="ViewModel\Others\ProcessReceivedByte.cs" />
@@ -130,6 +131,12 @@
     </Compile>
     <Compile Include="View\MainProgramWindow.xaml.cs">
       <DependentUpon>MainProgramWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Others\ActivationUserControl.xaml.cs">
+      <DependentUpon>ActivationUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Others\ActivationUserWindow.xaml.cs">
+      <DependentUpon>ActivationUserWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Others\ReceiveFileControl.xaml.cs">
       <DependentUpon>ReceiveFileControl.xaml</DependentUpon>
@@ -243,6 +250,14 @@
     <Page Include="View\MainProgramWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Others\ActivationUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Others\ActivationUserWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Others\ReceiveFileControl.xaml">
       <SubType>Designer</SubType>

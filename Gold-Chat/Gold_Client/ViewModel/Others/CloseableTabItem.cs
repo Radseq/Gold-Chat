@@ -31,9 +31,8 @@ namespace Gold_Client.ViewModel
 
         private void OnClientDeleteChannel(object sender, ClientEventArgs e)
         {
-            if (e.clientChannelMsg == tabControlName)
+            if (e.clientChannelMsg == tabControlName && e.clientChannelMsg2 != "Deny")
             {
-                MessageBox.Show("Channel owner delete channel " + tabControlName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
                 removeTab();
             }
         }
@@ -53,6 +52,7 @@ namespace Gold_Client.ViewModel
                 getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
                 getMessageFromServer.ClientDeleteChannel += OnClientDeleteChannel;
                 getMessageFromServer.ClientBanFromChannel += OnClientBanFromChannel;
+                getMessageFromServer.ClientChannelLeave += OnClientChannelLeave;
             }
 
 
@@ -61,17 +61,25 @@ namespace Gold_Client.ViewModel
             closeButton.Click +=
                 (sender, e) =>
                 {
-                    // var a = ((TabControl)((TabItem)sender).Parent);
-                    //var tabControl = Parent as ItemsControl;
-                    //tabControl.Items.Remove(this);
-                    tb.Remove(this);
-                    if (isChannel)
-                        clientSendToServer.SendToServer(Command.leaveChannel, tabControlName);
+                    if (tabControlName != "Main")
+                    {
+                        tb.Remove(this);
+                        if (isChannel)
+                            clientSendToServer.SendToServer(Command.leaveChannel, tabControlName);
+                    }
+                    else
+                        MessageBox.Show("Cannot close Main Tab!", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
                 };
             dockPanel.Children.Add(closeButton);
 
             // Set the header
             Header = dockPanel;
+        }
+
+        private void OnClientChannelLeave(object sender, ClientEventArgs e)
+        {
+            if (tabControlName == e.clientChannelMsg && App.Client.strName == e.clientName)
+                removeTab();
         }
 
         private void OnClientBanFromChannel(object sender, ClientEventArgs e)
@@ -85,7 +93,6 @@ namespace Gold_Client.ViewModel
 
         private void removeTab()
         {
-            //var tabControl = Parent as ItemsControl;
             tb.Remove(this);
         }
     }

@@ -20,13 +20,13 @@ namespace Gold_Client.ViewModel.TabWindows
             getMessageFromServer.ClientLogout += OnClientLogout;
             getMessageFromServer.ClientMessage += OnClientMessage;
             getMessageFromServer.ClientKickFromServer += OnClientKickFromServer;
-            getMessageFromServer.ClientBanFromServer += OnClientBanFromSerwer;
+            getMessageFromServer.ClientBanFromServer += OnClientBanFromServer;
         }
 
-        private void OnClientBanFromSerwer(object sender, ClientEventArgs e)
+        private void OnClientBanFromServer(object sender, ClientEventArgs e)
         {
             if (e.clientName != App.Client.strName)
-                IncomeMessageTB = "User: " + e.clientName + " banned for: " + e.clientBanReason + "untill: " + e.clientBanTime;
+                IncomeMessageTB = e.clientBanReason + "\r\n";
         }
 
         public string IncomeMessageTB
@@ -68,14 +68,14 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void OnClientMessage(object sender, ClientEventArgs e)
         {
-            IncomeMessageTB += e.clientMessage + Environment.NewLine;
+            IncomeMessageTB += e.clientMessage + Environment.NewLine; // Or + "\r\n" 
         }
 
         private void OnClientKickFromServer(object sender, ClientEventArgs e)
         {
             if (e.clientName != App.Client.strName)
             {
-                IncomeMessageTB += e.clientName + " has kicked, reason: " + e.clientKickReason + "\r\n";
+                IncomeMessageTB += e.clientName + " has kicked, " + e.clientKickReason + "\r\n";
             }
         }
     }

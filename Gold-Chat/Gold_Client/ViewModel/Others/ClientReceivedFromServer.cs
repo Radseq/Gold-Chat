@@ -32,10 +32,15 @@ namespace Gold_Client.ViewModel
                 }
             }
         }
+
+        public bool IsClientStartReceive { get; set; }
+
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
 
         public void BeginReceive()
         {
+            IsClientStartReceive = true;
+
             App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), App.Client);
             Application.Current.Dispatcher.BeginInvoke((Action)(() =>
             {

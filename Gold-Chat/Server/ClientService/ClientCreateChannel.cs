@@ -70,14 +70,13 @@ namespace Server.ClientService
                 Send.strMessage2 = "CreatedChannel";
                 Send.strMessage3 = null;
                 Send.strMessage4 = null;
-
                 // Add channel to as channels list
                 ChannelsList.Add(new Channel(db.getLastInsertedID(), roomName, Client.id));
 
                 ClientJoinChannel clientJoinToChannel = new ClientJoinChannel(); // After user create channel we want to make him join
                 clientJoinToChannel.Send = Send;
                 clientJoinToChannel.Load(Client, Received, ListOfClientsOnline);
-                clientJoinToChannel.Execute(true);
+                clientJoinToChannel.Execute(db.getLastInsertedID(), roomName);
             }
             else
                 Send.strMessage = "Channel NOT created with unknown reason.";

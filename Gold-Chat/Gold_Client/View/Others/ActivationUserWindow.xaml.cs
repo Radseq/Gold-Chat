@@ -1,16 +1,18 @@
-﻿using Gold_Client.ViewModel;
-using System;
+﻿using System;
+using System.Windows;
 
-namespace Gold_Client.View
+namespace Gold_Client.View.Others
 {
-    public partial class RegistrationWindow
+    /// <summary>
+    /// Interaction logic for ActivationUserWindow.xaml
+    /// </summary>
+    public partial class ActivationUserWindow : Window
     {
-        public RegistrationWindow(LoginPresenter login)
+        public ActivationUserWindow()
         {
             InitializeComponent();
             if (DataContext != null)
             {
-                ((dynamic)DataContext).loginPresenter = login;
                 if (((dynamic)DataContext).CloseAction == null)
                     ((dynamic)DataContext).CloseAction = new Action(Close);
             }

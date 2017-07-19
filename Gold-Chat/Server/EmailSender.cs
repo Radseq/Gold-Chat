@@ -52,7 +52,7 @@ namespace Server
             emailClient.EnableSsl = true;
 
             //Credentials for the sender
-            emailClient.Credentials = new System.Net.NetworkCredential(fromAddress, "atlanprogramemail");
+            emailClient.Credentials = new System.Net.NetworkCredential(fromAddress, "atlanprogramermail");
 
             try
             {

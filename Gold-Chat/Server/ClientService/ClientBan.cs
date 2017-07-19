@@ -61,7 +61,7 @@ namespace Server.ClientService
         private void sendMessageToUsers()
         {
             SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
-            sendToAll.Send.strMessage2 = "User: " + BannedUserName + " banned for: " + BanReason + "untill: " + BanTime;
+            sendToAll.Send.strMessage2 = "User: " + BannedUserName + " banned for: " + BanReason + " untill: " + BanTime;
             sendToAll.ResponseToAll();
         }
 
@@ -71,7 +71,7 @@ namespace Server.ClientService
             {
                 sendMessageToUsers(); // Banned user will check if his name = banned user name
                 RemoveBannedUser();
-                Send.strMessage2 = "You banned: " + BannedUserName + " for: " + BanReason + "untill: " + BanTime;
+                Send.strMessage2 = "You banned: " + BannedUserName + " for: " + BanReason + " untill: " + BanTime;
             }
 
             base.RespondToClient();

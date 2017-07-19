@@ -23,6 +23,8 @@ namespace Gold_Client.ViewModel
 
         PrivateMessageWindow privateMessage;
 
+        public Action CloseAction;
+
         /// HACK -> send list of tab items to CloseableTabItem and there remove TabItem
         private/* readonly*/ ObservableCollection<object> tabControlItems = new ObservableCollection<object>();
         //public IEnumerable<object> TabControlItems => tabControlItems;
@@ -47,9 +49,11 @@ namespace Gold_Client.ViewModel
         private string selectedLobbie;
         private string selectedJoinedLobbie;
 
-        public MainContentPresenter()
+        public MainContentPresenter(Action closeAction)
         {
             User = App.Client;
+
+            CloseAction = closeAction;
 
             proccesReceiverInformation.ClientLogin += OnClientLogin;
             proccesReceiverInformation.ClientLogout += OnClientLogout;
@@ -324,7 +328,7 @@ namespace Gold_Client.ViewModel
         public ICommand JoinToLobbieCommand => new DelegateCommand(() =>
         {
             string lobbieName = selectedLobbie;
-            if (lobbies.Contains(lobbieName))
+            if (lobbies.Contains(lobbieName) && !joinedChannelsList.Contains(lobbieName))
                 clientSendToServer.SendToServer(Command.joinChannel, lobbieName);
         });
 
@@ -485,11 +489,10 @@ namespace Gold_Client.ViewModel
 
         private void OnClientCreateChannel(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientChannelMsg2 == "CreatedChannel")
-            {
-                lobbies.Add(e.clientChannelName);
-            }
+                lobbies.Add(e.clientChannelMsg);
+            if (e.clientName == App.Client.strName)
+                joinedChannelsList.Add(e.clientChannelMsg);
         }
 
         private void OnClientJoinChannel(object sender, ClientEventArgs e)
@@ -621,7 +624,7 @@ namespace Gold_Client.ViewModel
             if (e.clientName == User.strName)
             {
                 MessageBox.Show("You are" + e.clientKickReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-                //Close();
+                CloseAction();
             }
             else
                 usersConnected.Remove(e.clientName);
@@ -638,18 +641,24 @@ namespace Gold_Client.ViewModel
             }
             else if (e.clientName == User.strName)
             {
-                MessageBox.Show(e.clientBanReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-                //and close aplication
+                MessageBox.Show(e.clientBanReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Stop);
+                CloseAction();
             }
 
         }
 
         private void OnClientDeleteChannel(object sender, ClientEventArgs e)
         {
-            if (Lobbies.Contains(e.clientChannelMsg))
-                lobbies.Remove(e.clientChannelMsg);
-            if (JoinedChannelsList.Contains(e.clientChannelMsg))
-                joinedChannelsList.Remove(e.clientChannelMsg);
+            if (e.clientChannelMsg2 != "Deny")
+            {
+                if (Lobbies.Contains(e.clientChannelMsg))
+                    lobbies.Remove(e.clientChannelMsg);
+                if (JoinedChannelsList.Contains(e.clientChannelMsg))
+                    joinedChannelsList.Remove(e.clientChannelMsg);
+                MessageBox.Show(e.clientChannelMsg2 + " deleted channel " + e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Stop);
         }
     }
 }

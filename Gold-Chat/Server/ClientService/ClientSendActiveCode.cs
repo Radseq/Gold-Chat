@@ -52,7 +52,7 @@ namespace Server.ClientService
                 int updated = db.delUpdateInsertDb("UPDATE users SET register_id = @reg_id WHERE email = @email");
 
                 if (updated > 0)
-                    Send.strMessage = "Now you can login in to application";
+                    Send.strMessage = "Now you can login into application";
                 else
                     Send.strMessage = "Error when Activation contact to support";
             }

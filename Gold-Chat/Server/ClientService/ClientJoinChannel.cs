@@ -29,10 +29,10 @@ namespace Server.ClientService
             clientJoinChannel();
         }
 
-        public void Execute(bool afterCreate)
+        public void Execute(Int64 idCreatedChannel, string channelName)
         {
-            isUserJoinAfterCreate = afterCreate;
-            clientJoinChannel();
+            isUserJoinAfterCreate = true;
+            insertUserJoinedChannelToDb(idCreatedChannel, channelName);
         }
 
         private void clientJoinChannel()
@@ -45,7 +45,7 @@ namespace Server.ClientService
             string[] getFromDb = db.tableToRow();
             if (getFromDb != null)
             {
-                int idChannel = Int32.Parse(getFromDb[0]);
+                Int64 idChannel = Int64.Parse(getFromDb[0]);
                 string welcomeMsg = getFromDb[1]; // Used for send email notyfication when user login 
                 string enterPassword = getFromDb[2];
 
@@ -53,13 +53,15 @@ namespace Server.ClientService
                     Send.strMessage2 = "Send Password";
                 else if (channelPass != enterPassword)
                     Send.strMessage2 = "Wrong Password";
+                else if (Client.enterChannels.Contains(channelName))
+                    Send.strMessage2 = "You are already join to channel.";
                 else
                     insertUserJoinedChannelToDb(idChannel, channelName);
             }
             else Send.strMessage2 = "There is no channel that you want to join.";
         }
 
-        private void insertUserJoinedChannelToDb(int idChannelDb, string channelName)
+        private void insertUserJoinedChannelToDb(Int64 idChannelDb, string channelName)
         {
             db.bind(new string[] { "idUser", Client.id.ToString(), "idChannel", idChannelDb.ToString(), "joinDate", Utilities.getDataTimeNow() });
             int created = db.delUpdateInsertDb("INSERT INTO user_channel (id_user, id_channel, join_date) " + "VALUES (@idUser, @idChannel, @joinDate)");

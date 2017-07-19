@@ -16,7 +16,6 @@ namespace Gold_Client.ViewModel.TabWindows
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
 
         public string channelName = "";
-        public string WelcomeChannelMsg = "";
 
         string selectedUser;
 
@@ -29,8 +28,31 @@ namespace Gold_Client.ViewModel.TabWindows
             getMessageFromServer.ClientChannelLeave += OnClientChannelLeave;
             getMessageFromServer.ClientKickFromChannel += OnClientKickFromChannel;
             getMessageFromServer.ClientBanFromChannel += OnClientBanFromChannel;
+            getMessageFromServer.ClientBanFromServer += OnClientBanFromServer;
+            getMessageFromServer.ClientKickFromServer += OnClientKickFromServer;
+        }
 
-            showMessage("<<< Welcome Message: " + WelcomeChannelMsg + " >>>>");
+        private void OnClientKickFromServer(object sender, ClientEventArgs e)
+        {
+            if (e.clientName != App.Client.strName)
+            {
+                RemoveFromChannelUserList(e.clientName);
+                showMessage(e.clientName + " has kicked, " + e.clientKickReason);
+            }
+        }
+
+        private void OnClientBanFromServer(object sender, ClientEventArgs e)
+        {
+            if (e.clientName != App.Client.strName)
+            {
+                RemoveFromChannelUserList(e.clientName);
+                showMessage(e.clientBanReason);
+            }
+        }
+
+        public void SetWelcomeMessage(string welcomeMsg)
+        {
+            showMessage("<<< Welcome Message: " + welcomeMsg + " >>>>");
         }
 
         private void OnClientBanFromChannel(object sender, ClientEventArgs e)
@@ -82,7 +104,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         private void RemoveFromChannelUserList(string userName)
         {
-            if (!channelUsers.Contains(userName))
+            if (channelUsers.Contains(userName))
                 channelUsers.Remove(userName);
         }
 

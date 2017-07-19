@@ -10,14 +10,14 @@
         <KeyBinding Key="Enter" Command="{Binding RegistrationCommand}"/>
     </UserControl.InputBindings>
     <Grid>
-        <Label Content="Login:" Margin="46,7,192,120" Name="logLabel" />
+        <Label Content="Login:" Margin="46,7,192,115" Name="logLabel" />
         <Label Content="Password:" Margin="26,35,192,91" Name="passLabel" />
         <Label Content="Re Password:" Margin="8,62,192,64" Name="repassLabel" />
         <Label Content="Email:" Margin="46,86,192,40" Name="emailLabel" />
-        <TextBox Margin="95,9,10,120" Text="{Binding RegistrationLoginTB, UpdateSourceTrigger=PropertyChanged}" Focusable="{Binding RegistrationLoginTBIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
-        <PasswordBox Margin="95,35,10,93" x:Name="newPass" PasswordChanged="newPasswordChanged" PasswordChar="*" Focusable="{Binding PasswordIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Margin="95,9,10,120" Text="{Binding RegistrationLoginTB}" />
+        <PasswordBox Margin="95,35,10,93" x:Name="newPass" PasswordChanged="newPasswordChanged" PasswordChar="*" />
         <PasswordBox Margin="95,62,10,64" x:Name="newPass2" PasswordChanged="newPassword2Changed" PasswordChar="*"  />
-        <TextBox Text="{Binding RegistrationEmailTB, UpdateSourceTrigger=PropertyChanged}" Margin="95,91,10,40" Focusable="{Binding EmailTBIsFocusable, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Text="{Binding RegistrationEmailTB}" Margin="95,91,10,40" />
         <Button Command="{Binding RegistrationCommand}" Content="Register" IsDefault="True" Margin="209,119,10,10" />
         <Button Command="{Binding CleanRegistrationWindowCommand}" Content="Clean" Margin="95,119,136,10" />
     </Grid>

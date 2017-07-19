@@ -11,7 +11,7 @@ namespace Gold_Client.View.TabWindows
             if (DataContext != null)
             {
                 ((dynamic)DataContext).channelName = ChannelName;
-                ((dynamic)DataContext).WelcomeChannelMsg = WelcomeChannelMsg;
+                ((dynamic)DataContext).SetWelcomeMessage(WelcomeChannelMsg);
             }
         }
     }

@@ -10,14 +10,14 @@ namespace Gold_Client.ViewModel
         public bool loginEmailNotyfication { get; set; }
         public string SaveFilePatch { get; set; }
 
+        string ConfigFile = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
+        XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
+
         public void SaveConfig(Configuration conf)
         {
             try
             {
-                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
-                //FormToConfig();
-                XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
-                FileStream fStream = new FileStream(m_ConfigFileName, FileMode.Create);
+                FileStream fStream = new FileStream(ConfigFile, FileMode.Create);
                 xmlSer.Serialize(fStream, conf);
                 fStream.Close();
             }
@@ -32,12 +32,9 @@ namespace Gold_Client.ViewModel
             Configuration conf;
             try
             {
-                string m_ConfigFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
-
-                if (File.Exists(m_ConfigFileName))
+                if (File.Exists(ConfigFile))
                 {
-                    XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
-                    StreamReader sReader = new StreamReader(m_ConfigFileName);
+                    StreamReader sReader = new StreamReader(ConfigFile);
                     return conf = (Configuration)xmlSer.Deserialize(sReader);
                 }
 

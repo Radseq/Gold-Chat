@@ -130,7 +130,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.createChannel:
-                    OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                    OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strName);
                     break;
 
                 case Command.joinChannel:
@@ -146,7 +146,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.deleteChannel:
-                    OnClientDeleteChannel(msgReceived.strMessage);
+                    OnClientDeleteChannel(msgReceived.strMessage, msgReceived.strMessage2);
                     break;
 
                 case Command.List:
@@ -275,17 +275,17 @@ namespace Gold_Client.ViewModel.Others
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
         //channel todo
-        protected virtual void OnClientCreateChannel(string channelMsg, string roomName)
+        protected virtual void OnClientCreateChannel(string channelMsg, string roomName, string creatorName)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName, clientName = creatorName });
         }
         protected virtual void OnClientJoinChannel(string channelName, string channelMsg2, string channelMsg3)
         {
             ClientJoinChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg = channelMsg2, clientChannelMsg2 = channelMsg3 });
         }
-        protected virtual void OnClientDeleteChannel(string channelMsg)
+        protected virtual void OnClientDeleteChannel(string channelMsg, string channelMsg2)
         {
-            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
+            ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = channelMsg2 });
         }
         protected virtual void OnClientExitChannel(string channelName, string channelMsg)
         {

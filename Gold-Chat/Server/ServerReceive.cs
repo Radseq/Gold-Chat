@@ -142,19 +142,22 @@ namespace Server
                     case Command.deleteChannel:
                         clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientDeleteChannel.Execute();
-                        //clientDeleteChannel.Response();
+                        clientDeleteChannel.RespondToClient();
                         break;
+
                     case Command.enterChannel:
                         clientEnterChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientEnterChannel.Execute();
+                        clientEnterChannel.RespondToClient();
                         break;
+
                     case Command.leaveChannel:
                         clientLeaveChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientLeaveChannel.Execute();
                         clientLeaveChannel.Response();
                         break;
 
-                    case Command.List:  // Send the names of all users in the chat room to the new user
+                    case Command.List:
                         clientListManager.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientListManager.Execute();
                         break;
@@ -162,29 +165,32 @@ namespace Server
                     case Command.manageFriend:
                         manageClientFriend.Load(client, Received, ListOfClientsOnline);
                         manageClientFriend.Execute();
-                        //manageClientFriend.RespondToClient();
-                        //SendServerRespond(ref client, msgToSend);
                         break;
+
                     case Command.ignoreUser:
                         clientIgnoreUser.Load(client, Received);
                         clientIgnoreUser.Execute();
                         clientIgnoreUser.RespondToClient();
                         break;
+
                     case Command.kick:
                         clientKick.Load(client, Received, ListOfClientsOnline);
                         clientKick.Execute();
                         clientKick.RespondToClient();
                         break;
+
                     case Command.ban:
                         clientBan.Load(client, Received, ListOfClientsOnline);
                         clientBan.Execute();
                         clientBan.RespondToClient();
                         break;
+
                     case Command.kickUserChannel:
                         clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientKickFromChannel.Execute();
                         clientKickFromChannel.RespondToClient();
                         break;
+
                     case Command.banUserChannel:
                         clientBanFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientBanFromChannel.Execute();
@@ -218,7 +224,7 @@ namespace Server
                 clientLogout.Execute();
                 string exMessage = ("client: " + client.strName + " " + ex.Message);
                 Console.WriteLine(exMessage);
-                Console.WriteLine(ex.StackTrace);
+                //Console.WriteLine(ex.StackTrace);
                 servLogger.Log(exMessage);
 
                 clientLogout.Response();

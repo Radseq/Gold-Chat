@@ -1,6 +1,6 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
-using Gold_Client.View;
+using Gold_Client.View.Others;
 using Gold_Client.ViewModel.Others;
 using System;
 using System.Security;
@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace Gold_Client.ViewModel
 {
-    class ClientLogin : IClient
+    class ClientLogin : IClient, IDisposable
     {
         bool loginNotyfi = false;
 
@@ -37,12 +37,10 @@ namespace Gold_Client.ViewModel
             if (e.clientSendActivCodeFromEmail == "You must activate your account first.")
             {
                 MessageBoxResult result = MessageBox.Show(e.clientSendActivCodeFromEmail, "Confirmation", MessageBoxButton.OK, MessageBoxImage.Question);
-                //register_code regCodeWindows;
                 if (result == MessageBoxResult.OK)
                 {
-                    RegistrationWindow registarionWindow = new RegistrationWindow();
-                    //regCodeWindows = new register_code(clientManager/*, Client.strName*/);
-                    //regCodeWindows.Show();
+                    ActivationUserWindow activateWindow = new ActivationUserWindow();
+                    activateWindow.Show();
                 }
             }
             else
@@ -65,7 +63,8 @@ namespace Gold_Client.ViewModel
                 ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
                 clientSendToServer.SendToServer(Command.Login, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, password).Password),
                     (loginNotyfi ? "1" : null));
-                clientReceive.BeginReceive();
+                if (!clientReceive.IsClientStartReceive)
+                    clientReceive.BeginReceive();
             }
             catch (Exception ex)
             {
@@ -99,6 +98,11 @@ namespace Gold_Client.ViewModel
             //loginWindow.DialogResult = true;
             //});
 
+        }
+
+        public void Dispose()
+        {
+            config.SaveConfig(config);
         }
     }
 }

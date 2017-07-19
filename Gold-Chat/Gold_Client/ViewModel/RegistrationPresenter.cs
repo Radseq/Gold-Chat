@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using Gold_Client.ViewModel.Others;
+using System;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -13,54 +14,20 @@ namespace Gold_Client.ViewModel
         private string registrationEmailTB;
         private string registrationLoginTB;
 
-        private bool registrationLoginTBIsFocusable;
-        private bool passwordIsFocusable;
-        private bool emailTBIsFocusable;
-
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
+        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+
+        public LoginPresenter loginPresenter { private get; set; } //used to fill boxses after registration
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
+        public Action CloseAction;
+
         public RegistrationPresenter()
         {
-            getMessageFromServer.ClientRegistration += OnClientReceiveFromServer;
-        }
-
-        private void OnClientReceiveFromServer(object sender, ClientEventArgs e)
-        {
-            MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        public bool RegistrationLoginTBIsFocusable
-        {
-            get { return registrationLoginTBIsFocusable; }
-            set
-            {
-                registrationLoginTBIsFocusable = value;
-                RaisePropertyChangedEvent(nameof(RegistrationLoginTBIsFocusable));
-            }
-        }
-
-        public bool PasswordIsFocusable
-        {
-            get { return passwordIsFocusable; }
-            set
-            {
-                passwordIsFocusable = value;
-                RaisePropertyChangedEvent(nameof(PasswordIsFocusable));
-            }
-        }
-
-        public bool EmailTBIsFocusable
-        {
-            get { return emailTBIsFocusable; }
-            set
-            {
-                emailTBIsFocusable = value;
-                RaisePropertyChangedEvent(nameof(EmailTBIsFocusable));
-            }
+            getMessageFromServer.ClientRegistration += OnClientRegistration;
         }
 
         public string RegistrationLoginTB
@@ -85,9 +52,7 @@ namespace Gold_Client.ViewModel
 
         public ICommand RegistrationCommand => new DelegateCommand(() =>
         {
-            ProccesAndExecuteInputs(RegistrationLoginTB, RegistrationEmailTB,
-                (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password),
-                (new System.Net.NetworkCredential(string.Empty, SecurePasswordRepeart).Password));
+            ProccesAndExecuteInputs(RegistrationLoginTB, RegistrationEmailTB);
         });
 
         public ICommand CleanRegistrationWindowCommand => new DelegateCommand(() =>
@@ -96,52 +61,48 @@ namespace Gold_Client.ViewModel
             RegistrationLoginTB = "";
         });
 
-        private void ProccesAndExecuteInputs(string login, string email, string/*Hack*/ password, string password2)
+        private void ProccesAndExecuteInputs(string login, string email)
         {
-            if (login != string.Empty && password != string.Empty && password != string.Empty && email != string.Empty)
+            if (login != string.Empty && new System.Net.NetworkCredential(string.Empty, SecurePassword).Password != string.Empty && new System.Net.NetworkCredential(string.Empty, SecurePasswordRepeart).Password != string.Empty && email != string.Empty)
             {
                 Regex rgx = new Regex(@"^(?=[a-z])[-\w.]{0,23}([a-zA-Z\d])$");
                 bool loginRegex = rgx.IsMatch(login);
 
                 if (login.Length < 5 && login.Length > 23)
                 {
-                    RegistrationLoginTBIsFocusable = true;
                     MessageBox.Show("Your username must be between 5 and 23 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 else if (!loginRegex)
                 {
-                    RegistrationLoginTBIsFocusable = true;
                     MessageBox.Show("Your username must contain only a-z or 0-9 extample michael123", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
-                else if (password.Length < 6 && password2.Length < 6)
+                else if (SecurePassword.Length < 6 && SecurePasswordRepeart.Length < 6)
                 {
-                    PasswordIsFocusable = true;
                     MessageBox.Show("Your password must be highter than 6 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                else if (SecurePassword != SecurePasswordRepeart)
+                else if (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password != new System.Net.NetworkCredential(string.Empty, SecurePasswordRepeart).Password)
                 {
-                    PasswordIsFocusable = true;
                     MessageBox.Show("Password and Repeat Password are not the same", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else if (email.Length == 0)
                 {
-                    EmailTBIsFocusable = true;
                     MessageBox.Show("Enter an email.", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 }
                 else if (!Regex.IsMatch(email, @"^[a-zA-Z][\w\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$"))
                 {
-                    EmailTBIsFocusable = true;
                     MessageBox.Show("Enter a valid email.", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else
                 {
+                    App.Client.strName = login;
+
                     clientSendToServer.SendToServer(Command.Registration, clientSendToServer.CalculateChecksum
                         (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password), email);
-
-                    getMessageFromServer.ClientRegistration += OnClientRegistration;
+                    if (!clientReceive.IsClientStartReceive)
+                        clientReceive.BeginReceive();
                 }
             }
             else
@@ -152,10 +113,17 @@ namespace Gold_Client.ViewModel
         {
             if (e.clientRegMessage == "You has been registered")
             {
-                //loginPanel.loginTextBox.Text = logTextbox.Text;
-                //Close();
+                MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                loginPresenter.LoginTB = RegistrationLoginTB;
+                loginPresenter.SecurePassword = SecurePassword;
+                loginPresenter.LoginCommand.Execute(null); // When user proper register -> make autologin to show window of activation code
+                CloseAction(); // And close registration window
             }
-            else MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            else
+            {
+                MessageBox.Show(e.clientRegMessage, "Registration Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                App.Client.strName = null;
+            };
         }
     }
 }
