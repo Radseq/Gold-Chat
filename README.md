@@ -1,13 +1,13 @@
 ### What is Gold-Chat?
 
-Gold-Chat its a communicator which allow ppl to talk in 3 diffrent ways(Global channel, Own channel, private)
+Gold-Chat its a communicator which allow users to talk in 3 diffrent ways(Global channel, Own channel, private)
 using asynchronous sockets, and mysql. <br />
-Serwer is manage connections, querys etc with DataBase. <br />
+Server is manage connections, DataBase queries, sending emails etc. <br />
 I write this program to increase my programming skill, have a fun, satisfaction.
 
 ### Features
 
-Registration, with email activation. <br />
+Registration, with activation code from email. <br />
 Login, with posibility to inform user email when login to account. <br />
 Messages: <br />
 * To Friend - private message.
@@ -17,19 +17,23 @@ Messages: <br />
 
 And more:  <br />
 Adding To friend list | ignored list <br />
-Delete from friend list | ignored list <br />
+Deleting from friend list | ignored list <br />
 List of channels, friends, ignored, joined channels <br />
 
 Channels:
-* Create. <br />
-* Delete, by owner. <br />
-* Leave, on close channel tab or leave on JoinedChannels menu. <br />
-* Exit, you will need to paste enter password again. <br />
-* Enter To, when you previous join, you will not ask for paste password again. <br />
-* Join to, must know enter password. <br />
+* Create - All users can create one. <br />
+* Deleteting - By owner. <br />
+* Lowering the channel - By on close channel tab or leave on JoinedChannels menu. <br />
+* Exit the channel - You will need to paste enter password again. <br />
+* Enter To the channel - If you have joined before you will not be asked for paste password again. <br />
+* Join to the channel - You must know enter password. <br />
 
-Ban user from channel (by owner) or server <br />
-Kick user from channel (by owner) or server <br />
+Ban user from:
+* Channel - By owner. <br />
+* Server - By admin. <br />
+Kick user from:
+* Channel - By owner. <br />
+* Server - By admin. <br />
 
 ### Compiling
 
