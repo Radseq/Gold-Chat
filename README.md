@@ -1,6 +1,3 @@
-### Attention!
-### Developed branch -> New_Dawn Here you will find the version better written, like mvvm client, server
-
 ### What is Gold-Chat?
 
 Gold-Chat its a communicator which allow ppl to talk in 3 diffrent ways(Global channel, Own channel, private)
