@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Gold"
         mc:Ignorable="d"
-        Title="serverAsk" Height="95.5" Width="293">
+        Title="serverAsk" Height="140" Width="290">
     <Grid>
-        <TextBox x:Name="answerTB" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" PreviewKeyDown="EnterClicked" VerticalAlignment="Top" Width="265"/>
-        <Button x:Name="button" Content="Send" HorizontalAlignment="Left" Margin="200,38,0,0" VerticalAlignment="Top" Width="75" Click="button_Click" />
-
+        <TextBox x:Name="answerTB" Height="23" Margin="10,43" PreviewKeyDown="EnterClicked" Width="262"/>
+        <Button x:Name="button" Content="Send" Margin="202,71,10,10" Click="button_Click" />
+        <Label Content="Label" Margin="10,10,10,71" Background="#FF060606" Foreground="Yellow" Width="262"/>
     </Grid>
 </Window>

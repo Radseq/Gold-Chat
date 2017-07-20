@@ -76,7 +76,7 @@ namespace Gold
         public event EventHandler<ClientEventArgs> ClientJoinChannel;
         public event EventHandler<ClientEventArgs> ClientDeleteChannel;
         public event EventHandler<ClientEventArgs> ClientExitChannel; //exit
-        public event EventHandler<ClientEventArgs> ClientEditChannel; //        edit
+        public event EventHandler<ClientEventArgs> ClientEditChannel; //edit
         public event EventHandler<ClientEventArgs> ClientListChannel;
         public event EventHandler<ClientEventArgs> ClientListChannelJoined;
         public event EventHandler<ClientEventArgs> ClientListChannelUsers;
@@ -228,16 +228,24 @@ namespace Gold
             sendDone.WaitOne();
         }
 
-        public void LogoutSend(byte[] byteData)
+        public void LogoutSend()
         {
+            //Send a message to logout of the server
+            Data msgToSend = new Data();
+            msgToSend.cmdCommand = Command.Logout;
+            msgToSend.strName = App.clientName;
+
+            byte[] logoutMessage = msgToSend.ToByte();
+
             IsClientConnectedToServer = false;
-            socket.Send(byteData, 0, byteData.Length, SocketFlags.None);
+            socket.Send(logoutMessage, 0, logoutMessage.Length, SocketFlags.None);
             // Release the socket.
             socket.Shutdown(SocketShutdown.Both);
             socket.Close();
+            socket.Dispose();
         }
 
-        public void BeginReceive()
+        private void BeginReceive()
         {
             byteData = new byte[1024];
             socket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
@@ -256,17 +264,6 @@ namespace Gold
 
                 //Start listening to the data asynchronously
                 BeginReceive();
-
-                /*total wasted time here 5h, cuse 
-
-                byteData = new byte[1024];
-                    //Start listening to the data asynchronously
-                    clientSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), null);
-
-                MUST BE AFTER ON CONNECT, OnReceive wont get full message
-                or use connectDone.Set();
-                */
-                //}));
             }
             catch (Exception ex)
             {
@@ -302,7 +299,7 @@ namespace Gold
                         else OnClientLogin(msgReceived.strMessage, msgReceived.strName); //someone other login, use to add user to as list etc.
                         break;
 
-                    case Command.Reg:
+                    case Command.Registration:
                         OnClientRegister(msgReceived.strMessage);
                         break;
 
@@ -314,7 +311,7 @@ namespace Gold
                         OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
                         break;
 
-                    case Command.ReSendEmail:
+                    case Command.SendActivationCode:
                         OnClientReSendEmail(msgReceived.strMessage);
                         break;
 
@@ -330,11 +327,11 @@ namespace Gold
                         break;
 
                     case Command.privMessage:
-                        OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strName);
+                        OnClientPrivMessage(msgReceived.strMessage + "\r\n", msgReceived.strMessage2);
                         break;
 
                     case Command.createChannel:
-                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2);
+                        OnClientCreateChannel(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strName);
                         break;
 
                     case Command.joinChannel:
@@ -361,7 +358,7 @@ namespace Gold
                         else if (msgReceived.strMessage == "IgnoredUsers")
                             OnClientIgnoredList(msgReceived.strMessage2);
                         else
-                            OnClientList(msgReceived.strMessage);
+                            OnClientList(msgReceived.strMessage2);
                         break;
                     case Command.manageFriend:
                         if (msgReceived.strMessage == "Add")
@@ -512,9 +509,9 @@ namespace Gold
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
         //channel todo
-        protected virtual void OnClientCreateChannel(string channelMsg, string roomName)
+        protected virtual void OnClientCreateChannel(string channelName, string roomName, string userName)
         {
-            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName });
+            ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg2 = roomName, clientName = userName });
         }
         protected virtual void OnClientJoinChannel(string channelName, string channelMsg2, string channelMsg3)
         {
@@ -524,9 +521,9 @@ namespace Gold
         {
             ClientDeleteChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg });
         }
-        protected virtual void OnClientExitChannel(string channelMsg, string channelName)
+        protected virtual void OnClientExitChannel(string channelName, string channelMsg)
         {
-            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelName = channelName });
+            ClientExitChannel?.Invoke(this, new ClientEventArgs() { clientChannelName = channelName, clientChannelMsg = channelMsg });
         }
         protected virtual void OnClientEditChannel(string channelMsg)
         {

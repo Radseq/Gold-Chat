@@ -1,0 +1,14 @@
+<Window x:Class="Gold_Client.View.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel"
+        xmlns:View="clr-namespace:Gold_Client.View"
+        Title="Login Panel"
+        MinWidth="300"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight">
+    <Window.DataContext>
+        <ViewModel:LoginPresenter />
+    </Window.DataContext>
+    <View:LoginControl/>
+</Window>

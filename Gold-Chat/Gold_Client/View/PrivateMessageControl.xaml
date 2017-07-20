@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="Gold_Client.View.PrivateMessageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:src="clr-namespace:Gold_Client.ViewModel"
+             mc:Ignorable="d"
+             d:DesignWidth="282" 
+             Height="269">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding SendPrivateMessageCommand}"/>
+    </UserControl.InputBindings>
+    <Grid>
+        <TextBox src:TextBoxBehaviour.ScrollOnTextChanged="True" HorizontalAlignment="Left" Height="224" Margin="10,10,0,0" TextWrapping="Wrap" Text="{Binding IncomePrivMessage, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="262" IsEnabled="False"/>
+        <TextBox Text="{Binding OutGoingPrivMessage, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Height="23" Margin="10,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="262"/>
+    </Grid>
+</UserControl>

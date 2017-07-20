@@ -16,6 +16,16 @@ namespace Gold
         public CloseableTabItem(ClientManager cm)
         {
             clientManager = cm;
+            clientManager.ClientKickFromChannel += OnClientKickFromChannel;
+        }
+
+        private void OnClientKickFromChannel(object sender, ClientEventArgs e)
+        {
+            if (tabControlName == e.clientChannelName)
+            {
+                var tabControl = Parent as ItemsControl;
+                tabControl.Items.Remove(this);
+            }
         }
 
         public void SetHeader(UIElement header, string name, bool channel = false)

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Gold"
         mc:Ignorable="d"
-        Title="Message With: " Height="300" Width="300" Closed="Window_Closed">
+        Title="Message With: " Height="310" Width="300" Closed="Window_Closed">
     <Grid>
         <TextBox HorizontalAlignment="Left" Height="224" Margin="10,10,0,0" TextWrapping="Wrap" x:Name="showPrivMessageTb" VerticalAlignment="Top" Width="272" IsEnabled="False"/>
         <TextBox x:Name="sendPrivMessageTb" HorizontalAlignment="Left" Height="23" Margin="10,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" PreviewKeyDown="EnterClicked" Width="272"/>

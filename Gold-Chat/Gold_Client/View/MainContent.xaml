@@ -1,0 +1,153 @@
+﻿<UserControl x:Class="Gold_Client.View.MainContent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d"
+             d:DesignWidth="550"  Height="270">
+    <Grid>
+        <TabControl ItemsSource="{Binding TabControlItems}" SelectedIndex="{Binding SelectedTabControlIndex}" Width="420" Margin="0,0,130,0"/>
+
+        <StackPanel Margin="425,0,0,0" >
+            <Expander Header="Menu">
+                <Grid>
+                    <UniformGrid Columns="3">
+                        <Button x:Name="control_panel_button" BorderBrush="Transparent" Height="32" Command="{Binding ControlPanelTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Control Panel"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/preferences.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="create_room_buttom" BorderBrush="Transparent" Height="32" Command="{Binding CreateRoomTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Create Room"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/window.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="suggest_buttom" BorderBrush="Transparent" Height="32" Command="{Binding SugestionTabCommand}" VerticalAlignment="Top">
+                            <Button.ToolTip>
+                                <ToolTip Content="Suggestions"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/lamp-icon.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="abouse_buttom" BorderBrush="Transparent" Height="32" Command="{Binding AbouseTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Abouse User"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/intruder.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="s_buttom" BorderBrush="Transparent" Command="{Binding ArchiveTabCommand}" Height="32" />
+                        <Button x:Name="contact_buttom" BorderBrush="Transparent" Height="32" Command="{Binding ContactTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Contact to as"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/Mail-Front-icon.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="settings_buttom" BorderBrush="Transparent" Height="32" Command="{Binding AdminTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Admin Tools"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/settings-icon.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="infor_buttom" BorderBrush="Transparent" Height="32" Command="{Binding InformationTabCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Information"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/alert-icon.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button x:Name="logout_buttom" BorderBrush="Transparent" Height="32" Command="{Binding LogoutCommand}">
+                            <Button.ToolTip>
+                                <ToolTip Content="Logout"/>
+                            </Button.ToolTip>
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Gold_Client;component/Resources/exit.png" />
+                            </Button.Background>
+                        </Button>
+                    </UniformGrid>
+                </Grid>
+            </Expander>
+            <Expander Header="Everyone">
+                <ListBox ItemsSource="{Binding UsersConnected}" SelectedItem="{Binding SelectedUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{Binding AddFriendHeaderCommand}" Command="{Binding AddFriendHandleCommand}" />
+                            <MenuItem Header="{Binding AddToIgnoreHeaderCommand}" Command="{Binding IgnoreUserCommand}" />
+                            <MenuItem Header="{Binding BanUserHeaderCommand}" Command="{Binding BanUserCommand}" />
+                            <MenuItem Header="{Binding KickUserHeaderCommand}" Command="{Binding KickUserCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Expander>
+            <Expander Header="Friends">
+                <ListBox ItemsSource="{Binding FriendlyUsersConnected}" SelectedItem="{Binding SelectedFriendlyUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
+                    <!--MouseDoubleClick="{Binding PrivateMsgToFriendCommand}"-->
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{Binding DeleteFriendHeaderCommand}" Command="{Binding DeleteFriendCommand}" />
+                            <MenuItem Header="{Binding PrivMsgHeaderCommand}" Command="{Binding PrivateMsgToFriendCommand}" />
+                            <MenuItem Header="{Binding SendFileHeaderCommand}" Command="{Binding SendFileCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FriendLoginColor}" Value="true">
+                                    <Setter Property="Background" Value="Green" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FriendLoginColor}" Value="false">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </Expander>
+            <Expander Header="Ignored">
+                <ListBox ItemsSource="{Binding IgnoredUsers}" SelectedItem="{Binding SelectedIgnoredUser}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True" >
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{Binding DeleteIgnoredHeaderCommand}" Command="{Binding DeleteIgnoredUserCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Expander>
+            <Expander Header="Lobbies">
+                <ListBox ItemsSource="{Binding Lobbies}" SelectedItem="{Binding SelectedLobbie}" VerticalAlignment="Top" IsSynchronizedWithCurrentItem="True">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{Binding JoinToLobbieHeaderCommand}" Command="{Binding JoinToLobbieCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Expander>
+            <Expander Header="JoinedChannels">
+                <ListBox ItemsSource="{Binding JoinedChannelsList}" SelectedItem="{Binding SelectedJoinedLobbie}" 
+                    IsSynchronizedWithCurrentItem="True">
+                    <!-- MouseDoubleClick="{Binding EnterToJoinedChannelCommand}" give error -> (cry) -->
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{Binding EnterToLobbieHeaderCommand}" Command="{Binding EnterToJoinedChannelCommand}" />
+                            <MenuItem Header="{Binding LeaveLobbieHeaderCommand}" Command="{Binding LeaveChannelCommand}" />
+                            <MenuItem Header="{Binding ExitLobbieHeaderCommand}" Command="{Binding ExitChannelCommand}" />
+                            <MenuItem Header="{Binding DeleteToLobbieHeaderCommand}" Command="{Binding DeleteChannelCommand}" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+            </Expander>
+        </StackPanel>
+    </Grid>
+</UserControl>

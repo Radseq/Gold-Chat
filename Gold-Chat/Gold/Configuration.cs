@@ -5,29 +5,11 @@ using System.Xml.Serialization;
 
 namespace Gold
 {
-    /// <summary>
-    /// Config
-    /// </summary>
     public class Configuration
     {
-        /// <summary>
-        /// Config
-        /// </summary>
-        public Configuration()
-        {
-
-        }
-
         public bool loginEmailNotyfication { get; set; }
 
-
-        #region getters and setters 
-        #endregion getters and setters
-
-        //----------------------------------------------------------------
-        //Write Data
-        //----------------------------------------------------------------
-        public void SaveConfig(Configuration conf)
+        public void SaveConfig(Configuration conf) //Write Data
         {
             try
             {
@@ -43,10 +25,8 @@ namespace Gold
                 MessageBox.Show(ex.Message);
             }
         }
-        //----------------------------------------------------------------
-        //Load Data
-        //---------------------------------------------------------------- 
-        public Configuration loadConfig()
+
+        public Configuration loadConfig() //Load Data
         {
             Configuration conf;
             try

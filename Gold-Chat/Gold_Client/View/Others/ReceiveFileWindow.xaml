@@ -1,0 +1,14 @@
+﻿<Window x:Class="Gold_Client.View.Others.ReceiveFileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel.Others"
+        xmlns:View="clr-namespace:Gold_Client.View.Others"
+        Title="Receive File Panel"
+  
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight" Width="305">
+    <Window.DataContext>
+        <ViewModel:ReceiveFilePresenter />
+    </Window.DataContext>
+    <View:ReceiveFileControl/>
+</Window>

@@ -12,7 +12,7 @@ namespace Server
         public string Exception { get; set; }
     }
 
-    class DataBaseManager
+    public class DataBaseManager
     {
         // Event
         public event EventHandler<DataBaseManagerEventArgs> ConnectToDB;
@@ -46,6 +46,8 @@ namespace Server
         // Prevet SQL Injection
         private List<string> parameters;
 
+        Int64 lastInsertedID;
+
         // Singleton
         public static DataBaseManager Instance
         {
@@ -66,6 +68,11 @@ namespace Server
             connectToDb();
             table = table = new DataTable();
             parameters = new List<string>();
+        }
+
+        public Int64 getLastInsertedID()
+        {
+            return lastInsertedID;
         }
 
         private void connectToDb()
@@ -117,16 +124,18 @@ namespace Server
             // No connection with database? make connection
             if (isConnected == false)
                 connectToDb();
-
-            // Disposes the MySQLCommand instance after add parameters
-            using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
+            else
             {
-                // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
-                // Placeholders instead of directly writing the values into the statements
-                // Prepared statements increase security and performance.
-                //mySqlCommand.Prepare();
+                // Disposes the MySQLCommand instance after add parameters
+                using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
+                {
+                    // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
+                    // Placeholders instead of directly writing the values into the statements
+                    // Prepared statements increase security and performance.
+                    //mySqlCommand.Prepare();
 
-                addValueToParameters();
+                    addValueToParameters();
+                }
             }
         }
 
@@ -172,6 +181,7 @@ namespace Server
             {
                 dBCommand(query);
                 affected = mySqlCommand.ExecuteNonQuery();
+                lastInsertedID = mySqlCommand.LastInsertedId;
             }
             catch (MySqlException ex)
             {
@@ -191,6 +201,7 @@ namespace Server
         public int delUpdateInsertDb(string query)
         {
             int affectedRows = nonQuery(query);
+
             return affectedRows;
         }
         /// <summary>

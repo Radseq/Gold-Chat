@@ -1,0 +1,24 @@
+﻿<Window x:Class="Gold_Client.View.MainProgramWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ViewModel="clr-namespace:Gold_Client.ViewModel"
+        xmlns:View="clr-namespace:Gold_Client.View"
+        mc:Ignorable="d"
+
+        Title="Gold Chat" ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type ViewModel:LoginPresenter}">
+            <View:LoginControl/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ViewModel:MainContentPresenter}">
+            <View:MainContent/>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.DataContext>
+        <ViewModel:MainWindowPresenter/>
+    </Window.DataContext>
+    <View:MainProgramControl/>
+</Window>

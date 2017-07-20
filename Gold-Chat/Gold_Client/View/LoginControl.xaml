@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="Gold_Client.View.LoginControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignWidth="282" Height="106">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+    </UserControl.InputBindings>
+    <Grid>
+        <Label Foreground="Blue" Margin="37,11,201,69" Content="Login:"/>
+        <Label Foreground="Blue" Margin="19,42,201,38" Content="Password:"/>
+        <TextBox Text="{Binding LoginTB, UpdateSourceTrigger=PropertyChanged}" Margin="86,11,29,69"/>
+        <PasswordBox Name="passBox" PasswordChanged="PasswordChanged" Margin="86,42,29,38"/>
+        <Button Command="{Binding RegistrationWindowCommand}" Margin="5,73,185,4" Content="Registration"/>
+        <Button Command="{Binding LostPasswordWindowCommand}" Margin="102,73,91,4" Content="Lost Password"/>
+        <Button Content="Login" Command="{Binding LoginCommand}" Margin="196,73,5,4"/>
+    </Grid>
+</UserControl>

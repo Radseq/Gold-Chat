@@ -11,7 +11,7 @@ namespace Server
         public Int64 id { get; set; }
         public int permission { get; set; }
         public IPEndPoint addr { get; set; }
-        public string strName;  // Name by which the user logged into the chat room
+        public string strName;
         public List<string> enterChannels { get; set; }
         public List<string> ignoredUsers { get; set; }
     }
