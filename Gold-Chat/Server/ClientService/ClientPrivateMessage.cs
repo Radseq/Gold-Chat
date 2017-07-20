@@ -19,7 +19,7 @@ namespace Server.ClientService
         {
             prepareResponse();
             Send.strMessage = Received.strName + ": " + Received.strMessage;
-            RespondToClient();
+            Respond();
 
             SendMessageToNick sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
             sendToNick.Send.strName = Received.strMessage2;

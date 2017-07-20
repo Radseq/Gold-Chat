@@ -34,13 +34,13 @@ namespace Server.ClientService
                     string generatedCode = generateRandom(25);
                     if (inserUserLostPasswordCodeToDb(respond, generatedCode) > 0)
                         sendEmailOnUserLostPassword(email, generatedCode);
-                    else Send.strMessage2 = "Unknown error while save random code, contact to admin";
+                    else Send.strMessage = "Unknown error while save random code, contact to admin";
                 }
                 else Send.strMessage = "That email not exists";
             }
             else if (type == "codeFromEmail")
                 clientSendCodeFromEmail();
-            else Send.strMessage2 = "Wrong operation option";
+            else Send.strMessage = "Wrong operation option";
         }
 
         private int inserUserLostPasswordCodeToDb(string[] respond, string generatedCode)
@@ -54,8 +54,8 @@ namespace Server.ClientService
 
         private void sendEmailOnUserLostPassword(string email, string generatedCode)
         {
-            emailSender.SendEmail("Zgubione Hasło", email, "Gold Chat: Lost Password", userLostPassEmailMessage("Urzytkowniku", generatedCode));
-            Send.strMessage2 = "Lost password code has send to your email";
+            emailSender.SendEmail("Lost Password", email, "Gold Chat: Lost Password", userLostPassEmailMessage("User", generatedCode));
+            Send.strMessage = "Lost password code has send to your email";
         }
 
         private void clientSendCodeFromEmail()
@@ -75,10 +75,10 @@ namespace Server.ClientService
                     Console.WriteLine("Cannot delete " + codeDb[1] + " from user_lost_pass");
 
                 string updated = updateUserPasswordToDb(newPassword, codeDb[3], codeDb[2]);
-                Send.strMessage2 = updated;
+                Send.strMessage = updated;
             }
             else
-                Send.strMessage2 = "Wrong code from email";
+                Send.strMessage = "Wrong code from email";
         }
 
         private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)

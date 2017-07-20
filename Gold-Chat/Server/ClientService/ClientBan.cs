@@ -65,7 +65,7 @@ namespace Server.ClientService
             sendToAll.ResponseToAll();
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (IsUserBanned)
             {
@@ -74,7 +74,7 @@ namespace Server.ClientService
                 Send.strMessage2 = "You banned: " + BannedUserName + " for: " + BanReason + " untill: " + BanTime;
             }
 
-            base.RespondToClient();
+            base.Respond();
         }
     }
 }

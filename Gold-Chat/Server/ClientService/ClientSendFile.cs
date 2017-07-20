@@ -42,7 +42,7 @@ namespace Server.ClientService
 
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (IsNoError)
             {
@@ -54,7 +54,7 @@ namespace Server.ClientService
                 sendToNick.ResponseToNick();
             }
             else
-                base.RespondToClient();
+                base.Respond();
         }
     }
 }

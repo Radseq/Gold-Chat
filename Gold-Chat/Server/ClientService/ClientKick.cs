@@ -43,7 +43,7 @@ namespace Server.ClientService
                 else Send.strMessage2 = "You cannot kick " + KickedUserName + " because you dont have permissions";
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (isKicked)
             {
@@ -52,7 +52,7 @@ namespace Server.ClientService
                 KickeUser.cSocket.Close();
             }
             else
-                base.RespondToClient();
+                base.Respond();
         }
     }
 }

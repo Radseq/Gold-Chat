@@ -18,7 +18,7 @@ namespace Gold_Client.ViewModel
     public class MainContentPresenter : ObservableObject, IClient
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
-        ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
+        // ClientReceivedFromServer clientReceiveFromServer = ClientReceivedFromServer.Instance;
         ProcessReceivedByte proccesReceiverInformation = ProcessReceivedByte.Instance;
 
         PrivateMessageWindow privateMessage;
@@ -59,7 +59,7 @@ namespace Gold_Client.ViewModel
             proccesReceiverInformation.ClientLogout += OnClientLogout;
             proccesReceiverInformation.ClientList += OnClientList;
 
-            clientReceiveFromServer.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            //clientReceiveFromServer.ReceiveLogExcep += (s, e) => MessageBox.Show(e.receiveLogExpceMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Error);
             //proccesReceiverInformation.SendException += (s, e) => MessageBox.Show(e.sendExcepMessage, "Gold Chat: " + strName, MessageBoxButton.OK, MessageBoxImage.Error);
             //channels
             proccesReceiverInformation.ClientCreateChannel += OnClientCreateChannel;

@@ -56,7 +56,7 @@ namespace Server.ClientService
             };
             if (Send.strMessage2 != null || Send.strMessage3 != null)
             {
-                RespondToClient();
+                Respond();
             }
         }
 

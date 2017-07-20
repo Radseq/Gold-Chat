@@ -73,7 +73,7 @@ namespace Server.ClientService
 
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (isChannelExists)
             {
@@ -86,7 +86,7 @@ namespace Server.ClientService
                 OnClientDeleteChannel(channelName, Client.strName);
             }
             else
-                base.RespondToClient();
+                base.Respond();
         }
 
         protected virtual void OnClientDeleteChannel(string channelName, string userName)

@@ -34,7 +34,7 @@ namespace Server.ClientService
 
         public void Response()
         {
-            RespondToClient();
+            Respond();
             SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, ChannelName);
             sendToChannel.ResponseToChannel();
         }

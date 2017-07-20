@@ -16,7 +16,6 @@ namespace Gold_Client.ViewModel
 
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
 
         public LoginPresenter loginPresenter { private get; set; } //used to fill boxses after registration
 
@@ -101,8 +100,8 @@ namespace Gold_Client.ViewModel
 
                     clientSendToServer.SendToServer(Command.Registration, clientSendToServer.CalculateChecksum
                         (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password), email);
-                    if (!clientReceive.IsClientStartReceive)
-                        clientReceive.BeginReceive();
+                    if (!ReceivePackageFromServer.IsClientStartReceive)
+                        ReceivePackageFromServer.BeginReceive();
                 }
             }
             else

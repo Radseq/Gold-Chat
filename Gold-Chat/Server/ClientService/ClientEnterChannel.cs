@@ -68,10 +68,10 @@ namespace Server.ClientService
         {
             Send.strMessage2 = "deny";
             Send.strMessage3 = serverMessage + ChannelName;
-            RespondToClient();
+            Respond();
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (IsUserEnter)
             {
@@ -79,7 +79,7 @@ namespace Server.ClientService
                 sendToChannel.ResponseToChannel();
             }
             else
-                base.RespondToClient();
+                base.Respond();
         }
     }
 }

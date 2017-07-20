@@ -7,7 +7,7 @@ namespace Gold_Client.ViewModel.Others
 {
     public class ProcessReceivedByte
     {
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+        //ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
 
         // Singleton
         static ProcessReceivedByte instance = null;
@@ -30,7 +30,8 @@ namespace Gold_Client.ViewModel.Others
 
         private ProcessReceivedByte()
         {
-            clientReceive.OnDataReceived += ProccesData;
+            //clientReceive.OnDataReceived += ProccesData;
+            ReceivePackageFromServer.OnDataReceived += ProccesData;
         }
 
         //For login
@@ -107,7 +108,7 @@ namespace Gold_Client.ViewModel.Others
                     break;
 
                 case Command.lostPassword:
-                    OnClientLostPassword(msgReceived.strMessage, msgReceived.strMessage2);
+                    OnClientLostPassword(msgReceived.strMessage);
                     break;
 
                 case Command.SendActivationCode:
@@ -219,9 +220,9 @@ namespace Gold_Client.ViewModel.Others
             }
         }
 
-        protected virtual void OnClientLostPassword(string strMessage, string strMessage2)
+        protected virtual void OnClientLostPassword(string strMessage)
         {
-            ClientLostPass?.Invoke(this, new ClientEventArgs() { clientChannelMsg = strMessage, clientChangePassMessage = strMessage2 });
+            ClientLostPass?.Invoke(this, new ClientEventArgs() { clientMessage = strMessage });
         }
 
         protected virtual void OnClientLogin(string Message, string userName)

@@ -47,7 +47,7 @@ namespace Server.ClientService
                     {
                         OnClientAddFriend(Client.strName, friendName);
                         Send.strMessage = "Yes";
-                        RespondToClient();
+                        Respond();
                         sendToNick.Send = Send;
                         sendToNick.Send.strMessage2 = Client.strName;
                         sendToNick.Send.strName = friendName;
@@ -57,7 +57,7 @@ namespace Server.ClientService
                     {
                         Send.strMessage = "No";
                         Send.strMessage2 = friendName;
-                        RespondToClient();
+                        Respond();
                     }
                 }
                 else if (type == "Delete")
@@ -73,7 +73,7 @@ namespace Server.ClientService
                         //SendMessageToSomeone sendToSomeone = new SendMessageToSomeone(ListOfClientsOnline, Send);
                         //sendToSomeone.ResponseToSomeone();
 
-                        RespondToClient();
+                        Respond();
                         sendToNick.Send = Send;
                         sendToNick.Send.strMessage2 = Client.strName;
                         sendToNick.Send.strName = friendName;
@@ -103,7 +103,7 @@ namespace Server.ClientService
             else
             {
                 Send.strMessage = "There is no friend that you want to add.";
-                RespondToClient();
+                Respond();
             }
         }
 

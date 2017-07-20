@@ -94,14 +94,14 @@ namespace Server.ClientService
         }
 
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (IsUserBannedSuccesfully)
             {
                 sendMessageToChannelAboutUserBan();
                 removeUser(BannedUser, channel);
             }
-            base.RespondToClient();
+            base.Respond();
         }
     }
 }

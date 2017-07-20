@@ -89,7 +89,7 @@ namespace Server
 
         public void Response()
         {
-            RespondToClient();
+            Respond();
             if (Send.strMessage == "You are succesfully Log in") // Client succesfully login and rest of online users will got this msg below
             {
                 Send.strMessage = "<<<" + Received.strName + " has joined the room>>>";

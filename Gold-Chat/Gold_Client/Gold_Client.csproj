@@ -96,6 +96,7 @@
     <Compile Include="ProgramableWindow\GenerateChannelPassWindow.cs" />
     <Compile Include="ProgramableWindow\CreateWindow.cs" />
     <Compile Include="ViewModel\Others\ReceiveFilePresenter.cs" />
+    <Compile Include="ViewModel\Others\ReceivePackageFromServer.cs" />
     <Compile Include="ViewModel\PrivateMessagePresenter.cs" />
     <Compile Include="ViewModel\SendFilePresenter.cs" />
     <Compile Include="ViewModel\TabWindows\ChannelWindowPresenter.cs" />

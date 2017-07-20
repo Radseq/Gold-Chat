@@ -1,6 +1,7 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
 using Gold_Client.ViewModel.Others;
+using System;
 using System.Security;
 using System.Windows;
 using System.Windows.Input;
@@ -17,6 +18,8 @@ namespace Gold_Client.ViewModel
 
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
+
+        public Action CloseAction;
 
         bool isNewPasswordEnabled = false;
         bool isNewPassword2Enabled = false;
@@ -50,7 +53,9 @@ namespace Gold_Client.ViewModel
 
         private void OnClientLostPass(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            if (e.clientMessage == "Your Password has been changed!")
+                CloseAction();
         }
 
         public string EmailTB
@@ -93,7 +98,10 @@ namespace Gold_Client.ViewModel
         public ICommand GenerateCodeCommand => new DelegateCommand(() =>
         {
             if (!string.IsNullOrWhiteSpace(emailTb))
+            {
                 clientSendToServer.SendToServer(Command.lostPassword, "email", emailTb);
+                StartReceive();
+            }
             else
                 MessageBox.Show("Write email", "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Error);
         });
@@ -102,14 +110,22 @@ namespace Gold_Client.ViewModel
         {
             if (!string.IsNullOrWhiteSpace(userCodeFromEmailTB))
             {
-                if (SecurePassword == SecurePasswordRepeart)
+                if (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password == (new System.Net.NetworkCredential(string.Empty, SecurePasswordRepeart).Password))
                 {
                     clientSendToServer.SendToServer(Command.lostPassword, "codeFromEmail", userCodeFromEmailTB, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, SecurePassword).Password));
+                    StartReceive();
                 }
                 else MessageBox.Show("Passwords are not same", "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
                 MessageBox.Show("Write only Code from email", "Gold Chat", MessageBoxButton.OK, MessageBoxImage.Information);
         });
+
+        private void StartReceive()
+        {
+            if (!ReceivePackageFromServer.IsClientStartReceive)
+                ReceivePackageFromServer.BeginReceive();
+        }
+
     }
 }

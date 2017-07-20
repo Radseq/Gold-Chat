@@ -76,7 +76,7 @@ namespace Server.ClientService
             client.enterChannels.Remove(UserName);
         }
 
-        public override void RespondToClient()
+        public override void Respond()
         {
             if (IsUserKickedSuccesfully)
             {

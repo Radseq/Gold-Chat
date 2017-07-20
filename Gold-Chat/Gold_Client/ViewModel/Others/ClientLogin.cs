@@ -14,7 +14,7 @@ namespace Gold_Client.ViewModel
 
         public Configuration config = new Configuration();
 
-        ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
+        //ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         public Client User
@@ -28,7 +28,7 @@ namespace Gold_Client.ViewModel
 
             loginNotyfi = config.loginEmailNotyfication; //load config value
             getMessageFromServer.ClientSendActivCodeFromEmail += OnSendActivateCodeFromEmail;
-            clientReceive.ReceiveLogExcep += OnReceiveLogExcep;
+            //clientReceive.ReceiveLogExcep += OnReceiveLogExcep;
             getMessageFromServer.ClientLogin += OnClientLogin;
         }
 
@@ -63,8 +63,11 @@ namespace Gold_Client.ViewModel
                 ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
                 clientSendToServer.SendToServer(Command.Login, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, password).Password),
                     (loginNotyfi ? "1" : null));
-                if (!clientReceive.IsClientStartReceive)
-                    clientReceive.BeginReceive();
+                if (!ReceivePackageFromServer.IsClientStartReceive)
+                {
+                    ReceivePackageFromServer.BeginReceive();
+                    //clientReceive.BeginReceive();
+                }
             }
             catch (Exception ex)
             {

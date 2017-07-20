@@ -42,7 +42,7 @@ namespace Server
             Send.strName = Received.strName;
         }
 
-        public virtual void RespondToClient()
+        public virtual void Respond()
         {
             Response(Send.ToByte(), Client);
         }

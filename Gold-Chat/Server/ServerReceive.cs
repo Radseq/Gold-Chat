@@ -79,25 +79,25 @@ namespace Server
                     case Command.Registration:
                         clientRegistration.Load(client, Received);
                         clientRegistration.Execute();
-                        clientRegistration.RespondToClient();
+                        clientRegistration.Respond();
                         break;
 
                     case Command.changePassword:
                         clientChangePassword.Load(client, Received);
                         clientChangePassword.Execute();
-                        clientChangePassword.RespondToClient();
+                        clientChangePassword.Respond();
                         break;
 
                     case Command.lostPassword:
                         clientLostPassword.Load(client, Received);
                         clientLostPassword.Execute();
-                        clientLostPassword.RespondToClient();
+                        clientLostPassword.Respond();
                         break;
 
                     case Command.SendActivationCode:
                         clientReSendActivCode.Load(client, Received);
                         clientReSendActivCode.Execute();
-                        clientReSendActivCode.RespondToClient();
+                        clientReSendActivCode.Respond();
                         break;
 
                     case Command.Logout:
@@ -126,13 +126,13 @@ namespace Server
                     case Command.joinChannel:
                         clientJoinChannel.Load(client, Received, ListOfClientsOnline);
                         clientJoinChannel.Execute();
-                        clientJoinChannel.RespondToClient();
+                        clientJoinChannel.Respond();
                         break;
 
                     case Command.exitChannel:
                         clientExitChannel.Load(client, Received);
                         clientExitChannel.Execute();
-                        clientExitChannel.RespondToClient();
+                        clientExitChannel.Respond();
                         break;
 
                     case Command.editChannel:
@@ -142,13 +142,13 @@ namespace Server
                     case Command.deleteChannel:
                         clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientDeleteChannel.Execute();
-                        clientDeleteChannel.RespondToClient();
+                        clientDeleteChannel.Respond();
                         break;
 
                     case Command.enterChannel:
                         clientEnterChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientEnterChannel.Execute();
-                        clientEnterChannel.RespondToClient();
+                        clientEnterChannel.Respond();
                         break;
 
                     case Command.leaveChannel:
@@ -170,31 +170,31 @@ namespace Server
                     case Command.ignoreUser:
                         clientIgnoreUser.Load(client, Received);
                         clientIgnoreUser.Execute();
-                        clientIgnoreUser.RespondToClient();
+                        clientIgnoreUser.Respond();
                         break;
 
                     case Command.kick:
                         clientKick.Load(client, Received, ListOfClientsOnline);
                         clientKick.Execute();
-                        clientKick.RespondToClient();
+                        clientKick.Respond();
                         break;
 
                     case Command.ban:
                         clientBan.Load(client, Received, ListOfClientsOnline);
                         clientBan.Execute();
-                        clientBan.RespondToClient();
+                        clientBan.Respond();
                         break;
 
                     case Command.kickUserChannel:
                         clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientKickFromChannel.Execute();
-                        clientKickFromChannel.RespondToClient();
+                        clientKickFromChannel.Respond();
                         break;
 
                     case Command.banUserChannel:
                         clientBanFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
                         clientBanFromChannel.Execute();
-                        clientBanFromChannel.RespondToClient();
+                        clientBanFromChannel.Respond();
                         break;
 
                     case Command.sendFile:
@@ -202,13 +202,13 @@ namespace Server
                         {
                             clientSendFile.Load(client, Received, ListOfClientsOnline);
                             clientSendFile.Execute();
-                            clientSendFile.RespondToClient();
+                            clientSendFile.Respond();
                         }
                         else
                         {
                             clientSendFileInfo.Load(client, Received, ListOfClientsOnline);
                             clientSendFileInfo.Execute();
-                            clientSendFileInfo.RespondToClient();
+                            clientSendFileInfo.Respond();
                         }
                         break;
                 }

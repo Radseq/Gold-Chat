@@ -20,7 +20,7 @@ Adding To friend list | ignored list <br />
 Delete from friend list | ignored list <br />
 List of channels, friends, ignored, joined channels <br />
 
-Channels: <br />
+Channels:
 * Create. <br />
 * Delete, by owner. <br />
 * Leave, on close channel tab or leave on JoinedChannels menu. <br />
