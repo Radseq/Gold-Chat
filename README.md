@@ -37,7 +37,7 @@ List of channels, friends, ignored, joined channels <br />
 ## Compiling
 
 You need:
-* Visual Studio v14(2015)
+* Visual Studio v15(2017)
 * MySql server
 
 Just run Gold-Chat/Gold-Chat.sln and Compile. Thats It!

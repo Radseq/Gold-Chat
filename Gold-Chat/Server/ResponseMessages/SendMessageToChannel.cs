@@ -19,11 +19,8 @@ namespace Server.ResponseMessages
 
         public void ResponseToChannel()
         {
-            Client client = ClientGets.getClientEnterChannel(ListOfClientsOnline, ChannelName);
-            if (client != null)
-            {
-                Response(Send.ToByte(), client);
-            }
+            foreach (Client channelClient in ClientGets.getClientEnterChannels(ListOfClientsOnline, ChannelName))
+                Response(Send.ToByte(), channelClient);
         }
     }
 }

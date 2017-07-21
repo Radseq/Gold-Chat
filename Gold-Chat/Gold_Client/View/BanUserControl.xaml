@@ -11,7 +11,7 @@
     <Grid>
         <Button Content="Ban User" HorizontalAlignment="Left" Margin="145,138,0,0" VerticalAlignment="Top" Width="75" Command="{Binding BanCommand}"/>
         <Label Content="format: yyyy-MM-dd HH:mm:ss" HorizontalAlignment="Left" Margin="41,7,0,0" VerticalAlignment="Top" Width="177"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="69,33,0,0" TextWrapping="Wrap" Text="{Binding DateTimeValue,  StringFormat='yyyy-MM-dd HH:mm:ss'}" VerticalAlignment="Top" Width="151"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="69,33,0,0" TextWrapping="Wrap" Text="{Binding DateTimeValue, StringFormat=DateTime: {0:yyyy-MM-dd HH:mm:ss}}" VerticalAlignment="Top" Width="151"/>
         <Label Content="Ban Reason" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top" Height="25"/>
         <TextBox HorizontalAlignment="Left" Height="47" Margin="10,86,0,0" TextWrapping="Wrap" Text="{Binding BanReasonTextBox, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="210"/>
         <Label Content="Ban time:" HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top" Width="59"/>
