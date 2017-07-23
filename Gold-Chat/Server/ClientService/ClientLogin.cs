@@ -1,11 +1,12 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
 
 namespace Server
 {
-    class ClientLogin : ServerResponds, IClient, IPrepareRespond
+    class ClientLogin : ServerResponds, IClient, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> clientLoginEvent;
 
@@ -87,9 +88,10 @@ namespace Server
             return null;
         }
 
-        public void Response()
+        public override void Response()
         {
-            Respond();
+            base.Response();
+
             if (Send.strMessage == "You are succesfully Log in") // Client succesfully login and rest of online users will got this msg below
             {
                 Send.strMessage = "<<<" + Received.strName + " has joined the room>>>";

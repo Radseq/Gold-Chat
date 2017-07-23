@@ -1,11 +1,10 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System.Collections.Generic;
-using System;
 
 namespace Server.ClientService
 {
-    class ClientIgnoreUser : ServerResponds, IPrepareRespond
+    class ClientIgnoreUser : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
         EmailSender emailSender = EmailSender.Instance;

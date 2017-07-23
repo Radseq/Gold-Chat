@@ -2,14 +2,15 @@
 Gold-Chat/Gold_Chat_Core/obj
 Gold-Chat/CommandClient/obj
 Gold-Chat/Gold_Client/obj
+Gold-Chat/Gold_ClientTests/obj
 Gold-Chat/ServerTests/obj
 Gold-Chat/Server/obj
-Gold-Chat/Gold/obj
 Gold-Chat/Gold_Chat_Core/bin
 Gold-Chat/Gold_Client/bin
+Gold-Chat/Gold_ClientTests/bin
 Gold-Chat/ServerTests/bin
-Gold-Chat/Gold/bin
 Gold-Chat/.vs
+Gold-Chat/packages
 
 *.csproj.user
 *.pdb

@@ -25,7 +25,7 @@ namespace Server
             return null;
         }
 
-        public static List<Client> getClientEnterChannels(List<Client> ClientList, string channelName)
+        public static List<Client> getClientsWhoEnterToChannel(List<Client> ClientList, string channelName)
         {
             List<Client> clientsInChannel = new List<Client>();
             foreach (Client client in ClientList)

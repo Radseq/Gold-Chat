@@ -1,10 +1,10 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System.Collections.Generic;
 
 namespace Server.ClientService.List
 {
-    class SendChannelList : ClientListManager, IPrepareRespond
+    class SendChannelList : ClientListManager, IBuildResponse
     {
         public SendChannelList(List<Channel> channelListe, Data send)
         {

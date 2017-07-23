@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientBan : ServerResponds, IClient, IPrepareRespond
+    class ClientBan : ServerResponds, IClient, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
         List<Client> ListOfClientsOnline;
@@ -65,7 +66,7 @@ namespace Server.ClientService
             sendToAll.ResponseToAll();
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (IsUserBanned)
             {
@@ -74,7 +75,7 @@ namespace Server.ClientService
                 Send.strMessage2 = "You banned: " + BannedUserName + " for: " + BanReason + " untill: " + BanTime;
             }
 
-            base.Respond();
+            base.Response();
         }
     }
 }

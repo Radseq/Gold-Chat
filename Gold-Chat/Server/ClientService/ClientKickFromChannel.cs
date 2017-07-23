@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientKickFromChannel : ServerResponds, IPrepareRespond
+    class ClientKickFromChannel : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -76,7 +77,7 @@ namespace Server.ClientService
             client.enterChannels.Remove(UserName);
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (IsUserKickedSuccesfully)
             {

@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientBanFromChannel : ServerResponds, IPrepareRespond
+    class ClientBanFromChannel : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -94,14 +95,14 @@ namespace Server.ClientService
         }
 
 
-        public override void Respond()
+        public override void Response()
         {
             if (IsUserBannedSuccesfully)
             {
                 sendMessageToChannelAboutUserBan();
                 removeUser(BannedUser, channel);
             }
-            base.Respond();
+            base.Response();
         }
     }
 }

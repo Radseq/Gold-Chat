@@ -91,6 +91,7 @@
     <Compile Include="ClientService\List\SendOnlineListOfClients.cs" />
     <Compile Include="ClientService\ManageClientFriend.cs" />
     <Compile Include="DataBaseManager.cs" />
+    <Compile Include="DataContext.cs" />
     <Compile Include="EmailSender.cs" />
     <Compile Include="Interfaces\IChannelList.cs" />
     <Compile Include="Interfaces\IClient.cs" />
@@ -99,7 +100,7 @@
     <Compile Include="LoggerToConsole.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Interfaces\IPrepareRespond.cs" />
+    <Compile Include="Interfaces\IBuildResponse.cs" />
     <Compile Include="Interfaces\IServerReceive.cs" />
     <Compile Include="Interfaces\IServerSend.cs" />
     <Compile Include="ResponseMessages\Respond.cs" />

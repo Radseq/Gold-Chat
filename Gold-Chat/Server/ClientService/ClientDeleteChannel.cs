@@ -1,11 +1,12 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientDeleteChannel : ServerResponds, IPrepareRespond
+    class ClientDeleteChannel : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientDeleteChannelEvent;
         //list of all channels
@@ -56,7 +57,7 @@ namespace Server.ClientService
                 channelToDelete = ChannelGets.getChannelByName(ChannelsList, channelName);
                 if (channelToDelete != null)
                 {
-                    UsersThatEnterToThisChanel = ClientGets.getClientEnterChannels(ListOfClientsOnline, channelName);
+                    UsersThatEnterToThisChanel = ClientGets.getClientsWhoEnterToChannel(ListOfClientsOnline, channelName);
                     isChannelExists = true;
                     Send.strMessage2 = Client.strName;
                 }
@@ -73,7 +74,7 @@ namespace Server.ClientService
 
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (isChannelExists)
             {
@@ -86,7 +87,7 @@ namespace Server.ClientService
                 OnClientDeleteChannel(channelName, Client.strName);
             }
             else
-                base.Respond();
+                base.Response();
         }
 
         protected virtual void OnClientDeleteChannel(string channelName, string userName)

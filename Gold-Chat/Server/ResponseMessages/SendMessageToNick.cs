@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using System.Collections.Generic;
 
 namespace Server.ResponseMessages

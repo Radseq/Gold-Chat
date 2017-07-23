@@ -1,11 +1,12 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientMessages : ServerResponds, IPrepareRespond
+    class ClientMessages : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientMessage;
         public event EventHandler<ClientEventArgs> ClientChannelMessage;
@@ -27,7 +28,7 @@ namespace Server.ClientService
             OnClientMessage(Send.strMessage, Received.strName + ": " + Received.strMessage);
         }
 
-        public void Response()
+        public override void Response()
         {
             if (Received.strMessage2 == null)
             {

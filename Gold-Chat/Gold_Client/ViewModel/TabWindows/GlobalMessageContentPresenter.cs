@@ -74,9 +74,7 @@ namespace Gold_Client.ViewModel.TabWindows
         private void OnClientKickFromServer(object sender, ClientEventArgs e)
         {
             if (e.clientName != App.Client.strName)
-            {
                 IncomeMessageTB += e.clientName + " has kicked, " + e.clientKickReason + "\r\n";
-            }
         }
     }
 }

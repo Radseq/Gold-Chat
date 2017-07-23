@@ -1,10 +1,10 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientChangePassword : ServerResponds, IPrepareRespond
+    class ClientChangePassword : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
 

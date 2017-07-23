@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientLeaveChannel : ServerResponds, IPrepareRespond
+    class ClientLeaveChannel : ServerResponds, IBuildResponse
     {
         List<Channel> ChannelsList;
         List<Client> ListOfClientsOnline;
@@ -32,9 +33,9 @@ namespace Server.ClientService
             //OnClientLeaveChannel(channelName, client.strName); //todo
         }
 
-        public void Response()
+        public override void Response()
         {
-            Respond();
+            base.Response();
             SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, ChannelName);
             sendToChannel.ResponseToChannel();
         }

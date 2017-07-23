@@ -1,6 +1,6 @@
 ﻿using CommandClient;
 
-namespace Server.ResponseMessages
+namespace Server.Interfaces
 {
     interface IServerSend
     {

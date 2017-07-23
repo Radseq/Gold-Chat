@@ -11,7 +11,7 @@ namespace Server
     ///     clientLogout
     ///     channelLeave
     /// </summary>
-    class Channel
+    public class Channel
     {
         string channelName;
         List<string> users = new List<string>(); // Using to send userlist, when new user enter to this channel

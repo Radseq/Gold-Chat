@@ -1,15 +1,12 @@
 ﻿using CommandClient;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Server.ResponseMessages
+namespace Server.Interfaces
 {
-    interface IPrepareRespond
+    public interface IBuildResponse
     {
         void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null);
         void Execute();
+        void Response();
     }
 }

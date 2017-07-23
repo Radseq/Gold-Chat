@@ -1,6 +1,6 @@
 ﻿using CommandClient;
 using Server.ClientService;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -20,6 +20,9 @@ namespace Server
             ListOfClientsOnline = clientList;
             ChannelsList = channelList;
         }
+
+        // I want to make strategy pattern but i must add void respind function into ipreparerespond
+        DataContext dataContext = null;
 
         ClientLogin clientLogin = new ClientLogin();
         ClientRegistration clientRegistration = new ClientRegistration();
@@ -71,68 +74,47 @@ namespace Server
                 switch (Received.cmdCommand)
                 {
                     case Command.Login:
-                        clientLogin.Load(client, Received, ListOfClientsOnline);
-                        clientLogin.Execute();
-                        clientLogin.Response();
+                        dataContext = new DataContext(clientLogin);
                         break;
 
                     case Command.Registration:
-                        clientRegistration.Load(client, Received);
-                        clientRegistration.Execute();
-                        clientRegistration.Respond();
+                        dataContext = new DataContext(clientRegistration);
                         break;
 
                     case Command.changePassword:
-                        clientChangePassword.Load(client, Received);
-                        clientChangePassword.Execute();
-                        clientChangePassword.Respond();
+                        dataContext = new DataContext(clientChangePassword);
                         break;
 
                     case Command.lostPassword:
-                        clientLostPassword.Load(client, Received);
-                        clientLostPassword.Execute();
-                        clientLostPassword.Respond();
+                        dataContext = new DataContext(clientLostPassword);
                         break;
 
                     case Command.SendActivationCode:
-                        clientReSendActivCode.Load(client, Received);
-                        clientReSendActivCode.Execute();
-                        clientReSendActivCode.Respond();
+                        dataContext = new DataContext(clientReSendActivCode);
                         break;
 
                     case Command.Logout:
-                        clientLogout.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientLogout.Execute();
-                        clientLogout.Response();
+                        dataContext = new DataContext(clientLogout);
                         break;
 
                     case Command.Message:
-                        clientMessage.Load(client, Received, ListOfClientsOnline);
-                        clientMessage.Execute();
-                        clientMessage.Response();
+                        dataContext = new DataContext(clientMessage);
                         break;
 
                     case Command.privMessage:
-                        clientPrivateMessage.Load(client, Received, ListOfClientsOnline);
-                        clientPrivateMessage.Response();
+                        dataContext = new DataContext(clientPrivateMessage);
                         break;
 
                     case Command.createChannel:
-                        clientCreateChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientCreateChannel.Execute();
-                        //clientCreateChannel.RespondToClient();
+                        dataContext = new DataContext(clientCreateChannel);
                         break;
 
                     case Command.joinChannel:
-                        clientJoinChannel.Load(client, Received, ListOfClientsOnline);
-                        clientJoinChannel.Execute();
-                        clientJoinChannel.Respond();
+                        dataContext = new DataContext(clientJoinChannel);
                         break;
 
                     case Command.exitChannel:
-                        clientExitChannel.Load(client, Received);
-                        clientExitChannel.Execute();
-                        clientExitChannel.Respond();
+                        dataContext = new DataContext(clientExitChannel);
                         break;
 
                     case Command.editChannel:
@@ -140,78 +122,57 @@ namespace Server
                         break;
 
                     case Command.deleteChannel:
-                        clientDeleteChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientDeleteChannel.Execute();
-                        clientDeleteChannel.Respond();
+                        dataContext = new DataContext(clientDeleteChannel);
                         break;
 
                     case Command.enterChannel:
-                        clientEnterChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientEnterChannel.Execute();
-                        clientEnterChannel.Respond();
+                        dataContext = new DataContext(clientEnterChannel);
                         break;
 
                     case Command.leaveChannel:
-                        clientLeaveChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientLeaveChannel.Execute();
-                        clientLeaveChannel.Response();
+                        dataContext = new DataContext(clientLeaveChannel);
                         break;
 
                     case Command.List:
-                        clientListManager.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientListManager.Execute();
+                        dataContext = new DataContext(clientListManager);
                         break;
 
                     case Command.manageFriend:
-                        manageClientFriend.Load(client, Received, ListOfClientsOnline);
-                        manageClientFriend.Execute();
+                        dataContext = new DataContext(manageClientFriend);
                         break;
 
                     case Command.ignoreUser:
-                        clientIgnoreUser.Load(client, Received);
-                        clientIgnoreUser.Execute();
-                        clientIgnoreUser.Respond();
+                        dataContext = new DataContext(clientIgnoreUser);
                         break;
 
                     case Command.kick:
-                        clientKick.Load(client, Received, ListOfClientsOnline);
-                        clientKick.Execute();
-                        clientKick.Respond();
+                        dataContext = new DataContext(clientKick);
                         break;
 
                     case Command.ban:
-                        clientBan.Load(client, Received, ListOfClientsOnline);
-                        clientBan.Execute();
-                        clientBan.Respond();
+                        dataContext = new DataContext(clientBan);
                         break;
 
                     case Command.kickUserChannel:
-                        clientKickFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientKickFromChannel.Execute();
-                        clientKickFromChannel.Respond();
+                        dataContext = new DataContext(clientKickFromChannel);
                         break;
 
                     case Command.banUserChannel:
-                        clientBanFromChannel.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                        clientBanFromChannel.Execute();
-                        clientBanFromChannel.Respond();
+                        dataContext = new DataContext(clientBanFromChannel);
                         break;
 
                     case Command.sendFile:
                         if (Received.strFileMsg != null)
-                        {
-                            clientSendFile.Load(client, Received, ListOfClientsOnline);
-                            clientSendFile.Execute();
-                            clientSendFile.Respond();
-                        }
+                            dataContext = new DataContext(clientSendFile);
                         else
-                        {
-                            clientSendFileInfo.Load(client, Received, ListOfClientsOnline);
-                            clientSendFileInfo.Execute();
-                            clientSendFileInfo.Respond();
-                        }
+                            dataContext = new DataContext(clientSendFileInfo);
                         break;
+                    default:
+                        throw new ArgumentException("Wrong Package command from client");
                 }
+                dataContext.Load(client, Received, ListOfClientsOnline, ChannelsList);
+                dataContext.Execute();
+                dataContext.Response();
 
                 ReceivedMessage(client, Received, byteData);
             }
@@ -234,13 +195,9 @@ namespace Server
         private void ReceivedMessage(Client conClient, Data msgReceived, byte[] byteData)
         {
             if (msgReceived.cmdCommand != Command.Logout)
-            {
                 conClient.cSocket.BeginReceive(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(OnReceive), conClient);
-            }
             else if (msgReceived.strMessage != null) // I want to see messages, messages will be null on login/logout
-            {
                 OnClientReceiMessage((int)msgReceived.cmdCommand, msgReceived.strName, msgReceived.strMessage, msgReceived.strMessage);
-            }
         }
         protected virtual void OnClientReceiMessage(int command, string cName, string cMessage, string cFriendName)
         {

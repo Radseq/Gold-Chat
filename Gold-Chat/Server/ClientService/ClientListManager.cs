@@ -1,12 +1,12 @@
 ﻿using CommandClient;
 using Server.ClientService.List;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientListManager : ServerResponds, IPrepareRespond
+    class ClientListManager : ServerResponds, IBuildResponse
     {
         protected DataBaseManager db = DataBaseManager.Instance;
 
@@ -50,14 +50,17 @@ namespace Server.ClientService
                 SendListOfUsersInChannel sendListOfUsersInChannel = new SendListOfUsersInChannel(ChannelsList, Send, Received);
                 sendListOfUsersInChannel.Execute();
             }
-            else {
+            else
+            {
                 SendOnlineListOfClients sendOnlineUsers = new SendOnlineListOfClients(ListOfClientsOnline, Send);
                 sendOnlineUsers.Execute();
             };
+        }
+
+        public override void Response()
+        {
             if (Send.strMessage2 != null || Send.strMessage3 != null)
-            {
-                Respond();
-            }
+                base.Response();
         }
 
         // Using in sendChannelListJoined, sendFriendList

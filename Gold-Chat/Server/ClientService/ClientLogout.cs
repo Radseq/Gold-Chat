@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Net.Sockets;
 
 namespace Server.ClientService
 {
-    class ClientLogout : ServerResponds, IPrepareRespond
+    class ClientLogout : ServerResponds, IBuildResponse
     {
         //The collection of all clients logged into the room
         private List<Client> ListOfClientsOnline;
@@ -53,7 +54,7 @@ namespace Server.ClientService
             Client.cSocket.Close();
         }
 
-        public void Response()
+        public override void Response()
         {
             SendMessageToAll sendToAll = new SendMessageToAll(Client, Send, ListOfClientsOnline);
             sendToAll.ResponseToAll();

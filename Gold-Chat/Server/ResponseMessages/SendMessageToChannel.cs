@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using System.Collections.Generic;
 
 namespace Server.ResponseMessages
@@ -19,7 +20,7 @@ namespace Server.ResponseMessages
 
         public void ResponseToChannel()
         {
-            foreach (Client channelClient in ClientGets.getClientEnterChannels(ListOfClientsOnline, ChannelName))
+            foreach (Client channelClient in ClientGets.getClientsWhoEnterToChannel(ListOfClientsOnline, ChannelName))
                 Response(Send.ToByte(), channelClient);
         }
     }

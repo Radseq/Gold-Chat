@@ -1,11 +1,12 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientEnterChannel : ServerResponds, IPrepareRespond
+    class ClientEnterChannel : ServerResponds, IBuildResponse
     {
         //list of all channels
         private List<Channel> Channels;
@@ -68,10 +69,10 @@ namespace Server.ClientService
         {
             Send.strMessage2 = "deny";
             Send.strMessage3 = serverMessage + ChannelName;
-            Respond();
+            Response();
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (IsUserEnter)
             {
@@ -79,7 +80,7 @@ namespace Server.ClientService
                 sendToChannel.ResponseToChannel();
             }
             else
-                base.Respond();
+                base.Response();
         }
     }
 }

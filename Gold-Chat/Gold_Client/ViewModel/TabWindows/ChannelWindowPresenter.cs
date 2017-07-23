@@ -59,6 +59,7 @@ namespace Gold_Client.ViewModel.TabWindows
         {
             if (e.clientName != App.Client.strName)
             {
+                RemoveFromChannelUserList(e.clientName);
                 showMessage("User " + e.clientName + e.clientBanReason);
             }
         }
@@ -67,6 +68,7 @@ namespace Gold_Client.ViewModel.TabWindows
         {
             if (e.clientName != App.Client.strName)
             {
+                RemoveFromChannelUserList(e.clientName);
                 showMessage("User " + e.clientName + e.clientKickReason);
             }
         }
@@ -112,9 +114,7 @@ namespace Gold_Client.ViewModel.TabWindows
         {
             string[] splitNicks = e.clientListMessage.Split('*').Where(value => value != "").ToArray(); ;
             foreach (string name in splitNicks)
-            {
                 AddToChannelUserList(name);
-            }
         }
 
         private void OnClientChannelLeave(object sender, ClientEventArgs e)

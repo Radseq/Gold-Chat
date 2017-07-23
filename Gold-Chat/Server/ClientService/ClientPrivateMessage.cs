@@ -1,25 +1,30 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientPrivateMessage : ServerResponds
+    class ClientPrivateMessage : ServerResponds, IBuildResponse
     {
         List<Client> ListOfClientsOnline;
 
-        public void Load(Client client, Data receive, List<Client> clientList)
+        public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
             Received = receive;
             ListOfClientsOnline = clientList;
         }
 
-        public void Response()
+        public void Execute()
         {
             prepareResponse();
             Send.strMessage = Received.strName + ": " + Received.strMessage;
-            Respond();
+        }
+
+        public override void Response()
+        {
+            base.Response();
 
             SendMessageToNick sendToNick = new SendMessageToNick(ListOfClientsOnline, Send);
             sendToNick.Send.strName = Received.strMessage2;

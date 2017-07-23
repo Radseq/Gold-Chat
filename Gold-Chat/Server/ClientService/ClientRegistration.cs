@@ -1,5 +1,5 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Server.ClientService
 {
-    class ClientRegistration : ServerResponds, IPrepareRespond
+    class ClientRegistration : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientRegistrationEvent;
 

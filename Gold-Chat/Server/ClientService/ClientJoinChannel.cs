@@ -1,11 +1,12 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientJoinChannel : ServerResponds, IPrepareRespond
+    class ClientJoinChannel : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientJoinChannelEvent;
 

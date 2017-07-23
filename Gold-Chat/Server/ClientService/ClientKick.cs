@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientKick : ServerResponds, IPrepareRespond
+    class ClientKick : ServerResponds, IBuildResponse
     {
         List<Client> ListOfClientsOnline;
 
@@ -43,7 +44,7 @@ namespace Server.ClientService
                 else Send.strMessage2 = "You cannot kick " + KickedUserName + " because you dont have permissions";
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (isKicked)
             {
@@ -52,7 +53,7 @@ namespace Server.ClientService
                 KickeUser.cSocket.Close();
             }
             else
-                base.Respond();
+                base.Response();
         }
     }
 }

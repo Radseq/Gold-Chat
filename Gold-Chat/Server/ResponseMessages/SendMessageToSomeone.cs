@@ -1,7 +1,6 @@
-﻿using System;
+﻿using CommandClient;
+using Server.Interfaces;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using CommandClient;
 
 namespace Server.ResponseMessages
 {

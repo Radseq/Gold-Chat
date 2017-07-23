@@ -1,10 +1,11 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientSendFileInfo : ServerResponds, IClient, IPrepareRespond
+    class ClientSendFileInfo : ServerResponds, IClient, IBuildResponse
     {
 
         //getFileLen().ToString(), parseDirIntoFileName(), NameOfUserToSendFile, null, buffer
@@ -49,7 +50,7 @@ namespace Server.ClientService
 
         }
 
-        public override void Respond()
+        public override void Response()
         {
             if (IsNoError)
             {
@@ -60,7 +61,7 @@ namespace Server.ClientService
                 sendToNick.ResponseToNick();
             }
             else
-                base.Respond();
+                base.Response();
         }
     }
 }

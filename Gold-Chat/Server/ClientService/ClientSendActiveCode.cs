@@ -1,11 +1,11 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientSendActiveCode : ServerResponds, IPrepareRespond
+    class ClientSendActiveCode : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientReSendAckCode;
 

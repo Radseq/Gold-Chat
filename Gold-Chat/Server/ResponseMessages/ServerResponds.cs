@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using Server.Interfaces;
 using Server.ResponseMessages;
 using System;
 
@@ -42,7 +43,7 @@ namespace Server
             Send.strName = Received.strName;
         }
 
-        public virtual void Respond()
+        public virtual void Response()
         {
             Response(Send.ToByte(), Client);
         }

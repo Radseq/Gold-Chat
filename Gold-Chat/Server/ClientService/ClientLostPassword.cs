@@ -1,11 +1,11 @@
 ﻿using CommandClient;
-using Server.ResponseMessages;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class ClientLostPassword : ServerResponds, IPrepareRespond
+    class ClientLostPassword : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
         EmailSender emailSender = EmailSender.Instance;
