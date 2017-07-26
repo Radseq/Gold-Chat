@@ -96,6 +96,7 @@
     <Compile Include="Interfaces\IChannelList.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IClientList.cs" />
+    <Compile Include="Interfaces\IDataBase.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="LoggerToConsole.cs" />
     <Compile Include="Program.cs" />

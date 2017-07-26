@@ -60,8 +60,13 @@
   <ItemGroup>
     <Compile Include="DataBaseManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SendPackageTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommandClient\CommandClient.csproj">
+      <Project>{9A009A76-409C-42D5-8BFC-3AE4C7E54911}</Project>
+      <Name>CommandClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Server\Server.csproj">
       <Project>{39F90E25-E98E-4D06-ACC4-F5E49B197331}</Project>
       <Name>Server</Name>

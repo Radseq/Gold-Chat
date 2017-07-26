@@ -49,7 +49,7 @@ namespace Server.ClientService
             if (regCode == userRegisterCode)
             {
                 db.bind(new string[] { "reg_id", "", "email", userEmail });
-                int updated = db.delUpdateInsertDb("UPDATE users SET register_id = @reg_id WHERE email = @email");
+                int updated = db.executeNonQuery("UPDATE users SET register_id = @reg_id WHERE email = @email");
 
                 if (updated > 0)
                     Send.strMessage = "Now you can login into application";

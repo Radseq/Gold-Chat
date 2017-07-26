@@ -1,6 +1,6 @@
 ﻿namespace Server.Interfaces
 {
-    interface IClient
+    public interface IClient
     {
         Client Client { get; set; }
     }

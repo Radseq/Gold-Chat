@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Server.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +13,7 @@ namespace Server
         public string Exception { get; set; }
     }
 
-    public class DataBaseManager
+    public class DataBaseManager : IDataBase
     {
         // Event
         public event EventHandler<DataBaseManagerEventArgs> ConnectToDB;
@@ -115,13 +116,11 @@ namespace Server
                     mySqlCommand.Parameters.AddWithValue(sparameters[0], sparameters[1]);
                 });
 
-            // Clear parameters 
             parameters.Clear();
         }
 
         private void dBCommand(string query)
         {
-            // No connection with database? make connection
             if (isConnected == false)
                 connectToDb();
             else
@@ -198,7 +197,7 @@ namespace Server
             return table;
         }
 
-        public int delUpdateInsertDb(string query)
+        public int executeNonQuery(string query)
         {
             int affectedRows = nonQuery(query);
 

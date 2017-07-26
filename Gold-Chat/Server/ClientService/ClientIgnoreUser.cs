@@ -51,7 +51,7 @@ namespace Server.ClientService
         private string addIgnoredUserToDb(string userName, List<string> users)
         {
             db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users[0] });
-            if (db.delUpdateInsertDb("INSERT INTO user_ignored (id_user, id_user_ignored) " + "VALUES (@idUser, @idUserIgnored)") > 0)
+            if (db.executeNonQuery("INSERT INTO user_ignored (id_user, id_user_ignored) " + "VALUES (@idUser, @idUserIgnored)") > 0)
             {
                 Client.ignoredUsers.Add(userName);
                 return "You are now ignore: " + userName;
@@ -65,7 +65,7 @@ namespace Server.ClientService
         {
             db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users[0] });
 
-            if (db.delUpdateInsertDb("DELETE FROM user_ignored WHERE id_user = @idUser AND id_user_ignored = @idUserIgnored") > 0)
+            if (db.executeNonQuery("DELETE FROM user_ignored WHERE id_user = @idUser AND id_user_ignored = @idUserIgnored") > 0)
             {
                 Client.ignoredUsers.Remove(userName);
                 return "You are delete from ignore list user: " + userName;

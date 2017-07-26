@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Server.ResponseMessages
 {
-    class SendMessageToAll : Respond, IServerSend/*, IServerReceive*/, IClient
+    class SendMessageToAll : Respond, IServerSend, IClient
     {
         private List<Client> ListOfClientsOnline;
 

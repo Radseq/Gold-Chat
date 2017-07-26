@@ -34,7 +34,7 @@ namespace Server.ClientService
         private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)
         {
             db.bind(new string[] { "pass", newPassword, "Login", userName, "oldPass", oldPassword });
-            if (db.delUpdateInsertDb("UPDATE users SET password = @pass WHERE login = @Login AND password = @oldPass") > 0)
+            if (db.executeNonQuery("UPDATE users SET password = @pass WHERE login = @Login AND password = @oldPass") > 0)
                 return "Your Password has been changed!";
             else
                 return "Unknow Error while changing password";

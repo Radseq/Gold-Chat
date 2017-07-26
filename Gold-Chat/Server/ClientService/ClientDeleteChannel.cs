@@ -50,7 +50,7 @@ namespace Server.ClientService
         private void deleteChannelFromDb(string channelName)
         {
             db.bind(new string[] { "channelName", channelName, "idUser", Client.id.ToString() });
-            int deleteChannelResult = db.delUpdateInsertDb("DELETE FROM channel WHERE channel.channel_name = @channelName AND channel.id_user_founder = @idUser");
+            int deleteChannelResult = db.executeNonQuery("DELETE FROM channel WHERE channel.channel_name = @channelName AND channel.id_user_founder = @idUser");
             // user_channel will be also deleted cuse of - on delete cascade
             if (deleteChannelResult > 0)
             {

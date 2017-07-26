@@ -51,7 +51,7 @@ namespace Server.ClientService
             string registrationCode = CalculateChecksum(userEmail);
 
             db.bind(new string[] { "user_name", userName, "user_password", userPassword, "user_email", userEmail, "register_id", registrationCode, "perm", 0.ToString() });
-            int created = db.delUpdateInsertDb("INSERT INTO users(login, password, email, register_id, permission) " + "VALUES(@user_name, @user_password, @user_email, @register_id, @perm)");
+            int created = db.executeNonQuery("INSERT INTO users(login, password, email, register_id, permission) " + "VALUES(@user_name, @user_password, @user_email, @register_id, @perm)");
 
             if (created > 0)
             {

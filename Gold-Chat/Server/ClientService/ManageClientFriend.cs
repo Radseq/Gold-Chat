@@ -108,7 +108,7 @@ namespace Server.ClientService
         {
             db.bind(new string[] { "idUser", clientId.ToString(), "idFriend", friendId.ToString() });
 
-            if (db.delUpdateInsertDb("INSERT INTO user_friend (id_user, id_friend) " + "VALUES (@idUser, @idFriend)") > 0)
+            if (db.executeNonQuery("INSERT INTO user_friend (id_user, id_friend) " + "VALUES (@idUser, @idFriend)") > 0)
                 return true;
             else
                 return false;
@@ -118,7 +118,7 @@ namespace Server.ClientService
         {
             db.bind(new string[] { "idUser", clientId.ToString(), "idFriend", friendId.ToString() });
 
-            if (db.delUpdateInsertDb("DELETE FROM user_friend WHERE id_user = @idUser AND id_friend = @idFriend") > 0)
+            if (db.executeNonQuery("DELETE FROM user_friend WHERE id_user = @idUser AND id_friend = @idFriend") > 0)
                 return true;
             else
                 return false;

@@ -88,7 +88,7 @@ namespace Server.ClientService
             db.bind(new string[] { "idUser", client.id.ToString(), "idChannel", channel.ChannelId.ToString(),
                 "BanReason", banReason, "StartBanDateTime", Utilities.getDataTimeNow(), "EndBanDateTime", Bantime });
 
-            if (db.delUpdateInsertDb("INSERT INTO channel_user_bans (id_user, id_channel, reason, start_ban, end_ban) " + "VALUES (@idUser, @idChannel, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
+            if (db.executeNonQuery("INSERT INTO channel_user_bans (id_user, id_channel, reason, start_ban, end_ban) " + "VALUES (@idUser, @idChannel, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
                 return true;
             Send.strMessage2 = "Cannot ban user with unknown reason.";
             return false;

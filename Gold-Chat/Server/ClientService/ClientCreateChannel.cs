@@ -61,7 +61,7 @@ namespace Server.ClientService
 
             db.bind(new string[] { "idUser", Client.id.ToString(), "channelName", roomName, "enterPass", enterPassword, "adminPass",
                 adminPassword, "maxUsers", 5.ToString(), "createDate", Utilities.getDataTimeNow(), "welcomeMessage", welcomeMsg });
-            int insertChannelIntoDbResult = db.delUpdateInsertDb("INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
+            int insertChannelIntoDbResult = db.executeNonQuery("INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
                 "VALUES (@idUser, @channelName, @enterPass, @adminPass, @maxUsers, @createDate, @welcomeMessage)");
 
             if (insertChannelIntoDbResult > 0)

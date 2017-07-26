@@ -2,7 +2,7 @@
 
 namespace Server.Interfaces
 {
-    interface IServerSend
+    public interface IServerSend
     {
         Data Send { get; set; }
     }

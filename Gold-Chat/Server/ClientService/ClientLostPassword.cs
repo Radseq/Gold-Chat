@@ -48,7 +48,7 @@ namespace Server.ClientService
             int id_user = Int32.Parse(respond[0]);
 
             db.bind(new string[] { "idUser", id_user.ToString(), "Code", generatedCode, "CodeCreateDate", Utilities.getDataTimeNow() });
-            int created = db.delUpdateInsertDb("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
+            int created = db.executeNonQuery("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
             return created;
         }
 
@@ -69,7 +69,7 @@ namespace Server.ClientService
             if (codeDb != null && codeDb[0] == code)
             {
                 db.bind("Code", code);
-                int deleted = db.delUpdateInsertDb("DELETE FROM user_lost_pass WHERE code = @Code");
+                int deleted = db.executeNonQuery("DELETE FROM user_lost_pass WHERE code = @Code");
 
                 if (deleted == 0)
                     Console.WriteLine("Cannot delete " + codeDb[1] + " from user_lost_pass");
@@ -84,7 +84,7 @@ namespace Server.ClientService
         private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)
         {
             db.bind(new string[] { "pass", newPassword, "Login", userName, "oldPass", oldPassword });
-            if (db.delUpdateInsertDb("UPDATE users SET password = @pass WHERE login = @Login AND password = @oldPass") > 0)
+            if (db.executeNonQuery("UPDATE users SET password = @pass WHERE login = @Login AND password = @oldPass") > 0)
                 return "Your Password has been changed!";
             else
                 return "Unknow Error while changing password";

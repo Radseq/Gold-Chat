@@ -47,7 +47,7 @@ namespace Server.ClientService
         {
             db.bind(new string[] { "idUser", client.id.ToString(), "BanReason", banReason, "StartBanDateTime", Utilities.getDataTimeNow(), "EndBanDateTime", Bantime });
 
-            if (db.delUpdateInsertDb("INSERT INTO user_bans (id_user, reason, start_ban, end_ban) " + "VALUES (@idUser, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
+            if (db.executeNonQuery("INSERT INTO user_bans (id_user, reason, start_ban, end_ban) " + "VALUES (@idUser, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
                 return true;
             Send.strMessage2 = "Cannot ban user with unknown reason.";
             return false;

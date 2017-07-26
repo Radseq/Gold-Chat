@@ -21,7 +21,6 @@ namespace Server
             ChannelsList = channelList;
         }
 
-        // I want to make strategy pattern but i must add void respind function into ipreparerespond
         DataContext dataContext = null;
 
         ClientLogin clientLogin = new ClientLogin();

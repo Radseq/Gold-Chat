@@ -65,7 +65,7 @@ namespace Server.ClientService
         private void insertUserJoinedChannelToDb(Int64 idChannelDb, string channelName)
         {
             db.bind(new string[] { "idUser", Client.id.ToString(), "idChannel", idChannelDb.ToString(), "joinDate", Utilities.getDataTimeNow() });
-            int created = db.delUpdateInsertDb("INSERT INTO user_channel (id_user, id_channel, join_date) " + "VALUES (@idUser, @idChannel, @joinDate)");
+            int created = db.executeNonQuery("INSERT INTO user_channel (id_user, id_channel, join_date) " + "VALUES (@idUser, @idChannel, @joinDate)");
 
             if (created > 0)
             {

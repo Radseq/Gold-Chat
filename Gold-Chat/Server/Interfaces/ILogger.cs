@@ -1,6 +1,6 @@
 ﻿namespace Server.Interfaces
 {
-    interface ILogger
+    public interface ILogger
     {
         void Log(string message);
     }

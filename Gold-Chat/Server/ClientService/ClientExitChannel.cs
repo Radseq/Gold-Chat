@@ -45,7 +45,7 @@ namespace Server.ClientService
         private string deleteUserFromChannelDb(string channelName, int idChannelDb)
         {
             db.bind(new string[] { "idUser", Client.id.ToString(), "idChannel", idChannelDb.ToString() });
-            int deleted = db.delUpdateInsertDb("DELETE FROM user_channel WHERE id_user = @idUser AND id_channel = @idChannel");
+            int deleted = db.executeNonQuery("DELETE FROM user_channel WHERE id_user = @idUser AND id_channel = @idChannel");
 
             if (deleted > 0)
             {
