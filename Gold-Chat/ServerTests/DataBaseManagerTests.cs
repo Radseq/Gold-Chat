@@ -7,15 +7,15 @@ namespace Server.Tests
     [TestClass()]
     public class DataBaseManagerTests
     {
+        Mock<IDataBase> mock = new Mock<IDataBase>();
+
         [TestMethod()]
         public int DatabaseQuery(string query)
         {
             if (query == "" || string.IsNullOrWhiteSpace(query))
                 Assert.Fail();
 
-            var mock = new Mock<IDataBase>();
             mock.Setup(x => x.executeNonQuery(query)).Returns(1); // It.IsAny<string>()
-            Assert.IsNotNull(mock.Object);
             return 1;
         }
 

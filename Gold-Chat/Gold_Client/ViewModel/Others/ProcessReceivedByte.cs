@@ -275,7 +275,7 @@ namespace Gold_Client.ViewModel.Others
         {
             ClientChangePass?.Invoke(this, new ClientEventArgs() { clientChangePassMessage = message });
         }
-        //channel todo
+
         protected virtual void OnClientCreateChannel(string channelMsg, string roomName, string creatorName)
         {
             ClientCreateChannel?.Invoke(this, new ClientEventArgs() { clientChannelMsg = channelMsg, clientChannelMsg2 = roomName, clientName = creatorName });

@@ -4,13 +4,11 @@ using System.Data;
 
 namespace Server.ClientService
 {
+    //cache
+    //get channels at server start
     class GetListOfChannlsFromDataBase
     {
         DataBaseManager db = DataBaseManager.Instance;
-
-        public GetListOfChannlsFromDataBase()
-        {
-        }
 
         public List<Channel> getChannelsFromDB()
         {

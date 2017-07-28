@@ -19,8 +19,7 @@ namespace Server.ClientService
             prepareResponse();
             string newPassword = Received.strMessage;
 
-            db.bind("userName", Client.strName);
-            string oldPassword = db.singleSelect("SELECT password FROM users WHERE login = @userName");
+            string oldPassword = GetOldPassFromDB();
 
             if (oldPassword != "")
             {
@@ -29,6 +28,12 @@ namespace Server.ClientService
                 else
                     Send.strMessage = "New and old password are same!";
             }
+        }
+
+        private string GetOldPassFromDB()
+        {
+            db.bind("userName", Client.strName);
+            return db.singleSelect("SELECT password FROM users WHERE login = @userName");
         }
 
         private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)

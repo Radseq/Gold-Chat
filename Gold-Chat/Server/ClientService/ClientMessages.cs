@@ -11,7 +11,6 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientMessage;
         public event EventHandler<ClientEventArgs> ClientChannelMessage;
 
-        //The collection of all clients logged into the room
         private List<Client> ListOfClientsOnline;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)

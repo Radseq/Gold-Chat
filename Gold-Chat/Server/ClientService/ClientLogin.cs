@@ -11,7 +11,7 @@ namespace Server
         public event EventHandler<ClientEventArgs> clientLoginEvent;
 
         DataBaseManager db = DataBaseManager.Instance;
-        EmailSender emailSender = EmailSender.Instance;
+        EmailSender emailSender = new EmailSender();
 
         private List<Client> ListOfClientsOnline;
 
@@ -28,12 +28,8 @@ namespace Server
 
             string userName = Received.strName;
             string userPassword = Received.strMessage;
-            string loginNotyfiUser = Received.strMessage2;
 
-            db.bind(new string[] { "@userName", userName, "@password", userPassword });
-            db.manySelect("SELECT register_id, email, id_user, login, permission FROM users WHERE login = @userName AND password = @password");
-            string[] query = db.tableToRow();
-
+            string[] query = GetUserInformationFromDB(userName, userPassword);
             if (query == null || userName != query[3])
                 Send.strMessage = "Wrong login or password";
             else if (query[0] != "") // query[0] Activation code must be "" if user want to login
@@ -48,33 +44,50 @@ namespace Server
                 if (ban == null)
                 {
                     ClientSuccesfullyLogIn(query);
-                    if (loginNotyfiUser == "1") // User wants to be notyficated when login to account
-                        emailSender.SendEmail(Client.strName, query[1], "Gold Chat: Login Notyfication", "You have login: " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " To Gold Chat Account.");
-
+                    userEmailNotification(query[1]);
                 }
                 else Send.strMessage = "You are banned untill " + ban;
             }
         }
 
+        private void userEmailNotification(string email)
+        {
+            string loginNotyfiUser = Received.strMessage2;
+            if (loginNotyfiUser == "1") // User wants to be notyficated when login into account
+            {
+                emailSender.SetProperties(Client.strName, email, "Gold Chat: Login Notyfication", "You have login: " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " To Gold Chat Account.");
+                emailSender.SendEmail();
+            }
+        }
+
+        private string[] GetUserInformationFromDB(string userName, string userPassword)
+        {
+            db.bind(new string[] { "@userName", userName, "@password", userPassword });
+            db.manySelect("SELECT register_id, email, id_user, login, permission FROM users WHERE login = @userName AND password = @password");
+            return db.tableToRow();
+        }
+
         private void ClientSuccesfullyLogIn(string[] query)
+        {
+            SetClientProperties(query);
+
+            Send.strMessage = "You are succesfully Log in";
+            Send.strMessage2 = Client.permission.ToString();
+            OnClientLogin(Client.strName, Client.addr.Address.ToString(), Client.addr.Port.ToString()); // Server OnClientLogin occur only when succes program.cs -> OnClientLogin
+        }
+
+        private void SetClientProperties(string[] query)
         {
             Client.id = Int64.Parse(query[2]);
             Client.permission = Int16.Parse(query[4]);
-
-            // All is correct so user can use app
             Client.strName = query[3];
-            Send.strMessage = "You are succesfully Log in";
-            Send.strMessage2 = Client.permission.ToString(); //send to user if he is admin, used to visibility some oprions and rights on client side
             Client.enterChannels = new List<string>(); // Init of channels whitch i joined
             Client.ignoredUsers = new List<string>(); // Init of ignored users
-            OnClientLogin(Client.strName, Client.addr.Address.ToString(), Client.addr.Port.ToString()); // Server OnClientLogin occur only when succes program.cs -> OnClientLogin
         }
 
         private string CheckUserBan(Int64 id_user)
         {
-            db.bind("IdUser", id_user.ToString());
-            string endBanDateFromDB = db.singleSelect("SELECT end_ban FROM user_bans WHERE id_user = @IdUser");
-
+            string endBanDateFromDB = GetDataBaseBanTime(id_user);
             if (endBanDateFromDB != "")
             {
                 DateTime dt1 = DateTime.Parse(endBanDateFromDB);
@@ -88,10 +101,21 @@ namespace Server
             return null;
         }
 
+        private string GetDataBaseBanTime(Int64 id_user)
+        {
+            db.bind("IdUser", id_user.ToString());
+            return db.singleSelect("SELECT end_ban FROM user_bans WHERE id_user = @IdUser");
+        }
+
         public override void Response()
         {
             base.Response();
 
+            ResponseToAll();
+        }
+
+        private void ResponseToAll()
+        {
             if (Send.strMessage == "You are succesfully Log in") // Client succesfully login and rest of online users will got this msg below
             {
                 Send.strMessage = "<<<" + Received.strName + " has joined the room>>>";

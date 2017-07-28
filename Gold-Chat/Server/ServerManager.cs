@@ -10,10 +10,8 @@ namespace Server
 {
 
     //This class represents a client connection to server
-
     public class ServerManager : IClient
     {
-
         private static ManualResetEvent allDone = new ManualResetEvent(false);
 
         //The collection of all clients logged into the room

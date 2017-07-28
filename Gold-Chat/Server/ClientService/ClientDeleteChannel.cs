@@ -12,7 +12,7 @@ namespace Server.ClientService
         //list of all channels
         List<Channel> ChannelsList;
         List<Client> ListOfClientsOnline;
-        List<Client> UsersThatEnterToThisChanel;
+        List<Client> ListOfUsersThatEnterToThisChanel;
 
         DataBaseManager db = DataBaseManager.Instance;
 
@@ -37,28 +37,28 @@ namespace Server.ClientService
 
             Send.strMessage2 = "Deny";
 
-            db.bind(new string[] { "channelName", channelName, "idUserFounder", Client.id.ToString() });
-
-            string admPass = db.singleSelect("SELECT admin_password FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUserFounder");
-
-            if (adminPass == admPass)
-                deleteChannelFromDb(channelName);
+            if (adminPass == GetAdminPassFromDB())
+                deleteChannel(channelName);
             else
                 Send.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
         }
 
-        private void deleteChannelFromDb(string channelName)
+        private string GetAdminPassFromDB()
         {
-            db.bind(new string[] { "channelName", channelName, "idUser", Client.id.ToString() });
-            int deleteChannelResult = db.executeNonQuery("DELETE FROM channel WHERE channel.channel_name = @channelName AND channel.id_user_founder = @idUser");
-            // user_channel will be also deleted cuse of - on delete cascade
-            if (deleteChannelResult > 0)
+            db.bind(new string[] { "channelName", channelName, "idUserFounder", Client.id.ToString() });
+            return db.singleSelect("SELECT admin_password FROM channel WHERE channel_name = @channelName AND id_user_founder = @idUserFounder");
+        }
+
+        private void deleteChannel(string channelName)
+        {
+            if (DeleteChannelFromDB() > 0)
             {
                 channelToDelete = ChannelGets.getChannelByName(ChannelsList, channelName);
                 if (channelToDelete != null)
                 {
-                    UsersThatEnterToThisChanel = ClientGets.getClientsWhoEnterToChannel(ListOfClientsOnline, channelName);
+                    ListOfUsersThatEnterToThisChanel = ClientGets.getClientsWhoEnterToChannel(ListOfClientsOnline, channelName);
                     isChannelExists = true;
+
                     Send.strMessage2 = Client.strName;
                 }
                 else Send.strMessage = "You channel not exists";
@@ -66,20 +66,31 @@ namespace Server.ClientService
             else Send.strMessage = "You cannot delete your channel by exit with unknown reason (error).";
         }
 
+        private int DeleteChannelFromDB()
+        {
+            db.bind(new string[] { "channelName", channelName, "idUser", Client.id.ToString() });
+            return db.executeNonQuery("DELETE FROM channel WHERE channel.channel_name = @channelName AND channel.id_user_founder = @idUser");
+            // user_channel will be also deleted cuse of - on delete cascade
+        }
+
         private void usersEnteredChannelsDeleteChannel() // i mean clint have list of channel where entered and users need delete that deleted channel
         {
-            Client client = ClientGets.getClientEnterChannel(UsersThatEnterToThisChanel, channelName);
+            Client client = ClientGets.getClientEnterChannel(ListOfUsersThatEnterToThisChanel, channelName);
             if (client != null)
                 client.enterChannels.Remove(channelName);
+        }
 
+        private void ResponseToChannelAboutDeleteThisChannel()
+        {
+            SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
+            sendToChannel.ResponseToChannel();
         }
 
         public override void Response()
         {
             if (isChannelExists)
             {
-                SendMessageToChannel sendToChannel = new SendMessageToChannel(Send, ListOfClientsOnline, channelName);
-                sendToChannel.ResponseToChannel();
+                ResponseToChannelAboutDeleteThisChannel();
 
                 usersEnteredChannelsDeleteChannel();
                 ChannelsList.Remove(channelToDelete);

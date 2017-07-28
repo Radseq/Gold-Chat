@@ -12,7 +12,7 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientRegistrationEvent;
 
         DataBaseManager db = DataBaseManager.Instance;
-        EmailSender emailSender = EmailSender.Instance;
+        EmailSender emailSender = new EmailSender();
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
@@ -27,10 +27,7 @@ namespace Server.ClientService
             string userPassword = Received.strMessage;
             string userEmail = Received.strMessage2;
 
-            db.bind(new string[] { "Login", userName, "Email", userEmail });
-            db.manySelect("SELECT login, email, register_id FROM users WHERE login = @Login OR email = @Email");
-            string[] query = db.tableToRow();
-
+            string[] query = GetDataFromDB(userName, userEmail);
             if (query != null)
             {
                 if (query[0] == userName)
@@ -41,9 +38,15 @@ namespace Server.ClientService
                     Send.strMessage = "You have already register, on next login you will be ask for register key";
                 else
                     insertUserToDb(userName, userEmail, userPassword);
-
             }
             else insertUserToDb(userName, userEmail, userPassword);
+        }
+
+        private string[] GetDataFromDB(string userName, string userEmail)
+        {
+            db.bind(new string[] { "Login", userName, "Email", userEmail });
+            db.manySelect("SELECT login, email, register_id FROM users WHERE login = @Login OR email = @Email");
+            return db.tableToRow();
         }
 
         private void insertUserToDb(string userName, string userEmail, string userPassword)
@@ -55,12 +58,18 @@ namespace Server.ClientService
 
             if (created > 0)
             {
-                emailSender.SendEmail(userName, userEmail, "Gold Chat: Registration", userRegistrationMessage(userName, registrationCode));
+                SentRegistrationCodeToEmail(userName, userEmail, registrationCode);
                 Send.strMessage = "You has been registered";
                 OnClientRegistration(userName, userEmail);
             }
             else
                 Send.strMessage = "Account NOT created with unknown reason.";
+        }
+
+        private void SentRegistrationCodeToEmail(string userName, string userEmail, string registrationCode)
+        {
+            emailSender.SetProperties(userName, userEmail, "Gold Chat: Registration", userRegistrationMessage(userName, registrationCode));
+            emailSender.SendEmail();
         }
 
         private static string CalculateChecksum(string inputString)

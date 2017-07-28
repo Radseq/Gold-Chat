@@ -21,7 +21,7 @@ namespace Server
             ChannelsList = channelList;
         }
 
-        DataContext dataContext = null;
+        DataContext dataContext = new DataContext();
 
         ClientLogin clientLogin = new ClientLogin();
         ClientRegistration clientRegistration = new ClientRegistration();
@@ -73,47 +73,47 @@ namespace Server
                 switch (Received.cmdCommand)
                 {
                     case Command.Login:
-                        dataContext = new DataContext(clientLogin);
+                        dataContext.SetContext(clientLogin);
                         break;
 
                     case Command.Registration:
-                        dataContext = new DataContext(clientRegistration);
+                        dataContext.SetContext(clientRegistration);
                         break;
 
                     case Command.changePassword:
-                        dataContext = new DataContext(clientChangePassword);
+                        dataContext.SetContext(clientChangePassword);
                         break;
 
                     case Command.lostPassword:
-                        dataContext = new DataContext(clientLostPassword);
+                        dataContext.SetContext(clientLostPassword);
                         break;
 
                     case Command.SendActivationCode:
-                        dataContext = new DataContext(clientReSendActivCode);
+                        dataContext.SetContext(clientReSendActivCode);
                         break;
 
                     case Command.Logout:
-                        dataContext = new DataContext(clientLogout);
+                        dataContext.SetContext(clientLogout);
                         break;
 
                     case Command.Message:
-                        dataContext = new DataContext(clientMessage);
+                        dataContext.SetContext(clientMessage);
                         break;
 
                     case Command.privMessage:
-                        dataContext = new DataContext(clientPrivateMessage);
+                        dataContext.SetContext(clientPrivateMessage);
                         break;
 
                     case Command.createChannel:
-                        dataContext = new DataContext(clientCreateChannel);
+                        dataContext.SetContext(clientCreateChannel);
                         break;
 
                     case Command.joinChannel:
-                        dataContext = new DataContext(clientJoinChannel);
+                        dataContext.SetContext(clientJoinChannel);
                         break;
 
                     case Command.exitChannel:
-                        dataContext = new DataContext(clientExitChannel);
+                        dataContext.SetContext(clientExitChannel);
                         break;
 
                     case Command.editChannel:
@@ -121,50 +121,50 @@ namespace Server
                         break;
 
                     case Command.deleteChannel:
-                        dataContext = new DataContext(clientDeleteChannel);
+                        dataContext.SetContext(clientDeleteChannel);
                         break;
 
                     case Command.enterChannel:
-                        dataContext = new DataContext(clientEnterChannel);
+                        dataContext.SetContext(clientEnterChannel);
                         break;
 
                     case Command.leaveChannel:
-                        dataContext = new DataContext(clientLeaveChannel);
+                        dataContext.SetContext(clientLeaveChannel);
                         break;
 
                     case Command.List:
-                        dataContext = new DataContext(clientListManager);
+                        dataContext.SetContext(clientListManager);
                         break;
 
                     case Command.manageFriend:
-                        dataContext = new DataContext(manageClientFriend);
+                        dataContext.SetContext(manageClientFriend);
                         break;
 
                     case Command.ignoreUser:
-                        dataContext = new DataContext(clientIgnoreUser);
+                        dataContext.SetContext(clientIgnoreUser);
                         break;
 
                     case Command.kick:
-                        dataContext = new DataContext(clientKick);
+                        dataContext.SetContext(clientKick);
                         break;
 
                     case Command.ban:
-                        dataContext = new DataContext(clientBan);
+                        dataContext.SetContext(clientBan);
                         break;
 
                     case Command.kickUserChannel:
-                        dataContext = new DataContext(clientKickFromChannel);
+                        dataContext.SetContext(clientKickFromChannel);
                         break;
 
                     case Command.banUserChannel:
-                        dataContext = new DataContext(clientBanFromChannel);
+                        dataContext.SetContext(clientBanFromChannel);
                         break;
 
                     case Command.sendFile:
                         if (Received.strFileMsg != null)
-                            dataContext = new DataContext(clientSendFile);
+                            dataContext.SetContext(clientSendFile);
                         else
-                            dataContext = new DataContext(clientSendFileInfo);
+                            dataContext.SetContext(clientSendFileInfo);
                         break;
                     default:
                         throw new ArgumentException("Wrong Package command from client");

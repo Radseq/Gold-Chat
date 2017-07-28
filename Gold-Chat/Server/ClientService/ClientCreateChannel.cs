@@ -15,6 +15,12 @@ namespace Server.ClientService
 
         DataBaseManager db = DataBaseManager.Instance;
 
+        string userName;
+        string roomName;
+        string enterPassword;
+        string adminPassword;
+        string welcomeMsg;
+
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
             Client = client;
@@ -25,11 +31,9 @@ namespace Server.ClientService
 
         public void Execute()
         {
-            string roomName = Received.strMessage;
+            roomName = Received.strMessage;
 
-            db.bind(new string[] { "id_user_f", Client.id.ToString(), "channel_n", roomName });
-            db.manySelect("SELECT id_user_founder, channel_name FROM channel WHERE id_user_founder = @id_user_f AND channel_name = @channel_n");
-            string[] getFromDb = db.tableToRow();
+            string[] getFromDb = SearchForExistingChannel();
 
             Send.strName = Received.strName;
             Send.strMessage2 = "NotCreated";
@@ -49,22 +53,23 @@ namespace Server.ClientService
             else insertChannelToDb(); // There is no exists channelName and idfounder, so we can create channel
         }
 
+        private string[] SearchForExistingChannel()
+        {
+            db.bind(new string[] { "id_user_f", Client.id.ToString(), "channel_n", Received.strMessage });
+            db.manySelect("SELECT id_user_founder, channel_name FROM channel WHERE id_user_founder = @id_user_f AND channel_name = @channel_n");
+            return db.tableToRow();
+        }
+
         private void insertChannelToDb()
         {
-            string userName = Received.strName;
-            string roomName = Received.strMessage;
-            string enterPassword = Received.strMessage2;
-            string adminPassword = Received.strMessage3;
-            string welcomeMsg = Received.strMessage4;
+            userName = Received.strName;
+            enterPassword = Received.strMessage2;
+            adminPassword = Received.strMessage3;
+            welcomeMsg = Received.strMessage4;
 
             prepareResponse();
 
-            db.bind(new string[] { "idUser", Client.id.ToString(), "channelName", roomName, "enterPass", enterPassword, "adminPass",
-                adminPassword, "maxUsers", 5.ToString(), "createDate", Utilities.getDataTimeNow(), "welcomeMessage", welcomeMsg });
-            int insertChannelIntoDbResult = db.executeNonQuery("INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
-                "VALUES (@idUser, @channelName, @enterPass, @adminPass, @maxUsers, @createDate, @welcomeMessage)");
-
-            if (insertChannelIntoDbResult > 0)
+            if (InsertChannelToDB() > 0)
             {
                 Send.strMessage = "You are create channel (" + roomName + ")";
                 Send.strMessage2 = "CreatedChannel";
@@ -73,15 +78,29 @@ namespace Server.ClientService
                 // Add channel to as channels list
                 ChannelsList.Add(new Channel(db.getLastInsertedID(), roomName, Client.id));
 
-                ClientJoinChannel clientJoinToChannel = new ClientJoinChannel(); // After user create channel we want to make him join
-                clientJoinToChannel.Send = Send;
-                clientJoinToChannel.Load(Client, Received, ListOfClientsOnline);
-                clientJoinToChannel.Execute(db.getLastInsertedID(), roomName);
+                JoinToOwnChannelAfterCreate();
             }
             else
                 Send.strMessage = "Channel NOT created with unknown reason.";
 
             OnClientCreateChannel(roomName, Client.strName);
+        }
+
+        private void JoinToOwnChannelAfterCreate()
+        {
+            ClientJoinChannel clientJoinToChannel = new ClientJoinChannel(); // After user create channel we want to make him join
+            clientJoinToChannel.Send = Send;
+            clientJoinToChannel.Load(Client, Received, ListOfClientsOnline);
+            clientJoinToChannel.Execute(db.getLastInsertedID(), roomName);
+            clientJoinToChannel.Response();
+        }
+
+        private int InsertChannelToDB()
+        {
+            db.bind(new string[] { "idUser", Client.id.ToString(), "channelName", roomName, "enterPass", enterPassword, "adminPass",
+                adminPassword, "maxUsers", 5.ToString(), "createDate", Utilities.getDataTimeNow(), "welcomeMessage", welcomeMsg });
+            return db.executeNonQuery("INSERT INTO channel (id_user_founder, channel_name, enter_password, admin_password, max_users, create_date, welcome_Message) " +
+                "VALUES (@idUser, @channelName, @enterPass, @adminPass, @maxUsers, @createDate, @welcomeMessage)");
         }
 
         protected virtual void OnClientCreateChannel(string channelName, string userName)

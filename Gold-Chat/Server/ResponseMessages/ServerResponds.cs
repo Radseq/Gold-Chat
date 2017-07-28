@@ -5,26 +5,16 @@ using System;
 
 namespace Server
 {
-    // Todo class to send 
     class ServerResponds : Respond, IServerReceive, IServerSend, IClient
     {
         public event EventHandler<ClientEventArgs> ClientSendMessage;
-
-        //protected List<Client> clientList = new List<Client>();
-        //private Data msgToSend;
-        //private Data msgReceived;
 
         #region INTERFACE IMPLEMENTATION
         public Data Send { get; set; }
 
         public Data Received { get; set; }
         public Client Client { get; set; }
-
-        //public Client Client { get; set; }
-
         #endregion INTERFACE IMPLEMENTATION
-
-        //protected List<Client> clientList { get; set; }
 
         public ServerResponds()
         {
@@ -50,7 +40,7 @@ namespace Server
 
         protected virtual void OnClientSendMessage(string cMessage) //brodcasted messages
         {
-            ClientSendMessage?.Invoke(this, new ClientEventArgs() { clientMessageToSend = cMessage });// do zrobienia cale data a nie tylko msgMessage
+            ClientSendMessage?.Invoke(this, new ClientEventArgs() { clientMessageToSend = cMessage }); //TODO all Send message
         }
     }
 }

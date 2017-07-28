@@ -8,7 +8,7 @@ namespace Server.ClientService
     class ClientLostPassword : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
-        EmailSender emailSender = EmailSender.Instance;
+        EmailSender emailSender = new EmailSender();
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
@@ -23,16 +23,13 @@ namespace Server.ClientService
 
             if (type == "email")
             {
-                string emailAdr = Received.strMessage2;
-
-                db.bind("Email", emailAdr);
-                db.manySelect("SELECT id_user, email FROM users WHERE email = @Email");
-                string[] respond = db.tableToRow();
+                string[] respond = GetIdUserAndEmailFromDB();
                 if (respond != null)
                 {
                     string email = respond[1];
                     string generatedCode = generateRandom(25);
-                    if (inserUserLostPasswordCodeToDb(respond, generatedCode) > 0)
+
+                    if (inserUserLostPasswordCodeToDb(Int64.Parse(respond[0]), generatedCode) > 0)
                         sendEmailOnUserLostPassword(email, generatedCode);
                     else Send.strMessage = "Unknown error while save random code, contact to admin";
                 }
@@ -43,10 +40,16 @@ namespace Server.ClientService
             else Send.strMessage = "Wrong operation option";
         }
 
-        private int inserUserLostPasswordCodeToDb(string[] respond, string generatedCode)
+        private string[] GetIdUserAndEmailFromDB()
         {
-            int id_user = Int32.Parse(respond[0]);
+            string emailAdr = Received.strMessage2;
+            db.bind("Email", emailAdr);
+            db.manySelect("SELECT id_user, email FROM users WHERE email = @Email");
+            return db.tableToRow();
+        }
 
+        private int inserUserLostPasswordCodeToDb(Int64 id_user, string generatedCode)
+        {
             db.bind(new string[] { "idUser", id_user.ToString(), "Code", generatedCode, "CodeCreateDate", Utilities.getDataTimeNow() });
             int created = db.executeNonQuery("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
             return created;
@@ -54,7 +57,8 @@ namespace Server.ClientService
 
         private void sendEmailOnUserLostPassword(string email, string generatedCode)
         {
-            emailSender.SendEmail("Lost Password", email, "Gold Chat: Lost Password", userLostPassEmailMessage("User", generatedCode));
+            emailSender.SetProperties("Lost Password", email, "Gold Chat: Lost Password", userLostPassEmailMessage("User", generatedCode));
+            emailSender.SendEmail();
             Send.strMessage = "Lost password code has send to your email";
         }
 
@@ -63,15 +67,10 @@ namespace Server.ClientService
             string code = Received.strMessage2;
             string newPassword = Received.strMessage3;
 
-            db.bind("Code", code);
-            db.manySelect("SELECT ulp.code, u.email, u.password, u.login FROM user_lost_pass ulp, users u WHERE u.id_user = ulp.id_user AND code = @Code");
-            string[] codeDb = db.tableToRow();
+            string[] codeDb = GetDateAboutCodeFromEmail(code);
             if (codeDb != null && codeDb[0] == code)
             {
-                db.bind("Code", code);
-                int deleted = db.executeNonQuery("DELETE FROM user_lost_pass WHERE code = @Code");
-
-                if (deleted == 0)
+                if (DeleteLostPassCodeFromDB(code) == 0)
                     Console.WriteLine("Cannot delete " + codeDb[1] + " from user_lost_pass");
 
                 string updated = updateUserPasswordToDb(newPassword, codeDb[3], codeDb[2]);
@@ -79,6 +78,19 @@ namespace Server.ClientService
             }
             else
                 Send.strMessage = "Wrong code from email";
+        }
+
+        private int DeleteLostPassCodeFromDB(string code)
+        {
+            db.bind("Code", code);
+            return db.executeNonQuery("DELETE FROM user_lost_pass WHERE code = @Code");
+        }
+
+        private string[] GetDateAboutCodeFromEmail(string code)
+        {
+            db.bind("Code", code);
+            db.manySelect("SELECT ulp.code, u.email, u.password, u.login FROM user_lost_pass ulp, users u WHERE u.id_user = ulp.id_user AND code = @Code");
+            return db.tableToRow();
         }
 
         private string updateUserPasswordToDb(string newPassword, string userName, string oldPassword)
@@ -97,9 +109,7 @@ namespace Server.ClientService
             var random = new Random();
 
             for (int i = 0; i < stringChars.Length; i++)
-            {
                 stringChars[i] = chars[random.Next(chars.Length)];
-            }
 
             return new string(stringChars);
         }

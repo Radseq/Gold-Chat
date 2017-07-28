@@ -8,7 +8,7 @@ namespace Server
     {
         private IBuildResponse buildRespond = null;
 
-        public DataContext(IBuildResponse BuildRespond)
+        public void SetContext(IBuildResponse BuildRespond)
         {
             buildRespond = BuildRespond;
         }
@@ -17,6 +17,7 @@ namespace Server
         {
             buildRespond.Load(client, receive, clientList, channelList);
         }
+
         public void Execute()
         {
             buildRespond.Execute();

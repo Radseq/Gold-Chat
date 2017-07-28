@@ -504,7 +504,7 @@ namespace Gold_Client.ViewModel
                 sendPassword.OnClickOrEnter += JoinChannelSend.OnClickOrEnter;
                 sendPassword.createWindow("Send Password: " + e.clientChannelName, "Send Password to channel " + e.clientChannelName + " for join");
             }
-            else if (e.clientChannelMsg2 == "ChannelJoined" || e.clientChannelMsg2 == "CreatedChannel" && joinedChannelsList.Contains(e.clientChannelName))
+            else if (e.clientChannelMsg2 == "ChannelJoined" && !joinedChannelsList.Contains(e.clientChannelName))
             {
                 joinedChannelsList.Add(e.clientChannelName);
                 MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);

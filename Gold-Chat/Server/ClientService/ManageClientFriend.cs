@@ -12,12 +12,12 @@ namespace Server.ClientService
         public event EventHandler<ClientEventArgs> ClientDeleteFriend;
 
         DataBaseManager db = DataBaseManager.Instance;
-        EmailSender emailSender = EmailSender.Instance;
 
         SendMessageToNick sendToNick;
 
-        //The collection of all clients logged into the room
         private List<Client> ListOfClientsOnline;
+
+        string FriendName;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
@@ -32,11 +32,10 @@ namespace Server.ClientService
         {
             prepareResponse();
             string type = Received.strMessage;
-            string friendName = Received.strMessage2;
+            FriendName = Received.strMessage2;
 
-            db.bind("FriendName", friendName);
-            Int64 friend_id = Int64.Parse(db.singleSelect("SELECT id_user FROM users WHERE login = @FriendName"));
 
+            Int64 friend_id = GetFriendIdFromDB();
             if (friend_id > 0)
             {
                 if (type == "Yes")
@@ -46,17 +45,15 @@ namespace Server.ClientService
 
                     if (InserClientToDb && InserFriendToDb)
                     {
-                        OnClientAddFriend(Client.strName, friendName);
+                        OnClientAddFriend(Client.strName, FriendName);
                         Send.strMessage = "Yes";
-                        sendToNick.Send = Send;
-                        sendToNick.Send.strMessage2 = Client.strName;
-                        sendToNick.Send.strName = friendName;
-                        sendToNick.ResponseToNick();
+
+                        ResponseToNick();
                     }
                     else
                     {
                         Send.strMessage = "No";
-                        Send.strMessage2 = friendName;
+                        Send.strMessage2 = FriendName;
                     }
                 }
                 else if (type == "Delete")
@@ -67,34 +64,39 @@ namespace Server.ClientService
                     {
                         Send.strMessage = "Delete";
 
-                        sendToNick.Send = Send;
-                        sendToNick.Send.strMessage2 = Client.strName;
-                        sendToNick.Send.strName = friendName;
-                        sendToNick.ResponseToNick();
+                        ResponseToNick();
 
                         //when client get delete then  he will send to server list ask
-                        OnClientDeleteFriend(Client.strName, friendName);
+                        OnClientDeleteFriend(Client.strName, FriendName);
                     }
                 }
                 else if (type == "Add")
                 {
-                    sendToNick.Send = Send;
-                    sendToNick.Send.strMessage2 = Client.strName;
-                    sendToNick.Send.strName = friendName;
-                    sendToNick.ResponseToNick();
+                    ResponseToNick();
                 }
                 else if (type == "No")
                 {
                     // Friend type no: he dont want be as friend
                     Send.strMessage = "No";
-                    sendToNick.Send = Send;
-                    sendToNick.Send.strMessage2 = Client.strName;
-                    sendToNick.Send.strName = friendName;
-                    sendToNick.ResponseToNick();
+                    ResponseToNick();
                 }
             }
             else
                 Send.strMessage = "There is no friend that you want to add.";
+        }
+
+        private Int64 GetFriendIdFromDB()
+        {
+            db.bind("FriendName", FriendName);
+            return Int64.Parse(db.singleSelect("SELECT id_user FROM users WHERE login = @FriendName"));
+        }
+
+        private void ResponseToNick()
+        {
+            sendToNick.Send = Send;
+            sendToNick.Send.strMessage2 = Client.strName;
+            sendToNick.Send.strName = FriendName;
+            sendToNick.ResponseToNick();
         }
 
         public override void Response()
@@ -113,6 +115,7 @@ namespace Server.ClientService
             else
                 return false;
         }
+
         // Used in ManageUserFriend function
         private bool DeleteFriendToDb(Int64 clientId, Int64 friendId)
         {

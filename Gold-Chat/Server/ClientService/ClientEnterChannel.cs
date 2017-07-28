@@ -29,14 +29,11 @@ namespace Server.ClientService
             prepareResponse();
             ChannelName = Received.strMessage;
 
-            db.bind(new string[] { "channelName", ChannelName, "idUser", Client.id.ToString() });
-            db.manySelect("SELECT uc.id_channel, c.welcome_message FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser");
-
-            string[] respond = db.tableToRow();
-            if (respond != null)
+            string[] dbData = GetIdAndWelcomeMsgFromDB();
+            if (dbData != null)
             {
-                int id_channel_db = Int32.Parse(respond[0]);
-                string motd = respond[1];
+                int id_channel_db = Int32.Parse(dbData[0]);
+                string motd = dbData[1];
 
                 Channel channel = ChannelGets.getChannelByName(Channels, ChannelName);
 
@@ -63,6 +60,14 @@ namespace Server.ClientService
             {
                 userWontJoinToServer("Cannot Enter Because you not join to ");
             }
+        }
+
+        private string[] GetIdAndWelcomeMsgFromDB()
+        {
+            db.bind(new string[] { "channelName", ChannelName, "idUser", Client.id.ToString() });
+            db.manySelect("SELECT uc.id_channel, c.welcome_message FROM channel c, user_channel uc WHERE uc.id_channel = c.id_channel AND c.channel_name = @channelName AND uc.id_user = @idUser");
+
+            return db.tableToRow();
         }
 
         private void userWontJoinToServer(string serverMessage)

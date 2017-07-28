@@ -7,8 +7,6 @@ namespace Server.ClientService
 {
     class ClientSendFileInfo : ServerResponds, IClient, IBuildResponse
     {
-
-        //getFileLen().ToString(), parseDirIntoFileName(), NameOfUserToSendFile, null, buffer
         List<Client> ListOfClientsOnline;
 
         private string fileLen;

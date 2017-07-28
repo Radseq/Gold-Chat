@@ -7,7 +7,6 @@ namespace Server.ClientService
     class ClientIgnoreUser : ServerResponds, IBuildResponse
     {
         DataBaseManager db = DataBaseManager.Instance;
-        EmailSender emailSender = EmailSender.Instance;
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)
         {
@@ -20,26 +19,23 @@ namespace Server.ClientService
             prepareResponse();
             string type = Received.strMessage;
             string userName = Received.strMessage2;
+            Send.strMessage3 = userName;
 
-            db.bind("IgnoreName", userName);
-            db.manySelect("SELECT id_user FROM users WHERE login = @IgnoreName");
-            List<string> users = db.tableToColumn();
+            string idUser = SelectUserToIgnore(userName);
 
-            if (users.Capacity > 1)
+            if (idUser != null)
             {
-                Send.strMessage3 = userName;
-
                 if (type == "AddIgnore")
                 {
                     if (!Client.ignoredUsers.Contains(userName))
-                        Send.strMessage2 = addIgnoredUserToDb(userName, users);
+                        Send.strMessage2 = addIgnoredUserToDb(userName, idUser);
                     else
                         Send.strMessage2 = "Cannot ignore " + userName + " because already ignored!";
                 }
                 else if (type == "DeleteIgnore")
                 {
                     if (Client.ignoredUsers.Contains(userName))
-                        Send.strMessage2 = deleteIgnoredUserFromDb(userName, users);
+                        Send.strMessage2 = deleteIgnoredUserFromDb(userName, idUser);
                     else
                         Send.strMessage2 = "Cannot delete ignore from " + userName + " because not ignored!";
                 }
@@ -48,9 +44,15 @@ namespace Server.ClientService
             else Send.strMessage2 = "Contact to admin because is too many users with nick" + userName;
         }
 
-        private string addIgnoredUserToDb(string userName, List<string> users)
+        private string SelectUserToIgnore(string userName)
         {
-            db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users[0] });
+            db.bind("IgnoreName", userName);
+            return db.singleSelect("SELECT id_user FROM users WHERE login = @IgnoreName");
+        }
+
+        private string addIgnoredUserToDb(string userName, string users)
+        {
+            db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users });
             if (db.executeNonQuery("INSERT INTO user_ignored (id_user, id_user_ignored) " + "VALUES (@idUser, @idUserIgnored)") > 0)
             {
                 Client.ignoredUsers.Add(userName);
@@ -61,9 +63,9 @@ namespace Server.ClientService
                 return "Cannot ignore " + userName + " unknown reason";
         }
 
-        private string deleteIgnoredUserFromDb(string userName, List<string> users)
+        private string deleteIgnoredUserFromDb(string userName, string users)
         {
-            db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users[0] });
+            db.bind(new string[] { "idUser", Client.id.ToString(), "idUserIgnored", users });
 
             if (db.executeNonQuery("DELETE FROM user_ignored WHERE id_user = @idUser AND id_user_ignored = @idUserIgnored") > 0)
             {

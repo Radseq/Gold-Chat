@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Server.Interfaces;
+using System;
 using System.Net.Mail;
 
 namespace Server
@@ -11,35 +12,31 @@ namespace Server
         public string UserNameEmail { get; set; }
     }
 
-    class EmailSender
+    public class EmailSender : ISendEmail
     {
-        // Singleton
-        static EmailSender instance = null;
-        static readonly object padlock = new object();
-
         public event EventHandler<EmailSenderEventArgs> EmailSended;
         public event EventHandler<EmailSenderEventArgs> FailEmailSended;
 
-        // Singleton
-        public static EmailSender Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new EmailSender();
+        string UserNameEmail { get; set; }
+        string ToEmail { get; set; }
+        string Subject { get; set; }
+        string EmailMessage { get; set; }
 
-                    return instance;
-                }
-            }
+        public void SetProperties(string userName, string toEmail, string subject, string emailMessage)
+        {
+            UserNameEmail = userName;
+            ToEmail = toEmail;
+            Subject = subject;
+            EmailMessage = emailMessage;
         }
 
-        public void SendEmail(string userName, string toEmail, string subject, string emailMessage)
+        public bool SendEmail()
         {
             string fromAddress = "atlantiss.chat@gmail.com";
 
-            MailMessage message = new MailMessage(fromAddress, toEmail, subject, emailMessage);
+            MailMessage message = new MailMessage(fromAddress, ToEmail, Subject, EmailMessage);
+            //message.BodyEncoding = UTF8Encoding.UTF8;
+            //message.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
 
             message.IsBodyHtml = true;
 
@@ -58,11 +55,13 @@ namespace Server
             {
                 //Send the Email
                 emailClient.Send(message);
-                OnEmailSended(userName, subject, toEmail, emailMessage);
+                OnEmailSended(UserNameEmail, Subject, ToEmail, EmailMessage);
+                return true;
             }
             catch
             {
-                OnFailEmailSended(userName, subject, toEmail, emailMessage);
+                OnFailEmailSended(UserNameEmail, Subject, ToEmail, EmailMessage);
+                return false;
             }
         }
 

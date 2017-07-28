@@ -15,7 +15,6 @@ namespace Server
         byte[] byteData = new byte[1024];
 
         public const int max_users = 50;
-        EmailSender emailSender = EmailSender.Instance;
 
         static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
 
@@ -38,8 +37,8 @@ namespace Server
                 //sm.ClientLogin += servLogg.OnClientLoginLogger;
                 //sm.ClientRegistration += OnClientRegistration;
                 //sm.ClientReSendAckCode += OnClientReSendAckCode;
-                emailSender.EmailSended += servLogg.OnEmaiSended;
-                emailSender.EmailSended += servLogg.OnEmaiNotyficationLoginSended;
+                //emailSender.EmailSended += servLogg.OnEmaiSended;
+                //emailSender.EmailSended += servLogg.OnEmaiNotyficationLoginSended;
                 //sm.ClientMessage += OnClientMessage;
                 //sm.ClientMessage += servLogg.OnClientMessageLogger;
                 //sm.ClientSendMessage += OnClientSendMessage;
