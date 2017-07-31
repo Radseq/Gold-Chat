@@ -1,13 +1,13 @@
 ﻿using CommandClient;
+using Gold_Client.Model;
 using Gold_Client.ViewModel.Others;
-using System;
 using System.Security;
 using System.Windows;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.TabWindows
 {
-    public class UserSettingsPresenter : ObservableObject, IDisposable
+    public class UserSettingsPresenter : ObservableObject
     {
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         ProcessReceivedByte proccesReceiverInformation = ProcessReceivedByte.Instance;
@@ -15,7 +15,8 @@ namespace Gold_Client.ViewModel.TabWindows
         public SecureString SecurePassword { private get; set; }
         public SecureString SecurePasswordRepeart { private get; set; }
 
-        Configuration config = new Configuration();
+        Configuration<Settings> config = new Configuration<Settings>();
+        Settings userSettings = new Settings();
 
         private bool loginNotyfiIsChecked;
 
@@ -28,9 +29,7 @@ namespace Gold_Client.ViewModel.TabWindows
             set
             {
                 if (loginNotyfiIsChecked == value)
-                {
                     return;
-                }
                 loginNotyfiIsChecked = value;
                 RaisePropertyChangedEvent(nameof(LoginNotyfiIsChecked));
             }
@@ -39,8 +38,8 @@ namespace Gold_Client.ViewModel.TabWindows
         public UserSettingsPresenter()
         {
             proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
-
-            if (config.loginEmailNotyfication == false)
+            userSettings = config.LoadConfig(userSettings);
+            if (userSettings.loginEmailNotyfication == false)
                 LoginNotyfiIsChecked = false;
             else LoginNotyfiIsChecked = true;
         }
@@ -49,11 +48,8 @@ namespace Gold_Client.ViewModel.TabWindows
         {
             if (SecurePassword != null && SecurePasswordRepeart != null && SecurePassword.Length > 6)
                 clientSendToServer.SendToServer(Command.changePassword, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, SecurePassword).Password));
+            userSettings.loginEmailNotyfication = LoginNotyfiIsChecked;
+            config.SaveConfig(userSettings);
         });
-
-        public void Dispose()
-        {
-            config.SaveConfig(config);
-        }
     }
 }

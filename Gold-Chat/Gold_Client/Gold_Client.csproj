@@ -80,8 +80,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\IConfiguration.cs" />
     <Compile Include="Model\IFileDialog.cs" />
     <Compile Include="Model\IFileWriter.cs" />
+    <Compile Include="Model\Settings.cs" />
     <Compile Include="ProgramableWindow\GenerateTexBoxWindow.cs" />
     <Compile Include="ProgramableWindow\JoinChannelSend.cs" />
     <Compile Include="ProgramableWindow\KickChannelUserReasonWindow.cs" />

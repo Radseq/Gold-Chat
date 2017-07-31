@@ -1,17 +1,17 @@
 ﻿using CommandClient;
 using Gold_Client.Model;
-using System;
 using System.Windows;
 using System.Windows.Input;
 
 namespace Gold_Client.ViewModel.Others
 {
-    public class ReceiveFilePresenter : ObservableObject, IDisposable
+    public class ReceiveFilePresenter : ObservableObject
     {
         ProcessReceivedByte proccesReceiverInformation = ProcessReceivedByte.Instance;
         ClientSendToServer clientSendToServer = ClientSendToServer.Instance;
         SaveReceivedFile saveFile = new SaveReceivedFile();
-        Configuration config = new Configuration();
+        Configuration<Settings> config = new Configuration<Settings>();
+        Settings userSettings = new Settings();
 
         private string savePatchTextBox;
         private string receiveFileMessage;
@@ -26,7 +26,8 @@ namespace Gold_Client.ViewModel.Others
 
         public ReceiveFilePresenter()
         {
-            patchOfSaveFile = config.SaveFilePatch;
+            userSettings = config.LoadConfig(userSettings);
+            patchOfSaveFile = userSettings.SaveFilePatch;
             if (patchOfSaveFile == null)
             {
                 patchOfSaveFile = "C:/";
@@ -46,7 +47,7 @@ namespace Gold_Client.ViewModel.Others
             FileName = fileNameToReceive;
             FileLen = fileLen;
 
-            ReceiveFileMessage = FriendName + " want to send you file " + FileName + ", Length file " + FileLen + ". Press Reveive to get this file.";
+            ReceiveFileMessage = FriendName + " want to send you file " + FileName + ", File size " + GetBytesReadable(FileLen) + ". Press Reveive to get this file.";
         }
 
         private void OnClientReceiveFileInfo(object sender, ClientEventArgs e)
@@ -107,7 +108,9 @@ namespace Gold_Client.ViewModel.Others
             {
                 patchOfSaveFile = folderDlg.SelectedPath.Replace("\\", "/");
                 SavePatchTextBox = patchOfSaveFile;
+                userSettings.SaveFilePatch = patchOfSaveFile;
             }
+            config.SaveConfig(userSettings);
         });
 
         public ICommand StartReceiveCommand => new DelegateCommand(() =>
@@ -128,11 +131,6 @@ namespace Gold_Client.ViewModel.Others
                 System.Windows.MessageBox.Show(e.clientFriendName + " send you diffrent file", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        public void Dispose()
-        {
-            config.SaveConfig(config);
-        }
-
         public object ReceiveProgress()
         {
             int progressLen = checked((int)(FileLen / 980 + 1));
@@ -140,5 +138,51 @@ namespace Gold_Client.ViewModel.Others
             return length[0] = progressLen;
         }
 
+        public string GetBytesReadable(long i)
+        {
+            // Get absolute value
+            long absolute_i = (i < 0 ? -i : i);
+            // Determine the suffix and readable value
+            string suffix;
+            double readable;
+            if (absolute_i >= 0x1000000000000000) // Exabyte
+            {
+                suffix = "EB";
+                readable = (i >> 50);
+            }
+            else if (absolute_i >= 0x4000000000000) // Petabyte
+            {
+                suffix = "PB";
+                readable = (i >> 40);
+            }
+            else if (absolute_i >= 0x10000000000) // Terabyte
+            {
+                suffix = "TB";
+                readable = (i >> 30);
+            }
+            else if (absolute_i >= 0x40000000) // Gigabyte
+            {
+                suffix = "GB";
+                readable = (i >> 20);
+            }
+            else if (absolute_i >= 0x100000) // Megabyte
+            {
+                suffix = "MB";
+                readable = (i >> 10);
+            }
+            else if (absolute_i >= 0x400) // Kilobyte
+            {
+                suffix = "KB";
+                readable = i;
+            }
+            else
+            {
+                return i.ToString("0 B"); // Byte
+            }
+            // Divide by 1024 to get fractional value
+            readable = (readable / 1024);
+            // Return formatted number with suffix
+            return readable.ToString("0.### ") + suffix;
+        }
     }
 }

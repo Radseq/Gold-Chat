@@ -1,24 +1,22 @@
-﻿using System;
+﻿using Gold_Client.Model;
+using System;
 using System.IO;
 using System.Windows;
 using System.Xml.Serialization;
 
 namespace Gold_Client.ViewModel
 {
-    public class Configuration
+    public class Configuration<T> : IConfiguration<T>
     {
-        public bool loginEmailNotyfication { get; set; }
-        public string SaveFilePatch { get; set; }
-
         string ConfigFile = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "config.xml");
-        XmlSerializer xmlSer = new XmlSerializer(typeof(Configuration));
+        XmlSerializer xmlSer = new XmlSerializer(typeof(T));
 
-        public void SaveConfig(Configuration conf)
+        public void SaveConfig(T item)
         {
             try
             {
                 FileStream fStream = new FileStream(ConfigFile, FileMode.Create);
-                xmlSer.Serialize(fStream, conf);
+                xmlSer.Serialize(fStream, item);
                 fStream.Close();
             }
             catch (Exception ex)
@@ -27,24 +25,31 @@ namespace Gold_Client.ViewModel
             }
         }
 
-        public Configuration loadConfig()
+        public T LoadConfig(T obj)
         {
-            Configuration conf;
+            T conf;
             try
             {
                 if (File.Exists(ConfigFile))
                 {
+                    XmlSerializer xmlSer = new XmlSerializer(typeof(T));
                     StreamReader sReader = new StreamReader(ConfigFile);
-                    return conf = (Configuration)xmlSer.Deserialize(sReader);
+                    return conf = (T)xmlSer.Deserialize(sReader);
+                }
+                else
+                {
+                    FileStream fStream = new FileStream(ConfigFile, FileMode.Create);
+                    xmlSer.Serialize(fStream, obj);
+                    fStream.Close();
                 }
 
-                return new Configuration();
+                return obj;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            return new Configuration();
+            return obj;
         }
     }
 }

@@ -8,13 +8,13 @@ using System.Windows;
 
 namespace Gold_Client.ViewModel
 {
-    class ClientLogin : IClient, IDisposable
+    class ClientLogin : IClient
     {
         bool loginNotyfi = false;
 
-        public Configuration config = new Configuration();
+        Configuration<Settings> config = new Configuration<Settings>();
+        Settings userSettings = new Settings();
 
-        //ClientReceivedFromServer clientReceive = ClientReceivedFromServer.Instance;
         ProcessReceivedByte getMessageFromServer = ProcessReceivedByte.Instance;
 
         public Client User
@@ -25,10 +25,9 @@ namespace Gold_Client.ViewModel
         public ClientLogin()
         {
             User = App.Client;
-
-            loginNotyfi = config.loginEmailNotyfication; //load config value
+            userSettings = config.LoadConfig(userSettings);
+            loginNotyfi = userSettings.loginEmailNotyfication; //load config value
             getMessageFromServer.ClientSendActivCodeFromEmail += OnSendActivateCodeFromEmail;
-            //clientReceive.ReceiveLogExcep += OnReceiveLogExcep;
             getMessageFromServer.ClientLogin += OnClientLogin;
         }
 
@@ -64,10 +63,7 @@ namespace Gold_Client.ViewModel
                 clientSendToServer.SendToServer(Command.Login, clientSendToServer.CalculateChecksum(new System.Net.NetworkCredential(string.Empty, password).Password),
                     (loginNotyfi ? "1" : null));
                 if (!ReceivePackageFromServer.IsClientStartReceive)
-                {
                     ReceivePackageFromServer.BeginReceive();
-                    //clientReceive.BeginReceive();
-                }
             }
             catch (Exception ex)
             {
@@ -78,34 +74,6 @@ namespace Gold_Client.ViewModel
         private void OnReceiveLogExcep(object sender, ClientEventArgs e)
         {
             MessageBox.Show(e.receiveLogExpceMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-
-        private void OnClientSuccesLogin(object sender, ClientEventArgs e)
-        {
-
-            //Thread newWindowThread = new Thread(new ThreadStart(() =>
-            //{
-            //    MainProgramWindow mainWindow = new MainProgramWindow();
-            //    mainWindow.Show();
-            //    System.Windows.Threading.Dispatcher.Run();
-            //}));
-            //newWindowThread.SetApartmentState(ApartmentState.STA);
-            //newWindowThread.IsBackground = true;
-            //newWindowThread.Start();
-
-            //var uiContext = SynchronizationContext.Current;
-            //uiContext.Send(x => App.loginWindow.DialogResult = true, null);
-            //App.loginWindow.DialogResult = true;
-            //Application.Current.Dispatcher.Invoke(delegate
-            // {
-            //loginWindow.DialogResult = true;
-            //});
-
-        }
-
-        public void Dispose()
-        {
-            config.SaveConfig(config);
         }
     }
 }
