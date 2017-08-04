@@ -12,7 +12,22 @@ namespace Gold_Client.ViewModel
 
         private string incomePrivMessage;
         private string outGoingPrivMessage;
-        public string FriendName = "";
+
+        private string privateWindowTitle;
+        string friendName;
+
+        public string FriendName
+        {
+            get
+            {
+                return friendName;
+            }
+            set
+            {
+                PrivateWindowTitle = "Private Message with " + value;
+                friendName = value;
+            }
+        }
 
         public PrivateMessagePresenter()
         {
@@ -27,7 +42,7 @@ namespace Gold_Client.ViewModel
 
         public void ShowFirstMessageWhenWindowShow(string message)
         {
-            IncomePrivMessage = message;
+            IncomePrivMessage = message + "\r\n";
         }
 
         public string IncomePrivMessage
@@ -37,6 +52,16 @@ namespace Gold_Client.ViewModel
             {
                 incomePrivMessage = value;
                 RaisePropertyChangedEvent(nameof(IncomePrivMessage));
+            }
+        }
+
+        public string PrivateWindowTitle
+        {
+            get { return privateWindowTitle; }
+            set
+            {
+                privateWindowTitle = value;
+                RaisePropertyChangedEvent(nameof(PrivateWindowTitle));
             }
         }
 

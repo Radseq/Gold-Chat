@@ -77,6 +77,7 @@ namespace Gold_Client.ViewModel
             proccesReceiverInformation.ClientAcceptFriend += OnClientAcceptFriend;
             proccesReceiverInformation.ClientListFriends += OnClientListFriends;
             proccesReceiverInformation.ClientDeleteFriend += OnClientDeleteFriend;
+            proccesReceiverInformation.ClientPrivMessage += OnClientPrivMessage;
             proccesReceiverInformation.ClientDenyFriend += (s, e) => MessageBox.Show("User: " + e.clientFriendName + " doesnt accept your ask to be your friend", "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
             proccesReceiverInformation.ClientIgnoreUser += OnClientIgnoreUser;
             proccesReceiverInformation.ClientDeleteIgnoredUser += OnClientDeleteIgnoredUser;
@@ -255,11 +256,12 @@ namespace Gold_Client.ViewModel
 
         private void PrivateMessage(string usernName)
         {
-            bool? isPrivateWindowClosed = false;
+            // bool? isPrivateWindowClosed = false;
             if (privateMessage == null)
             {
                 privateMessage = new PrivateMessageWindow(usernName);
-                isPrivateWindowClosed = privateMessage.ShowDialog();
+                // isPrivateWindowClosed = privateMessage.ShowDialog();
+                privateMessage.Show();
             }
             else MessageBox.Show("You allready private talk with " + usernName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -483,7 +485,7 @@ namespace Gold_Client.ViewModel
             if (privateMessage == null)
             {
                 privateMessage = new PrivateMessageWindow(e.clientFriendName, e.clientPrivMessage);
-                privateMessage.ShowDialog();
+                privateMessage.Show();
             }
         }
 

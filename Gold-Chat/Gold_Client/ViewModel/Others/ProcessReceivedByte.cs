@@ -87,11 +87,12 @@ namespace Gold_Client.ViewModel.Others
         private void ProccesData(object sender, EventArgs e)
         {
             Data msgReceived = new Data(App.Client.Buffer);
+
             //Accordingly process the message received
             switch (msgReceived.cmdCommand)
             {
                 case Command.Login:
-                    if (msgReceived.strName == App.Client.strName && msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
+                    if (msgReceived.strMessage == "You are succesfully Log in") // && msgReceived.loginName != userName
                     {
                         OnClientSuccesLogin(true, App.Client.cSocket);
                         App.Client.permission = int.Parse(msgReceived.strMessage2);

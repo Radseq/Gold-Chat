@@ -25,13 +25,9 @@ namespace Gold_Client
         {
             fileSavePath = fileSavePath + "/" + fileName;
             if (!File.Exists(fileSavePath))
-            {
                 writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Create));
-            }
             else
-            {
                 writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Append));
-            }
         }
 
         public void SaveFile(byte[] fileByte)
