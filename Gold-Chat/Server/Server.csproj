@@ -60,6 +60,7 @@
     <Compile Include="Client.cs" />
     <Compile Include="ClientEventArgs.cs" />
     <Compile Include="ClientGets.cs" />
+    <Compile Include="ClientLoginModule\ClientLoginCheckUserBan.cs" />
     <Compile Include="ClientService\ClientBan.cs" />
     <Compile Include="ClientService\ClientBanFromChannel.cs" />
     <Compile Include="ClientService\ClientChangePassword.cs" />
@@ -90,9 +91,15 @@
     <Compile Include="ClientService\List\SendListOfUsersInChannel.cs" />
     <Compile Include="ClientService\List\SendOnlineListOfClients.cs" />
     <Compile Include="ClientService\ManageClientFriend.cs" />
+    <Compile Include="ClientLoginModule\GetClientPropertiesFromDB.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="ClientLoginModule\SendLoginNotyfiToEmail.cs" />
     <Compile Include="DataBaseManager.cs" />
     <Compile Include="DataContext.cs" />
     <Compile Include="EmailSender.cs" />
+    <Compile Include="Interfaces\ClientLogin\ICheckUserBan.cs" />
+    <Compile Include="Interfaces\ClientLogin\IGetClientProperties.cs" />
+    <Compile Include="Interfaces\ClientLogin\ISendLoginNotyfication.cs" />
     <Compile Include="Interfaces\IChannelList.cs" />
     <Compile Include="Interfaces\IClient.cs" />
     <Compile Include="Interfaces\IClientList.cs" />

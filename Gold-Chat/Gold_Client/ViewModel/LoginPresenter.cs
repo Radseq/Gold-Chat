@@ -26,6 +26,11 @@ namespace Gold_Client.ViewModel
         {
             if (!string.IsNullOrWhiteSpace(login) && !string.IsNullOrWhiteSpace(new System.Net.NetworkCredential(string.Empty, SecurePassword).Password))
             {
+                //LoginValidator loginValidator = new LoginValidator();
+                //PasswordValidator passwordValidator = new PasswordValidator();
+                //loginValidator.validate(login);
+                //passwordValidator.validate(SecurePassword);
+
                 ClientLogin clientLogin = new ClientLogin();
                 clientLogin.SendLoginAndEncryptPass(login, SecurePassword);
             }

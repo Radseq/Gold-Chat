@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Server.Interfaces;
+using System;
 
 namespace Server
 {
-    class LoggerToConsole
+    class LoggerToConsole : ILogger
     {
-        public void log(string msg)
+        public void Log(string message)
         {
-            Console.WriteLine(msg);
+            Console.WriteLine(message);
         }
     }
 }

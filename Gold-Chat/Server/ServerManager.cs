@@ -22,6 +22,8 @@ namespace Server
         LoggerToFile servLogger = LoggerToFile.Instance;
         public Client Client { get; set; }
 
+        LoggerToConsole consoleLog = new LoggerToConsole();
+
         public ServerManager()
         {
             GetListOfChannlsFromDataBase getListOfChannlsFromDataBase = new GetListOfChannlsFromDataBase();
@@ -42,7 +44,7 @@ namespace Server
             // Sent of implementation i think i must do builder, because rest of inicialize client is in login command
 
             string acceptConnectrion = " >> Accept connection from client: " + Client.addr.Address + " on Port: " + Client.addr.Port;// + " Users Connected: " + clientList.Count;
-            Console.WriteLine(acceptConnectrion);
+            consoleLog.Log(acceptConnectrion);
             servLogger.Log(acceptConnectrion);
 
             clientList.Add(Client); // When a user logs in to the server then we add her to our list of clients

@@ -83,6 +83,7 @@ namespace Server.ClientService
             return hashstring;
         }
 
+        //must be in new class
         private string userRegistrationMessage(string userName, string registrationCode)
         {
             return string.Format(@"
