@@ -24,10 +24,20 @@ namespace Server
 
         LoggerToConsole consoleLog = new LoggerToConsole();
 
+        /*
+                 private readonly IGetListOfChannels GetListOfChannels;
+
+        public ServerManager(IGetListOfChannels getListOfChannels)
+        {
+            GetListOfChannels = getListOfChannels;
+            channels = GetListOfChannels.Get();
+        }
+             */
+
         public ServerManager()
         {
-            GetListOfChannlsFromDataBase getListOfChannlsFromDataBase = new GetListOfChannlsFromDataBase();
-            channels = getListOfChannlsFromDataBase.getChannelsFromDB();
+            GetListOfChannelsFromDataBase getListOfChannlsFromDataBase = new GetListOfChannelsFromDataBase();
+            channels = getListOfChannlsFromDataBase.Get();
         }
 
         internal void acceptCallback(IAsyncResult ar)

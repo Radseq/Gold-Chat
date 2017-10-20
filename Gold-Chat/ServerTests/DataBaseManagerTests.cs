@@ -1,49 +1,46 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
+using Server;
 using Server.Interfaces;
+using Xunit;
 
-namespace Server.Tests
+namespace ServerTests
 {
-    [TestClass()]
     public class DataBaseManagerTests
     {
         Mock<IDataBase> mock = new Mock<IDataBase>();
 
-        [TestMethod()]
         public int DatabaseQuery(string query)
         {
             if (query == "" || string.IsNullOrWhiteSpace(query))
-                Assert.Fail();
+                return 0;
 
             mock.Setup(x => x.executeNonQuery(query)).Returns(1); // It.IsAny<string>()
             return 1;
         }
 
-        [TestMethod()]
-        [ExpectedException(typeof(AssertFailedException))]
+        //[ExpectedException(typeof(AssertFailedException))]
+        [Fact]
         public void QueryIsNull()
         {
             DatabaseQuery("");
         }
 
-        [TestMethod()]
         public void CreateUser()
         {
             var mock = new Mock<IClient>();
             mock.Setup(x => x.Client).Returns(new Client());
             mock.Object.Client.id = 1;
             mock.Object.Client.strName = IsUserExists();
-            Assert.AreEqual(mock.Object.Client.id, 1);
-            Assert.AreEqual(mock.Object.Client.strName, "TestUser");
+            Assert.Equal(mock.Object.Client.id, 1);
+            Assert.Equal(mock.Object.Client.strName, "TestUser");
         }
 
-        [TestMethod()]
         public int getUserFromDb(string UserName)
         {
-            return DatabaseQuery("SELECT login FROM users WHERE login = '" + UserName + "'");
+            return DatabaseQuery($"SELECT login FROM users WHERE login = {UserName}");
         }
 
-        [TestMethod()]
+        [Fact]
         public string IsUserExists()
         {
             int result = getUserFromDb("TestUser");

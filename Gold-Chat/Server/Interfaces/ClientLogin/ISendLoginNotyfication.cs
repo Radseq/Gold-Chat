@@ -2,6 +2,6 @@
 {
     interface ISendLoginNotyfication
     {
-        bool SendLoginNotyfication(string userName, string destination);
+        bool Send(string userName, string destination);
     }
 }

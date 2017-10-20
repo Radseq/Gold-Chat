@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandClient", "CommandClient\CommandClient.csproj", "{9A009A76-409C-42D5-8BFC-3AE4C7E54911}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{39F90E25-E98E-4D06-ACC4-F5E49B197331}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTests", "ServerTests\ServerTests.csproj", "{B6A7F55A-2CC9-47A8-ADDC-5C10A2958C89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "ServerTests\Server.Tests.csproj", "{B6A7F55A-2CC9-47A8-ADDC-5C10A2958C89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gold_Client", "Gold_Client\Gold_Client.csproj", "{A71E07A6-F620-46E1-8C30-D6AE9552136A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gold_ClientTests", "Gold_ClientTests\Gold_ClientTests.csproj", "{F3E7BA19-AB4A-46E9-9D92-1550AA6C46F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gold_Client.Tests", "Gold_ClientTests\Gold_Client.Tests.csproj", "{F3E7BA19-AB4A-46E9-9D92-1550AA6C46F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gold_Chat_Core", "Gold_Chat_Core\Gold_Chat_Core.csproj", "{49FF2541-9DB3-4AC8-B568-133B988B36D9}"
 EndProject
@@ -48,5 +48,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E92B1927-DB11-4FDC-AA90-C953320DFD72}
 	EndGlobalSection
 EndGlobal

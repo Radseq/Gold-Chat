@@ -1,13 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 using Server.Interfaces;
 
 namespace ServerTests
 {
-    [TestClass()]
-    class SendPackageTests
+    public class SendPackageTests
     {
-        [TestMethod()]
         public void TestStrMessage()
         {
             var mock = new Mock<IServerSend>();

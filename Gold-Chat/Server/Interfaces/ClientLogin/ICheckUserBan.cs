@@ -2,7 +2,7 @@
 
 namespace Server.Interfaces.ClientLogin
 {
-    interface ICheckUserBan
+    public interface ICheckUserBan
     {
         string CheckUserBan(Int64 id_user);
     }

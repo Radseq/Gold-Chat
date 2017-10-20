@@ -20,10 +20,6 @@ namespace Server
         public event EventHandler<DataBaseManagerEventArgs> ExecuteReader;
         public event EventHandler<DataBaseManagerEventArgs> ExecuteNonQuery;
 
-        // Singleton
-        static DataBaseManager instance = null;
-        static readonly object padlock = new object();
-
         // Connect to db
         private MySqlConnection mySqlConnect;
 
@@ -49,22 +45,7 @@ namespace Server
 
         Int64 lastInsertedID;
 
-        // Singleton
-        public static DataBaseManager Instance
-        {
-            get
-            {
-                lock (padlock)
-                {
-                    if (instance == null)
-                        instance = new DataBaseManager();
-
-                    return instance;
-                }
-            }
-        }
-
-        private DataBaseManager()
+        public DataBaseManager()
         {
             connectToDb();
             table = table = new DataTable();
@@ -73,7 +54,7 @@ namespace Server
 
         public Int64 getLastInsertedID()
         {
-            return lastInsertedID;
+            return mySqlCommand.LastInsertedId;
         }
 
         private void connectToDb()
@@ -175,15 +156,17 @@ namespace Server
         private int nonQuery(string query)
         {
             int affected = 0;
-
+            //MySqlTransaction tr = null;
             try
             {
+                //tr = mySqlConnect.BeginTransaction();
                 dBCommand(query);
                 affected = mySqlCommand.ExecuteNonQuery();
-                lastInsertedID = mySqlCommand.LastInsertedId;
+                //tr.Commit();
             }
             catch (MySqlException ex)
             {
+                //tr.Rollback();
                 string exception = "Exception : SQL Query : \n\r" + query + "\n\r";
                 OnExecuteNonQuery(query, except(ex));
             }
