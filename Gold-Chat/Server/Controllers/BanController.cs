@@ -49,9 +49,9 @@ namespace Server.Controllers
                 BannedUser = ClientGets.getClinetByName(ListOfClientsOnline, BannedUserName);
                 if (BannedUser != null && BannedUser.permission == 0)
                     IsUserBanned = InsertBanToDb.insertUserToDb(BannedUser, BanReason, BanTime);
-                else Send.strMessage2 = "Cannot ban " + BannedUserName + " because he is admin.";
+                else Send.strMessage2 = $"Cannot ban {BannedUserName} because he is admin.";
             }
-            else Send.strMessage2 = "You dont have permission to ban " + BannedUserName;
+            else Send.strMessage2 = $"You dont have permission to ban {BannedUserName}";
         }
 
         private void RemoveBannedUser()
@@ -62,7 +62,7 @@ namespace Server.Controllers
 
         private void sendMessageToUsers()
         {
-            Send.strMessage2 = "User: " + BannedUserName + " banned for: " + BanReason + " untill: " + BanTime;
+            Send.strMessage2 = $"User: {BannedUserName} banned for: {BanReason} untill: {BanTime}";
             SendMessage.ResponseToAll(Client, Send, ListOfClientsOnline);
         }
 
@@ -72,7 +72,7 @@ namespace Server.Controllers
             {
                 sendMessageToUsers(); // Banned user will check if his name = banned user name
                 RemoveBannedUser();
-                Send.strMessage2 = "You banned: " + BannedUserName + " for: " + BanReason + " untill: " + BanTime;
+                Send.strMessage2 = $"You banned: {BannedUserName} for: {BanReason} untill: {BanTime}";
             }
             else Send.strMessage2 = "Cannot ban user with unknown reason.";
 

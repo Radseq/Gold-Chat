@@ -52,7 +52,7 @@ namespace Server.Controllers
             if (adminPass == GetAdminChannelPassword.GetPassword(channelName, Client.id))
                 deleteChannel(channelName);
             else
-                Send.strMessage = "Wrong admin Password for delete Your Channel:" + channelName + "";
+                Send.strMessage = $"Wrong admin Password for delete Your Channel:{channelName}";
         }
 
         private void deleteChannel(string channelName)

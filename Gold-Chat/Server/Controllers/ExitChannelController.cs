@@ -48,7 +48,7 @@ namespace Server.Controllers
                             Send.strMessage2 = "You are exit from the channel";
                         }
                         else
-                            Send.strMessage2 = "You connot exit: " + ChannelName + " contact to admin.";
+                            Send.strMessage2 = $"You connot exit: {ChannelName} contact to admin.";
                     }
                     else Send.strMessage2 = "You cannot exit channel that you created";
                 }

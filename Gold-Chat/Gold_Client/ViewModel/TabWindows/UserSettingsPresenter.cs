@@ -37,7 +37,7 @@ namespace Gold_Client.ViewModel.TabWindows
 
         public UserSettingsPresenter()
         {
-            proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            proccesReceiverInformation.ClientChangePass += (s, e) => MessageBox.Show(e.clientChangePassMessage, $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             userSettings = config.LoadConfig(userSettings);
             if (userSettings.loginEmailNotyfication == false)
                 LoginNotyfiIsChecked = false;

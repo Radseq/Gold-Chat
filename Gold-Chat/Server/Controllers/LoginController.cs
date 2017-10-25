@@ -43,7 +43,7 @@ namespace Server.Controllers
             string[] query = GetClientProperties.GetUserProperties(userName, userPassword); //GetUserInformationFromDB(userName, userPassword);
             if (query == null || userName != query[3])
                 Send.strMessage = "Wrong login or password";
-            else if (query[0] != null)
+            else if (!string.IsNullOrEmpty(query[0]))
             {
                 // User wont send activation code
                 Send.cmdCommand = Command.SendActivationCode;
@@ -57,7 +57,7 @@ namespace Server.Controllers
                     ClientSuccesfullyLogIn(query);
                     userEmailNotification(query[1]);
                 }
-                else Send.strMessage = "You are banned untill " + ban;
+                else Send.strMessage = $"You are banned untill {ban}";
             }
         }
 
@@ -97,7 +97,7 @@ namespace Server.Controllers
         {
             if (Send.strMessage == "You are succesfully Log in") // Client succesfully login and rest of online users will got this msg below
             {
-                Send.strMessage = "<<<" + Received.strName + " has joined the room>>>";
+                Send.strMessage = $"<<<{Received.strName} has joined the room>>>";
                 SendMessage.ResponseToAll(Client, Send, ListOfClientsOnline);
             }
         }

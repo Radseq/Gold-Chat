@@ -31,7 +31,7 @@ namespace Server
         private static string database = Settings.DB;
         private static string uid = Settings.DB_ROOT;
         private static string password = Settings.DB_PASS;
-        string connectionDetails = "SERVER=" + dbHost + ";" + "DATABASE=" + database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
+        string connectionDetails = $"SERVER={dbHost};DATABASE={database};UID={uid};PASSWORD={password};";
 
         // Check if connection is open
         private bool isConnected = false;
@@ -70,7 +70,7 @@ namespace Server
                 switch (ex.Number)
                 {
                     case 0:
-                        Console.WriteLine("Cannot connect to server.  Contact administrator");
+                        Console.WriteLine("Cannot connect to server. Contact administrator");
                         break;
 
                     case 1045:
@@ -104,24 +104,24 @@ namespace Server
         {
             if (isConnected == false)
                 connectToDb();
-            else
+            //else
+            // {
+            // Disposes the MySQLCommand instance after add parameters
+            using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
             {
-                // Disposes the MySQLCommand instance after add parameters
-                using (mySqlCommand = new MySqlCommand(query, mySqlConnect))
-                {
-                    // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
-                    // Placeholders instead of directly writing the values into the statements
-                    // Prepared statements increase security and performance.
-                    //mySqlCommand.Prepare();
+                // TODO mySqlCommand.Prepare() work when use connBuilder MySqlConnectionStringBuilder() with connBuilder.IgnorePrepare = false;
+                // Placeholders instead of directly writing the values into the statements
+                // Prepared statements increase security and performance.
+                //mySqlCommand.Prepare();
 
-                    addValueToParameters();
-                }
+                addValueToParameters();
             }
+            //}
         }
 
         public void bind(string field, string value)
         {
-            parameters.Add("@" + field + "\x7F" + value);
+            parameters.Add($"@{field}\x7F{value}");
         }
 
         // Multiply fields like db.bind(new string[] { "channelName", channelName, "idUser", client.id.ToString() });
@@ -148,7 +148,7 @@ namespace Server
             }
             catch (MySqlException ex)
             {
-                string exception = "Exception : SQL Query : \n\r" + query + "\n\r";
+                string exception = $"Exception : SQL Query : \n\r{query}\n\r";
                 OnExecuteReader(query, except(ex));
             }
         }
@@ -167,7 +167,7 @@ namespace Server
             catch (MySqlException ex)
             {
                 //tr.Rollback();
-                string exception = "Exception : SQL Query : \n\r" + query + "\n\r";
+                string exception = $"Exception : SQL Query : \n\r{query}\n\r";
                 OnExecuteNonQuery(query, except(ex));
             }
 
@@ -176,7 +176,7 @@ namespace Server
 
         public DataTable allFromTable(string tableName)
         {
-            selectDb("SELECT * FROM " + tableName);
+            selectDb($"SELECT * FROM {tableName}");
             return table;
         }
 

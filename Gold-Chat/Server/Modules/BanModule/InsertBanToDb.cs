@@ -17,7 +17,7 @@ namespace Server.Modules.BanModule
         {
             DataBase.bind(new string[] { "idUser", client.id.ToString(), "BanReason", banReason, "StartBanDateTime", Utilities.getDataTimeNow(), "EndBanDateTime", Bantime });
 
-            if (DataBase.executeNonQuery("INSERT INTO user_bans (id_user, reason, start_ban, end_ban) " + "VALUES (@idUser, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
+            if (DataBase.executeNonQuery("INSERT INTO user_bans (id_user, reason, start_ban, end_ban) VALUES (@idUser, @BanReason, @StartBanDateTime, @EndBanDateTime)") > 0)
                 return true;
             else
                 return false;

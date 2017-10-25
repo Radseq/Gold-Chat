@@ -53,7 +53,7 @@ namespace Gold_Client.ViewModel
 
         private void OnClientLostPass(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientMessage, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientMessage, $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientMessage == "Your Password has been changed!")
                 CloseAction();
         }

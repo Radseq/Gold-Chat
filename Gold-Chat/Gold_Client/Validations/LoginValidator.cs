@@ -10,12 +10,5 @@ namespace Gold_Client.Validations
         {
             return Regex.IsMatch(login, LOGIN_REGEX);
         }
-
-        /*
-         * if(validate("email@em.pl") == false) 
-         * {
-         *      thorrow new ArgumentException("invalid email adress");
-         * }
-         */
     }
 }

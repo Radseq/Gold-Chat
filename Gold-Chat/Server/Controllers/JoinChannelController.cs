@@ -1,7 +1,7 @@
 ﻿using CommandClient;
 using Server.Interfaces;
-using Server.Interfaces.ResponseMessages;
 using Server.Interfaces.JoinChannel;
+using Server.Interfaces.ResponseMessages;
 using Server.Modules.ResponseMessagesController;
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ namespace Server.Controllers
             ChannelName = channelName;
             int created = SaveJoinedUser.Save(Client, idCreatedChannel);
             if (created == 0)
-                Send.strMessage2 = "cannot join to " + channelName + " with unknown reason.";
+                Send.strMessage2 = $"cannot join to {channelName} with unknown reason.";
         }
 
         private void clientJoinChannel()
@@ -75,7 +75,7 @@ namespace Server.Controllers
                 {
                     int created = SaveJoinedUser.Save(Client, idChannel);
                     if (created == 0)
-                        Send.strMessage2 = "cannot join to " + ChannelName + " with unknown reason.";
+                        Send.strMessage2 = $"cannot join to {ChannelName} with unknown reason.";
                 }
             }
             else Send.strMessage2 = "There is no channel that you want to join.";
@@ -85,7 +85,7 @@ namespace Server.Controllers
         {
             if (!isUserJoinAfterCreate)
             {
-                Send.strMessage2 = "You are joinet to channel " + ChannelName + ".";
+                Send.strMessage2 = $"You are joinet to channel {ChannelName}.";
                 Send.strMessage3 = "ChannelJoined";
                 base.Response();
             }

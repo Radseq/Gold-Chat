@@ -45,12 +45,12 @@ namespace Server.Controllers
                     if (KickeUser.permission == 0)
                     {
                         isKicked = true;
-                        Send.strMessage2 = " kicked Reason: " + KickReason;
+                        Send.strMessage2 = $" kicked Reason: {KickReason}";
                     }
-                    else Send.strMessage2 = "You cannot kick " + KickedUserName + " because client is admin or there is no user with this name";
+                    else Send.strMessage2 = $"You cannot kick {KickedUserName} because client is admin or there is no user with this name";
 
                 }
-                else Send.strMessage2 = "You cannot kick " + KickedUserName + " because you dont have permissions";
+                else Send.strMessage2 = $"You cannot kick {KickedUserName} because you dont have permissions";
         }
 
         public override void Response()

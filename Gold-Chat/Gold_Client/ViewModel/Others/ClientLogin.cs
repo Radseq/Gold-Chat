@@ -50,7 +50,7 @@ namespace Gold_Client.ViewModel
 
         private void OnClientLogin(object sender, ClientEventArgs e)
         {
-            if (e.clientLoginName == User.strName && e.clientLoginMessage != "<<<" + e.clientLoginName + " has joined the room>>>") // i dont want to see msgBox when other users log in
+            if (e.clientLoginName == User.strName && e.clientLoginMessage != $"<<<{e.clientLoginName} has joined the room>>>") // i dont want to see msgBox when other users log in
                 MessageBox.Show(e.clientLoginMessage, "Login Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

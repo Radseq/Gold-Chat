@@ -13,14 +13,12 @@ namespace ServerTests
             mock = new Mock<IGetClientProperties>();
         }
 
-        [Fact]
         public int GetPropertiesFromDB(string login, string password)
         {
             mock.Setup(x => x.GetUserProperties(login, password)).Returns(new string[] { "register_id", "email", "id_user", "login", "permission" });
             return 1;
         }
 
-        [Fact]
         public int GetProperties(string login, string pass)
         {
             if (login == "" || string.IsNullOrWhiteSpace(login))
@@ -35,7 +33,7 @@ namespace ServerTests
         public void GetProperiesFromDB()
         {
             int result = GetProperties("user", "pass");
-            Assert.Equal(result, 1);
+            Assert.Equal(1, result);
         }
     }
 }

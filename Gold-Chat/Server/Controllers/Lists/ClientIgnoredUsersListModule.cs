@@ -24,7 +24,7 @@ namespace Server.Controllers.Lists
 
             foreach (string ignoredUser in clientLists.GetList(Client.id))
             {
-                Send.strMessage2 += ignoredUser + "*";
+                Send.strMessage2 += $"{ignoredUser}*";
                 Client.ignoredUsers.Add(ignoredUser);
             }
 

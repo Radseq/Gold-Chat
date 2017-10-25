@@ -23,7 +23,7 @@ namespace Gold_Client
 
         public void OpenFile(string fileName)
         {
-            fileSavePath = fileSavePath + "/" + fileName;
+            fileSavePath = $"{fileSavePath}/{fileName}";
             if (!File.Exists(fileSavePath))
                 writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Create));
             else

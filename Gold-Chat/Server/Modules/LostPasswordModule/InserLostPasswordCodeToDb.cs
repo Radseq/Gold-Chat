@@ -16,7 +16,7 @@ namespace Server.Modules.LostPasswordModule
         public int InsertCode(string id_user, string generatedCode)
         {
             DataBase.bind(new string[] { "idUser", id_user, "Code", generatedCode, "CodeCreateDate", Utilities.getDataTimeNow() });
-            int created = DataBase.executeNonQuery("INSERT INTO user_lost_pass (id_user, code, code_create_date) " + "VALUES (@idUser, @Code, @CodeCreateDate)");
+            int created = DataBase.executeNonQuery("INSERT INTO user_lost_pass (id_user, code, code_create_date) VALUES (@idUser, @Code, @CodeCreateDate)");
             return created;
         }
     }

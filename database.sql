@@ -39,16 +39,6 @@ CREATE TABLE IF NOT EXISTS `user_ignored` (
   PRIMARY KEY (id_ignored)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `user_channel` (
-  `id_user_channel` bigint(20) NOT NULL AUTO_INCREMENT,
-  `id_user` bigint(20) NOT NULL,
-  `id_channel` bigint(20) NOT NULL,
-  `join_date` DATETIME NOT NULL,
-  FOREIGN KEY (id_user) REFERENCES users(id_user) ON UPDATE CASCADE,
-  FOREIGN KEY (id_channel) REFERENCES channel(id_channel) ON DELETE CASCADE ON UPDATE CASCADE,
-  PRIMARY KEY (id_user_channel)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `channel` (
   `id_channel` bigint(20) NOT NULL AUTO_INCREMENT,
   `id_user_founder` bigint(20) NOT NULL,
@@ -60,6 +50,16 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `welcome_message` varchar(255) NOT NULL,
   FOREIGN KEY (id_user_founder) REFERENCES users(id_user) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id_channel)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user_channel` (
+  `id_user_channel` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_user` bigint(20) NOT NULL,
+  `id_channel` bigint(20) NOT NULL,
+  `join_date` DATETIME NOT NULL,
+  FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (id_channel) REFERENCES channel(id_channel) ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY (id_user_channel)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `user_bans` (

@@ -9,7 +9,27 @@ namespace Server.Utilies
         {
             string returnItems = null;
             foreach (var item in list)
-                returnItems += item + "*";
+                returnItems += $"{item}*";
+
+            return returnItems;
+        }
+
+        public string separate(List<Channel> list)
+        {
+            string returnItems = null;
+
+            foreach (Channel item in list)
+                returnItems += $"{item.ChannelName}*";
+
+            return returnItems;
+        }
+
+        public string separate(List<Client> list)
+        {
+            string returnItems = null;
+
+            foreach (Client item in list)
+                returnItems += $"{item.strName}*";
 
             return returnItems;
         }

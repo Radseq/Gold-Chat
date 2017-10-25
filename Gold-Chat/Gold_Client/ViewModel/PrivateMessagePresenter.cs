@@ -24,7 +24,7 @@ namespace Gold_Client.ViewModel
             }
             set
             {
-                PrivateWindowTitle = "Private Message with " + value;
+                PrivateWindowTitle = $"Private Message with {value}";
                 friendName = value;
             }
         }
@@ -37,12 +37,12 @@ namespace Gold_Client.ViewModel
 
         private void OnClientLogout(object sender, ClientEventArgs e)
         {
-            IncomePrivMessage += "<<<" + e.clientLogoutMessage + " has logout >>>" + "\r\n";
+            IncomePrivMessage += $"<<<{e.clientLogoutMessage} has logout >>>\r\n";
         }
 
         public void ShowFirstMessageWhenWindowShow(string message)
         {
-            IncomePrivMessage = message + "\r\n";
+            IncomePrivMessage = $"{message} \r\n";
         }
 
         public string IncomePrivMessage
@@ -85,7 +85,7 @@ namespace Gold_Client.ViewModel
         private void OnClientPrivMessage(object sender, ClientEventArgs e)
         {
             FriendName = e.clientFriendName;
-            IncomePrivMessage += e.clientPrivMessage + "\r\n";
+            IncomePrivMessage += $"{e.clientPrivMessage}\r\n";
         }
     }
 }

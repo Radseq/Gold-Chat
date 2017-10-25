@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Server.Modules.ResponseMessagesController
 {
-    class Respond
+    public class Respond
     {
         protected virtual void Response(byte[] message, Client client)
         {

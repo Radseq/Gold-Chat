@@ -25,14 +25,15 @@ namespace ServerTests
             DatabaseQuery("");
         }
 
+        [Fact]
         public void CreateUser()
         {
             var mock = new Mock<IClient>();
             mock.Setup(x => x.Client).Returns(new Client());
             mock.Object.Client.id = 1;
             mock.Object.Client.strName = IsUserExists();
-            Assert.Equal(mock.Object.Client.id, 1);
-            Assert.Equal(mock.Object.Client.strName, "TestUser");
+            Assert.Equal(1, mock.Object.Client.id);
+            Assert.Equal("TestUser", mock.Object.Client.strName);
         }
 
         public int getUserFromDb(string UserName)

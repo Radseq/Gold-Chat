@@ -10,21 +10,21 @@ namespace Server.Controllers.Lists
     class ClientFriendsListModule : ServerResponds, IClient, IBuildResponse
     {
         private readonly IClientLists clientLists;
-        private readonly ISeparateListOfStringToString separateList;
+        private readonly ISeparateListOfStringToString SeparateList;
 
         protected List<Channel> ChannelsList;
         protected List<Client> ListOfClientsOnline;
 
-        public ClientFriendsListModule(IClientLists ClientLists, ISeparateListOfStringToString SeparateList)
+        public ClientFriendsListModule(IClientLists ClientLists, ISeparateListOfStringToString separateList)
         {
             clientLists = ClientLists;
-            separateList = SeparateList;
+            SeparateList = separateList;
         }
 
         public void Execute()
         {
             prepareResponse();
-            Send.strMessage2 = separateList.separate(clientLists.GetList(Client.id));
+            Send.strMessage2 = SeparateList.separate(clientLists.GetList(Client.id));
         }
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)

@@ -23,26 +23,40 @@ namespace Server.Modules.ClientRegistrationModule
 
         public bool isLoginExists()
         {
-            string query = QueryResult[0];
+            string query = null;
+            if (QueryNotNull(QueryResult))
+                query = QueryResult[0];
             if (query != null)
                 return true;
-            else return false;
+            return false;
         }
 
         public bool isEmailExists()
         {
-            string query = QueryResult[1];
+            string query = null;
+            if (QueryNotNull(QueryResult))
+                query = QueryResult[1];
             if (query != null)
                 return true;
-            else return false;
+            return false;
         }
 
         public bool isUserAlreadyRegister()
         {
-            string query = QueryResult[2];
+            string query = null;
+            if (QueryNotNull(QueryResult))
+                query = QueryResult[2];
             if (query != null)
                 return true;
-            else return false;
+            return false;
         }
+
+        private bool QueryNotNull(string[] QueryResult)
+        {
+            if (QueryResult != null)
+                return true;
+            return false;
+        }
+
     }
 }

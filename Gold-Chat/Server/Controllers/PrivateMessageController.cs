@@ -26,7 +26,7 @@ namespace Server.Controllers
         public void Execute()
         {
             prepareResponse();
-            Send.strMessage = Received.strName + ": " + Received.strMessage;
+            Send.strMessage = $"{Received.strName}: {Received.strMessage}";
         }
 
         public override void Response()

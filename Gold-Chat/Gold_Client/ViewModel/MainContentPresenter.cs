@@ -263,7 +263,7 @@ namespace Gold_Client.ViewModel
                 // isPrivateWindowClosed = privateMessage.ShowDialog();
                 privateMessage.Show();
             }
-            else MessageBox.Show("You allready private talk with " + usernName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            else MessageBox.Show($"You allready private talk with {usernName}", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public ICommand PrivateMsgToUserCommand => new DelegateCommand(() =>
@@ -294,7 +294,7 @@ namespace Gold_Client.ViewModel
                 GenerateTexBoxWindow createTextWindow = new GenerateTexBoxWindow();
                 ChannelKickUserReason.UserName = selectedUser;
                 createTextWindow.OnClickOrEnter += ChannelKickUserReason.OnClickOrEnter;
-                createTextWindow.createWindow("Kick: " + selectedUser + " reason", "Give reason of kicking: " + selectedUser);
+                createTextWindow.createWindow($"Kick: {selectedUser} reason", $"Give reason of kicking: {selectedUser}");
             }
         });
 
@@ -304,7 +304,7 @@ namespace Gold_Client.ViewModel
 
             if (friendlyUsersConnected.Contains(friendName) && usersConnected.Contains(friendName)) // Now if friend is in our friend list + his online(exists in clientList) 
                 PrivateMessage(friendName);
-            else MessageBox.Show("Your Friend " + friendName + " is offline", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+            else MessageBox.Show($"Your Friend {friendName} is offline", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Error);
         });
 
         public ICommand SendFileCommand => new DelegateCommand(() =>
@@ -376,7 +376,7 @@ namespace Gold_Client.ViewModel
                 GenerateChannelPassWindow sendPassword = new GenerateChannelPassWindow();
                 DeleteChannelSend.ChannelName = channeName;
                 sendPassword.OnClickOrEnter += DeleteChannelSend.OnClickOrEnter;
-                sendPassword.createWindow("Send Password: " + channeName, "Send Password to delete " + channeName);
+                sendPassword.createWindow($"Send Password: {channeName}", $"Send Password to delete {channeName}");
             }
         });
         #endregion
@@ -386,67 +386,67 @@ namespace Gold_Client.ViewModel
         #region Selected Lists Headers
         public string AddFriendHeaderCommand
         {
-            get { return "Add " + selectedUser + " to friend list"; }
+            get { return $"Add {selectedUser} to friend list"; }
         }
 
         public string AddToIgnoreHeaderCommand
         {
-            get { return "Add " + selectedUser + " to ignored list"; }
+            get { return $"Add {selectedUser} to ignored list"; }
         }
 
         public string BanUserHeaderCommand
         {
-            get { return "Ban " + selectedUser; }
+            get { return $"Ban {selectedUser}"; }
         }
 
         public string KickUserHeaderCommand
         {
-            get { return "Kick " + selectedUser; }
+            get { return $"Kick {selectedUser}"; }
         }
 
         public string DeleteFriendHeaderCommand
         {
-            get { return "Delete " + selectedFriendlyUser + " from friend list?"; }
+            get { return $"Delete {selectedFriendlyUser} from friend list?"; }
         }
 
         public string PrivMsgHeaderCommand
         {
-            get { return "Send private message to " + selectedFriendlyUser; }
+            get { return $"Send private message to {selectedFriendlyUser}"; }
         }
 
         public string SendFileHeaderCommand
         {
-            get { return "Send file to " + selectedFriendlyUser; }
+            get { return $"Send file to {selectedFriendlyUser}"; }
         }
 
         public string DeleteIgnoredHeaderCommand
         {
-            get { return "Delete " + selectedIgnoredUser + " from ignored list?"; }
+            get { return $"Delete {selectedIgnoredUser} from ignored list?"; }
         }
 
         public string JoinToLobbieHeaderCommand
         {
-            get { return "Join to " + selectedLobbie; }
+            get { return $"Join to {selectedLobbie}"; }
         }
 
         public string EnterToLobbieHeaderCommand
         {
-            get { return "Enter to " + selectedJoinedLobbie; }
+            get { return $"Enter to {selectedJoinedLobbie}"; }
         }
 
         public string LeaveLobbieHeaderCommand
         {
-            get { return "Leave from " + selectedJoinedLobbie + "?"; }
+            get { return $"Leave from {selectedJoinedLobbie}?"; }
         }
 
         public string ExitLobbieHeaderCommand
         {
-            get { return "Exit from" + selectedJoinedLobbie + "?"; }
+            get { return $"Exit from {selectedJoinedLobbie}?"; }
         }
 
         public string DeleteToLobbieHeaderCommand
         {
-            get { return "Delete channel " + selectedJoinedLobbie + "?"; }
+            get { return $"Delete channel {selectedJoinedLobbie}?"; }
         }
         #endregion
 
@@ -504,26 +504,26 @@ namespace Gold_Client.ViewModel
                 GenerateChannelPassWindow sendPassword = new GenerateChannelPassWindow();
                 JoinChannelSend.ChannelName = e.clientChannelName;
                 sendPassword.OnClickOrEnter += JoinChannelSend.OnClickOrEnter;
-                sendPassword.createWindow("Send Password: " + e.clientChannelName, "Send Password to channel " + e.clientChannelName + " for join");
+                sendPassword.createWindow($"Send Password: {e.clientChannelName}", $"Send Password to channel {e.clientChannelName} for join");
             }
             else if (e.clientChannelMsg2 == "ChannelJoined" && !joinedChannelsList.Contains(e.clientChannelName))
             {
                 joinedChannelsList.Add(e.clientChannelName);
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(e.clientChannelMsg, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(e.clientChannelMsg, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientExitChannel(object sender, ClientEventArgs e)
         {
             if (e.clientChannelMsg == "You are exit from the channel")
             {
-                MessageBox.Show(e.clientChannelMsg + " " + e.clientChannelName + ".", "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"{e.clientChannelMsg} {e.clientChannelName}.", $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
                 joinedChannelsList.Remove(e.clientChannelName);
             }
             else
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(e.clientChannelMsg, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientListChannel(object sender, ClientEventArgs e)
@@ -561,7 +561,7 @@ namespace Gold_Client.ViewModel
 
         private void OnClientAddFriend(object sender, ClientEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("User: " + e.clientFriendName + " want to be your friend Accept?", "Gold Chat: " + User.strName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            MessageBoxResult result = MessageBox.Show($"User: {e.clientFriendName} want to be your friend Accept?", $"Gold Chat: {User.strName}", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.No)
                 clientSendToServer.SendToServer(Command.manageFriend, "No", e.clientFriendName);
             else
@@ -572,7 +572,7 @@ namespace Gold_Client.ViewModel
         {
             friendlyUsersConnected.Add(e.clientFriendName == User.strName ? e.clientName : e.clientFriendName);
 
-            MessageBox.Show("You are now friend with: " + (e.clientFriendName == User.strName ? e.clientName : e.clientFriendName), "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"You are now friend with: {(e.clientFriendName == User.strName ? e.clientName : e.clientFriendName)}", $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnClientListFriends(object sender, ClientEventArgs e)
@@ -596,14 +596,14 @@ namespace Gold_Client.ViewModel
 
         private void OnClientIgnoreUser(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientIgnoreMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientIgnoreMessage, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientIgnoreOption == "AddIgnore")
                 ignoredUsers.Add(e.clientIgnoreName);
         }
 
         private void OnClientDeleteIgnoredUser(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientIgnoreMessage, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientIgnoreMessage, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             if (e.clientIgnoreOption == "DeleteIgnore")
             {
                 ignoredUsers.Remove(e.clientIgnoreName);
@@ -625,7 +625,7 @@ namespace Gold_Client.ViewModel
         {
             if (e.clientName == User.strName)
             {
-                MessageBox.Show("You are" + e.clientKickReason, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"You are {e.clientKickReason}", $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
                 CloseAction();
             }
             else
@@ -657,10 +657,10 @@ namespace Gold_Client.ViewModel
                     lobbies.Remove(e.clientChannelMsg);
                 if (JoinedChannelsList.Contains(e.clientChannelMsg))
                     joinedChannelsList.Remove(e.clientChannelMsg);
-                MessageBox.Show(e.clientChannelMsg2 + " deleted channel " + e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"{e.clientChannelMsg2} deleted channel {e.clientChannelMsg}", $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
-                MessageBox.Show(e.clientChannelMsg, "Gold Chat: " + User.strName, MessageBoxButton.OK, MessageBoxImage.Stop);
+                MessageBox.Show(e.clientChannelMsg, $"Gold Chat: {User.strName}", MessageBoxButton.OK, MessageBoxImage.Stop);
         }
     }
 }

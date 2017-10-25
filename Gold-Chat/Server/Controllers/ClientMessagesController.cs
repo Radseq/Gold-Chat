@@ -33,8 +33,8 @@ namespace Server.Controllers
         public void Execute()
         {
             prepareResponse();
-            Send.strMessage = Received.strName + ": " + Received.strMessage;
-            OnClientMessage(Send.strMessage, Received.strName + ": " + Received.strMessage);
+            Send.strMessage = $"{Received.strName}: {Received.strMessage}";
+            OnClientMessage(Send.strMessage, $"{Received.strName}: {Received.strMessage}");
         }
 
         public override void Response()
@@ -45,7 +45,7 @@ namespace Server.Controllers
             {
                 string channelName = Received.strMessage2;
                 SendToChannel.ResponseToChannel(Send, ListOfClientsOnline, channelName);
-                OnClientChannelMessage(Send.strMessage, Received.strName + ": " + Received.strMessage + " On:" + channelName);
+                OnClientChannelMessage(Send.strMessage, $"{Received.strName}: {Received.strMessage} On:{channelName}");
             }
         }
 

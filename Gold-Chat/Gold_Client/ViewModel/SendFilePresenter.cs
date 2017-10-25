@@ -31,13 +31,13 @@ namespace Gold_Client.ViewModel
             if (e.FileLen == "AcceptReceive" && e.clientFriendName != App.Client.strName)
             {
                 SendFile();
-                SendingStep = e.clientFriendName + " starting receive file from you";
+                SendingStep = $"{e.clientFriendName} starting receive file from you";
             }
         }
 
         private void OnReceiveFile(object sender, ClientEventArgs e)
         {
-            MessageBox.Show(e.clientFriendName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientFriendName, $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public string FilePatchTextBox

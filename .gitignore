@@ -12,12 +12,14 @@ Gold-Chat/ServerTests/bin
 Gold-Chat/.vs
 Gold-Chat/packages
 
-*.csproj.user
+*.user
+*.cache
+*.ncrunchsolution
 *.pdb
 *.exe
 *.exe.config
 *.manifest
 *.xml
 *.txt
-CommandClient.dll
+*.dll
 *.TMP

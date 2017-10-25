@@ -160,7 +160,7 @@ namespace Server
                     // So we make sure that client which got crash or internet close, server will send log out message
                     dataContext.SetContext(scope.Resolve<ClientLogoutController>());
 
-                    string exMessage = ("client: " + client.strName + " " + ex.Message);
+                    string exMessage = $"client: {client.strName} {ex.Message}";
                     Console.WriteLine(exMessage);
                     //Console.WriteLine(ex.StackTrace);
                     servLogger.Log(exMessage);

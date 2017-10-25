@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Server.Controllers.Lists;
+using Server.Interfaces;
 using Server.Interfaces.ClientLists;
 using Server.Modules.ListsToUserModule;
 using Server.Utilies;
@@ -45,6 +46,10 @@ namespace Server
                 builder.RegisterAssemblyTypes(executingAssembly)
                     .AsSelf()
                     .AsImplementedInterfaces();
+
+                builder.RegisterType<DataBaseManager>()
+                    .As<IDataBase>()
+                    .SingleInstance();
 
                 // this 3 classes have same implementation, there we chooise implementation class
                 builder.RegisterType<GetJoinedChannelsList>()
@@ -149,27 +154,27 @@ namespace Server
         #region event messages
         private void OnClientReceiMessage(object sender, ClientEventArgs e)
         {
-            Console.WriteLine("ReceivedMessage " + e.clientMessageReciv);
+            Console.WriteLine($"ReceivedMessage {e.clientMessageReciv}");
         }
 
         private void OnClientSendMessage(object sender, ClientEventArgs e)
         {
-            Console.WriteLine("SendMessage " + e.clientMessageToSend);
+            Console.WriteLine($"SendMessage {e.clientMessageToSend}");
         }
 
         private void OnClientList(object sender, ClientEventArgs e)
         {
-            Console.WriteLine("SendList " + e.clientMessageToSend + " " + e.clientMessageTwoToSend);
+            Console.WriteLine($"SendList {e.clientMessageToSend} {e.clientMessageTwoToSend}");
         }
 
         private void OnClientMessage(object sender, ClientEventArgs e)
         {
-            Console.WriteLine("clientMessage " + e.clientMessageReciv);
+            Console.WriteLine($"clientMessage {e.clientMessageReciv}");
         }
 
         private void OnClientLogout(object sender, ClientEventArgs e)
         {
-            Console.WriteLine(e.clientName + " has left the room>>>");
+            Console.WriteLine($"{e.clientName} has left the room>>>");
         }
         #endregion
     }

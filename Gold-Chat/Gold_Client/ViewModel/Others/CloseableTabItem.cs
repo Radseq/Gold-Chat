@@ -24,7 +24,7 @@ namespace Gold_Client.ViewModel
         {
             if (tabControlName == e.clientChannelName && e.clientName == App.Client.strName)
             {
-                MessageBox.Show("You are" + e.clientKickReason, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"You are {e.clientKickReason}", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
                 removeTab();
             }
         }
@@ -68,7 +68,7 @@ namespace Gold_Client.ViewModel
                             clientSendToServer.SendToServer(Command.leaveChannel, tabControlName);
                     }
                     else
-                        MessageBox.Show("Cannot close Main Tab!", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Cannot close Main Tab!", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Error);
                 };
             dockPanel.Children.Add(closeButton);
 
@@ -86,7 +86,7 @@ namespace Gold_Client.ViewModel
         {
             if (e.clientName == App.Client.strName && e.clientChannelName == tabControlName)
             {
-                MessageBox.Show("You are" + e.clientBanReason, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"You are {e.clientBanReason}", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
                 removeTab();
             }
         }

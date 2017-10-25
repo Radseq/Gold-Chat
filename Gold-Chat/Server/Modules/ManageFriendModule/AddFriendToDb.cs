@@ -17,7 +17,7 @@ namespace Server.Modules.ManageFriendModule
         {
             DataBase.bind(new string[] { "idUser", clientId.ToString(), "idFriend", friendId.ToString() });
 
-            if (DataBase.executeNonQuery("INSERT INTO user_friend (id_user, id_friend) " + "VALUES (@idUser, @idFriend)") > 0)
+            if (DataBase.executeNonQuery("INSERT INTO user_friend (id_user, id_friend) VALUES (@idUser, @idFriend)") > 0)
                 return true;
             else
                 return false;

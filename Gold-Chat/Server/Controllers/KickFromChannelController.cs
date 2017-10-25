@@ -59,10 +59,10 @@ namespace Server.Controllers
                                 IsUserKickedSuccesfully = true;
 
                         }
-                        else Send.strMessage = "There is no " + UserName + " online";
+                        else Send.strMessage = $"There is no {UserName} online";
                     }
                     else
-                        Send.strMessage2 = "There is no " + UserName + " in your channel";
+                        Send.strMessage2 = $"There is no {UserName} in your channel";
                 }
                 else
                     Send.strMessage2 = "Only channel founder can kick";

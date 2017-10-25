@@ -14,7 +14,7 @@ namespace Server.Modules.ActiveCodeModule
 
         public bool Send(string UserName, string destination, string code)
         {
-            SendEmail.SetProperties(UserName, destination, "Gold Chat: Resended Register Code", "Here is your activation code: " + code);
+            SendEmail.SetProperties(UserName, destination, "Gold Chat: Resended Register Code", $"Here is your activation code: {code}");
             return SendEmail.SendEmail();
         }
     }

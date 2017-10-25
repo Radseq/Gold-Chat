@@ -72,7 +72,7 @@ namespace Server.Controllers
             if (codeDb != null && codeDb[0] == code)
             {
                 if (DeleteLostPasswordCodeFromDB.Delete(code) == 0)
-                    Console.WriteLine("Cannot delete " + codeDb[1] + " from user_lost_pass");
+                    Console.WriteLine($"Cannot delete {codeDb[1]} from user_lost_pass");
 
                 Send.strMessage = UpdateNewPassword.Update(newPassword, codeDb[3], codeDb[2]);
             }

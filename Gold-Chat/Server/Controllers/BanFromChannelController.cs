@@ -68,10 +68,10 @@ namespace Server.Controllers
                             }
                         }
                         else
-                            Send.strMessage2 = "There is no " + UserName + " in your channel";
+                            Send.strMessage2 = $"There is no {UserName} in your channel";
                     }
                     else
-                        Send.strMessage2 = "There is no " + UserName + " in your channel";
+                        Send.strMessage2 = $"There is no {UserName} in your channel";
                 }
                 else
                     Send.strMessage2 = "Only channel founder can ban";
@@ -83,7 +83,7 @@ namespace Server.Controllers
         private void sendMessageToChannelAboutUserBan()
         {
             Data send = Send;
-            send.strMessage2 = " ban from channel reason " + BanReason + " untill " + BanTime;
+            send.strMessage2 = $" ban from channel reason {BanReason} untill {BanTime}";
             SendToChannel.ResponseToChannel(send, ListOfClientsOnline, ChannelName);
         }
 

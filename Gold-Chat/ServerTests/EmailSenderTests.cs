@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 using Server.Interfaces;
+using Xunit;
 
 namespace ServerTests
 {
@@ -9,16 +9,19 @@ namespace ServerTests
         Mock<ISendEmail> mock = new Mock<ISendEmail>();
 
         //[ExpectedException(typeof(AssertFailedException))]
+        [Fact]
         public void SendEmailReturnFalse()
         {
             SetPropertiesEmailTest("", "", "", "");
         }
 
+        [Fact]
         public void SendEmailReturnTrue()
         {
-            Assert.IsTrue(SetPropertiesEmailTest("username", "email", "subject", "message"));
+            Assert.True(SetPropertiesEmailTest("username", "email", "subject", "message"));
         }
 
+        [Fact]
         public void SendEmailTest(/*bool SetPropertiesEmailTestResult*/)
         {
             bool result = false;
@@ -26,22 +29,22 @@ namespace ServerTests
                 result = true;
 
             mock.Setup(x => x.SendEmail()).Returns(result);
-            Assert.AreEqual(result, true);
+            Assert.True(result);
         }
 
         public bool SetPropertiesEmailTest(string username, string email, string subject, string message)
         {
             if (username == "" || string.IsNullOrWhiteSpace(username))
-                Assert.Fail();
+                Assert.Empty(username);
             if (email == "" || string.IsNullOrWhiteSpace(email))
-                Assert.Fail();
+                Assert.Empty(email);
             if (subject == "" || string.IsNullOrWhiteSpace(subject))
-                Assert.Fail();
+                Assert.Empty(subject);
             if (message == "" || string.IsNullOrWhiteSpace(message))
-                Assert.Fail();
+                Assert.Empty(message);
 
             mock.Setup(x => x.SetProperties(username, email, subject, message));
-            Assert.IsNotNull(mock.Object);
+            Assert.NotNull(mock.Object);
             return true;
         }
     }

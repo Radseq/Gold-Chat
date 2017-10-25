@@ -47,12 +47,12 @@ namespace Gold_Client.ViewModel.Others
             FileName = fileNameToReceive;
             FileLen = fileLen;
 
-            ReceiveFileMessage = FriendName + " want to send you file " + FileName + ", File size " + GetBytesReadable(FileLen) + ". Press Reveive to get this file.";
+            ReceiveFileMessage = $"{FriendName} want to send you file {FileName}, File size {GetBytesReadable(FileLen)}. Press Reveive to get this file.";
         }
 
         private void OnClientReceiveFileInfo(object sender, ClientEventArgs e)
         {
-            System.Windows.MessageBox.Show(e.clientFriendName, "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(e.clientFriendName, $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public string ReceiveFileMessage
@@ -128,7 +128,7 @@ namespace Gold_Client.ViewModel.Others
                 CurrentDownloadProgress += 1;
             }
             else
-                System.Windows.MessageBox.Show(e.clientFriendName + " send you diffrent file", "Gold Chat: " + App.Client.strName, MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"{e.clientFriendName} send you diffrent file", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public object ReceiveProgress()

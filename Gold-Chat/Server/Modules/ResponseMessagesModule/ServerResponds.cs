@@ -4,7 +4,7 @@ using System;
 
 namespace Server.Modules.ResponseMessagesController
 {
-    class ServerResponds : Respond, IServerReceive, IServerSend, IClient
+    public class ServerResponds : Respond, IServerReceive, IServerSend, IClient
     {
         public event EventHandler<ClientEventArgs> ClientSendMessage;
 

@@ -36,7 +36,7 @@ namespace ServerTests
             else
                 return false;
         }
-
+        /*
         [Fact]
         public void UserHaveABan()
         {
@@ -50,7 +50,7 @@ namespace ServerTests
                 result = chackBan();
 
             Assert.True(result);
-        }
+        }*/
 
         [Fact]
         public void UserDontHaveABan()

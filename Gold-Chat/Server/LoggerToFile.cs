@@ -12,7 +12,7 @@ namespace Server
         static readonly object padlock = new object();
 
         static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
-        static StreamWriter strWriter = new StreamWriter("ServerLogger-" + dateFile + ".txt", true);
+        static StreamWriter strWriter = new StreamWriter($"ServerLogger-{dateFile}.txt", true);
 
         // Singleton
         public static LoggerToFile Instance
@@ -31,24 +31,24 @@ namespace Server
 
         private LoggerToFile()
         {
-            strWriter.WriteLine("Serwer started at " + DateTime.Now.ToString("dd:MM On HH:mm:ss") + " Start Logging.");
+            strWriter.WriteLine($"Serwer started at {DateTime.Now.ToString("dd:MM On HH:mm:ss")} Start Logging.");
             strWriter.Flush();
         }
 
         private void write(string message)
         {
-            strWriter.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " " + message);
+            strWriter.WriteLine($"{DateTime.Now.ToString("HH:mm:ss")} {message}");
             strWriter.Flush();
         }
 
         public void OnClientReceiMessageLogger(object sender, ClientEventArgs e)
         {
-            write("ReceivedMessage " + e.clientMessageReciv);
+            write($"ReceivedMessage {e.clientMessageReciv}");
         }
 
         public void OnClientSendMessageLogger(object sender, ClientEventArgs e)
         {
-            write("SendMessage " + e.clientMessageToSend);
+            write($"SendMessage {e.clientMessageToSend}");
         }
 
         /*public void OnClientListLogger(object sender, ClientEventArgs e)
@@ -58,68 +58,68 @@ namespace Server
 
         public void OnClientMessageLogger(object sender, ClientEventArgs e)
         {
-            write("clientMessage " + e.clientMessageReciv);
+            write($"clientMessage {e.clientMessageReciv}");
         }
 
         public void OnClientLogoutLogger(object sender, ClientEventArgs e)
         {
-            write(e.clientName + " has left the room>>>");
+            write($"{e.clientName} has left the room >>> ");
         }
 
         public void OnClientReSendAckCode(object sender, ClientEventArgs e)
         {
-            write(e.clientName + " resend thier activation code to " + e.clientEmail);
+            write($"{e.clientName} resend thier activation code to {e.clientEmail}");
         }
 
         public void OnClientLogin(object sender, ClientEventArgs e)
         {
-            write(e.clientName + " has joined the room>>>");
+            write($"{e.clientName} has joined the room >>> ");
         }
 
         public void OnClientRegistration(object sender, ClientEventArgs e)
         {
-            write(e.clientName + " has registered by " + e.clientEmail);
+            write($"{e.clientName} has registered by {e.clientEmail}");
         }
 
         public void RunServerLogger(Exception ex)
         {
-            write("Exception occured when running: " + ex);
+            write($"Exception occured when running: {ex}");
         }
 
         public void OnExecuteReader(object sender, DataBaseManagerEventArgs e)
         {
-            string exception = "Exception ExecuteReader : " + e.Exception + "\n\r SQL Query : \n\r" + e.Query;
+            string exception = $"Exception ExecuteReader : {e.Exception}\n\r SQL Query : \n\r{e.Query}";
             write(exception);
         }
 
         public void OnExecuteNonQuery(object sender, DataBaseManagerEventArgs e)
         {
-            string exception = "Exception ExecuteNonQuery : " + e.Exception + "\n\r SQL Query : \n\r" + e.Query;
+            string exception = $"Exception ExecuteNonQuery : {e.Exception}\n\r SQL Query : \n\r{e.Query}";
             write(exception);
         }
 
         public void OnConnectToDB(object sender, DataBaseManagerEventArgs e)
         {
-            string exception = "Exception Connection : " + e.Exception + "\n\r Closing Application. \n\r";
+            string exception = $"Exception Connection : {e.Exception}\n\r Closing Application. \n\r";
             write(exception);
             Environment.Exit(1);
         }
 
         public void OnEmaiSended(object source, EmailSenderEventArgs args)
         {
-            string outStr = "Activation Code has been send to " + args.UserNameEmail + " email";
+            string outStr = $"Activation Code has been send to {args.UserNameEmail} email";
             write(outStr);
         }
 
         public void OnEmaiReSended(object source, EmailSenderEventArgs args)
         {
-            string outStr = "Register Code resended to " + args.UserNameEmail + " email";
+            string outStr = $"Register Code resended to {args.UserNameEmail} email";
             write(outStr);
         }
 
         public void OnEmaiNotyficationLoginSended(object sender, EmailSenderEventArgs e)
         {
-            string outStr = "Login Notyfication to " + e.UserNameEmail + " email";
+            string outStr = $"Login Notyfication to {e.UserNameEmail} email";
             write(outStr);
         }
 

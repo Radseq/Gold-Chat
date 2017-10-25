@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Server.ClientService
 {
-    class CreateChannelController : ServerResponds, IBuildResponse
+    public class CreateChannelController : ServerResponds, IBuildResponse
     {
         public event EventHandler<ClientEventArgs> ClientCreateChannelEvent;
 

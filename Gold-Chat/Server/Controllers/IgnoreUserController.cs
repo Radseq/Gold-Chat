@@ -37,15 +37,15 @@ namespace Server.Controllers
                     if (AddIgnoredUser.Add(Client.id, userNameToBeIgnored))
                     {
                         Client.ignoredUsers.Add(userNameToBeIgnored);
-                        Send.strMessage2 = "You are now ignore: " + userNameToBeIgnored;
+                        Send.strMessage2 = $"You are now ignore: {userNameToBeIgnored}";
                     }
                     else
                     {
-                        Send.strMessage2 = "Cannot ignore " + userNameToBeIgnored + " unknown reason";
+                        Send.strMessage2 = $"Cannot ignore {userNameToBeIgnored} unknown reason";
                     }
                 }
                 else
-                    Send.strMessage2 = "Cannot ignore " + userNameToBeIgnored + " because already ignored!";
+                    Send.strMessage2 = $"Cannot ignore {userNameToBeIgnored} because already ignored!";
             }
             else if (type == "DeleteIgnore")
             {
@@ -54,15 +54,15 @@ namespace Server.Controllers
                     if (DeleteIgnoredUser.Delete(Client.id, userNameToBeIgnored))
                     {
                         Client.ignoredUsers.Remove(userNameToBeIgnored);
-                        Send.strMessage2 = "You are delete from ignore list user: " + userNameToBeIgnored;
+                        Send.strMessage2 = $"You are delete from ignore list user: {userNameToBeIgnored}";
                     }
                     else
                     {
-                        Send.strMessage2 = "Cannot delete ignore from " + userNameToBeIgnored + " unknown reason";
+                        Send.strMessage2 = $"Cannot delete ignore from {userNameToBeIgnored} unknown reason";
                     }
                 }
                 else
-                    Send.strMessage2 = "Cannot delete ignore from " + userNameToBeIgnored + " because not ignored!";
+                    Send.strMessage2 = $"Cannot delete ignore from {userNameToBeIgnored} because not ignored!";
             }
             else Send.strMessage2 = "There is only Add or Delete users option";
             //}

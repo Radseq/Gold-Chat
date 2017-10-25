@@ -53,7 +53,7 @@ namespace Server
             Client.addr = (IPEndPoint)Client.cSocket.RemoteEndPoint;
             // Sent of implementation i think i must do builder, because rest of inicialize client is in login command
 
-            string acceptConnectrion = " >> Accept connection from client: " + Client.addr.Address + " on Port: " + Client.addr.Port;// + " Users Connected: " + clientList.Count;
+            string acceptConnectrion = $" >> Accept connection from client: {Client.addr.Address} on Port: {Client.addr.Port}";// + " Users Connected: " + clientList.Count;
             consoleLog.Log(acceptConnectrion);
             servLogger.Log(acceptConnectrion);
 

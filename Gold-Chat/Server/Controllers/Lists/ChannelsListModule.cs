@@ -1,5 +1,6 @@
 ﻿using CommandClient;
 using Server.Interfaces;
+using Server.Interfaces.Utilities;
 using Server.Modules.ResponseMessagesController;
 using System.Collections.Generic;
 
@@ -10,11 +11,17 @@ namespace Server.Controllers.Lists
         protected List<Channel> ChannelsList;
         protected List<Client> ListOfClientsOnline;
 
+        private readonly ISeparateListOfStringToString SeparateList;
+
+        public ChannelsListModule(ISeparateListOfStringToString separateList)
+        {
+            SeparateList = separateList;
+        }
+
         public void Execute()
         {
             prepareResponse();
-            foreach (Channel channel in ChannelsList)
-                Send.strMessage2 += channel.ChannelName + "*";
+            Send.strMessage2 = SeparateList.separate(ChannelsList);
         }
 
         public void Load(Client client, Data receive, List<Client> clientList = null, List<Channel> channelList = null)

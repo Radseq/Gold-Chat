@@ -1,6 +1,6 @@
 ﻿namespace Server.Interfaces.CreateChannel
 {
-    interface ISearchForExistingChannel
+    public interface ISearchForExistingChannel
     {
         string[] Search(Client client, string channelName);
     }
