@@ -1,4 +1,5 @@
 ﻿using CommandClient;
+using NSubstitute;
 using Server.ClientService;
 using Server.Interfaces;
 using Server.Interfaces.CreateChannel;
@@ -11,9 +12,9 @@ namespace Server.Tests
     public class CreateChannelControllerTests
     {
         readonly CreateChannelController _controller;
-        private readonly ISearchForExistingChannel SearchForExistingChannel;
-        private readonly IInsertChannel InsertChannel;
-        private readonly IDataBase DataBase;
+        readonly ISearchForExistingChannel SearchForExistingChannel;
+        readonly IInsertChannel InsertChannel;
+        readonly IDataBase DataBase;
         Client client;
         Data receive = new Data();
         Data send = new Data();
@@ -69,13 +70,14 @@ namespace Server.Tests
         public void LoadObjects()
         {
             _controller.Load(client, receive, clientlist, channelList);
-            Assert.True(SetUpClient() && SetUpChannel());
+            Assert.True(SetUpClient());
+            Assert.True(SetUpChannel());
         }
 
         [Fact]
-        public void throws_when_email_not_valid()
+        public void throws_when_db_executeNonQuery_false()
         {
-            //_emailValidator.Validate(_email).Returns(false);
+            DataBase.executeNonQuery("query").Returns(0);
 
             Assert.Throws<ArgumentException>(
                 () => execute()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gold_Client.ViewModel.Others
@@ -9,6 +10,8 @@ namespace Gold_Client.ViewModel.Others
         public static event EventHandler OnDataReceived;
 
         public static bool IsClientStartReceive { get; set; }
+
+        private static readonly ManualResetEvent received = new ManualResetEvent(false);
 
         public static Task<int> ReceiveAsync(this Socket socket, byte[] buffer, int offset, int size, SocketFlags socketFlags)
         {
@@ -26,6 +29,8 @@ namespace Gold_Client.ViewModel.Others
                     t.TrySetException(ex);
                 }
             }, tcs);
+
+            received.Set();
             return tcs.Task;
         }
 
@@ -34,7 +39,8 @@ namespace Gold_Client.ViewModel.Others
             while (true)
             {
                 int x = await ReceiveAsync(App.Client.cSocket, App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None);
-                IsClientStartReceive = true;
+                received.WaitOne();
+                //IsClientStartReceive = true;
                 OnDataReceived?.Invoke(null, EventArgs.Empty);
             }
             // clientReceive.BeginReceive();

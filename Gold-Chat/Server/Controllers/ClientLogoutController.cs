@@ -33,40 +33,33 @@ namespace Server.ClientService
 
         public void Execute()
         {
-            //DO SPRAWDZENIA, CZY RECEIVE BEDZIE NULL PODCZAS CRASHU
-            if (Received != null)
-            {
-                prepareResponse();
+            prepareResponse();
 
-                // When a user wants to log out of the server then we search for him 
-                // in the list of clients and close the corresponding connection
-                int nIndex = 0;
-                foreach (Client clientInList in ListOfClientsOnline)
+            // When a user wants to log out of the server then we search for him 
+            // in the list of clients and close the corresponding connection
+            foreach (Client clientInList in ListOfClientsOnline)
+            {
+                if (Client.cSocket == clientInList.cSocket)
                 {
-                    if (Client.cSocket == clientInList.cSocket)
-                    {
-                        ListOfClientsOnline.RemoveAt(nIndex);
-                        break;
-                    }
-                    ++nIndex;
-
-                    foreach (Channel ch in ChannelsList) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
-                    {
-                        if (ch.Users.Contains(Client.strName))
-                            ch.Users.Remove(Client.strName);
-                    }
+                    ListOfClientsOnline.Remove(clientInList);
+                    break;
                 }
-
-                Send.strMessage = Client.strName;
-                OnClientLogout(Client.strName, Client.cSocket);
-
-                Client.cSocket.Close();
             }
-            else
+
+            foreach (Channel ch in ChannelsList) // Dont need to send list etc to user because all channels got msg that user log out and channel check if exists in theirs list
             {
-                Send.cmdCommand = Command.Logout;
-                Send.strName = Client.strName;
+                if (ch.Users.Contains(Client.strName))
+                    ch.Users.Remove(Client.strName);
             }
+
+            Send.strMessage = Client.strName;
+            OnClientLogout(Client.strName, Client.cSocket);
+
+            Client.cSocket.Close();
+
+
+            Send.cmdCommand = Command.Logout;
+            Send.strName = Client.strName;
         }
 
         public override void Response()

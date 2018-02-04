@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 
 namespace Server.Utilies
 {
@@ -8,6 +9,18 @@ namespace Server.Utilies
         {
             DateTime now = DateTime.Now;
             return now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        public static bool IsConnected(Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
         }
     }
 }

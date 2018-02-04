@@ -1,8 +1,8 @@
 ﻿using CommandClient;
 
-namespace Server.Interfaces
+namespace Server.Interfaces.Server
 {
-    public interface IServerSend
+    public interface IDataSend
     {
         Data Send { get; set; }
     }

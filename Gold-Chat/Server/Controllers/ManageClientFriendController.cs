@@ -1,7 +1,7 @@
 ﻿using CommandClient;
 using Server.Interfaces;
-using Server.Interfaces.ResponseMessages;
 using Server.Interfaces.ManageFriend;
+using Server.Interfaces.ResponseMessages;
 using Server.Modules.ResponseMessagesController;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Server.ClientService
     {
         public event EventHandler<ClientEventArgs> ClientAddFriend;
         public event EventHandler<ClientEventArgs> ClientDeleteFriend;
-        private readonly ISendMessageToAll SendMessage;
+        private readonly ISendMessageToNick SendMessage;
         private readonly IGetFriendId GetFriend;
         private readonly IAddFriend AddFriend;
         private readonly IDeleteFriend DeleteFriend;
@@ -21,7 +21,7 @@ namespace Server.ClientService
 
         string FriendName;
 
-        public ManageClientFriendController(ISendMessageToAll sendMessage, IGetFriendId getFriend, IAddFriend addFriend, IDeleteFriend deleteFriend)
+        public ManageClientFriendController(ISendMessageToNick sendMessage, IGetFriendId getFriend, IAddFriend addFriend, IDeleteFriend deleteFriend)
         {
             SendMessage = sendMessage;
             GetFriend = getFriend;
@@ -96,12 +96,14 @@ namespace Server.ClientService
 
         private void ResponseToNick()
         {
-            Data s;
-            s = Send;
-            s.strMessage2 = Client.strName;
-            s.strName = FriendName;
-
-            SendMessage.ResponseToAll(Client, s, ListOfClientsOnline);
+            Data privSend;
+            privSend = Send;
+            privSend.strMessage2 = Client.strName;
+            privSend.strName = FriendName;
+            // if (Send.strName != privSend.strName)
+            SendMessage.ResponseToNick(ListOfClientsOnline, privSend);
+            //else
+            //  Send.strMessage = "Cant add youself.";
         }
 
         public override void Response()

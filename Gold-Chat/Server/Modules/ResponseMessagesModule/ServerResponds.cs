@@ -1,10 +1,11 @@
 ﻿using CommandClient;
 using Server.Interfaces;
+using Server.Interfaces.Server;
 using System;
 
 namespace Server.Modules.ResponseMessagesController
 {
-    public class ServerResponds : Respond, IServerReceive, IServerSend, IClient
+    public class ServerResponds : Respond, IDataReceive, IDataSend, IClient
     {
         public event EventHandler<ClientEventArgs> ClientSendMessage;
 
@@ -18,7 +19,7 @@ namespace Server.Modules.ResponseMessagesController
         public ServerResponds()
         {
             Send = new Data();
-            Received = new Data(new byte[1024]);
+            Received = new Data(new byte[1048576]);
         }
 
         public void prepareResponse()

@@ -43,7 +43,7 @@ namespace Server
         // Prevet SQL Injection
         private List<string> parameters;
 
-        Int64 lastInsertedID;
+        //Int64 lastInsertedID;
 
         public DataBaseManager()
         {

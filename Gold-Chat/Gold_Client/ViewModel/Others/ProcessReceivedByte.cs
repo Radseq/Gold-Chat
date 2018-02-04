@@ -30,7 +30,6 @@ namespace Gold_Client.ViewModel.Others
 
         private ProcessReceivedByte()
         {
-            //clientReceive.OnDataReceived += ProccesData;
             ReceivePackageFromServer.OnDataReceived += ProccesData;
         }
 
@@ -214,7 +213,7 @@ namespace Gold_Client.ViewModel.Others
 
                 case Command.sendFile:
                     if (msgReceived.strFileMsg != null)
-                        OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strFileMsg);
+                        OnClientReceiveFile(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strFileMsg, msgReceived.strMessage3);
                     else
                         OnClientReceiveFileInfo(msgReceived.strMessage, msgReceived.strMessage2, msgReceived.strMessage3, msgReceived.strName);
                     break;
@@ -377,9 +376,9 @@ namespace Gold_Client.ViewModel.Others
             ClientBanFromServer?.Invoke(this, new ClientEventArgs() { clientName = userName, clientBanReason = banReason });
         }
         // File or Respond From server need to change names to messages because names wrong tells whats happend
-        protected virtual void OnClientReceiveFile(string friendName, string fileName, Byte[] fileByteReceive)
+        protected virtual void OnClientReceiveFile(string friendName, string fileName, Byte[] fileByteReceive, string fileLength)
         {
-            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { clientFriendName = friendName, FileName = fileName, FileByte = fileByteReceive });
+            ClientReceiveFile?.Invoke(this, new ClientEventArgs() { clientFriendName = friendName, FileName = fileName, FileByte = fileByteReceive, FileLength = int.Parse(fileLength) });
         }
 
         protected virtual void OnClientReceiveFileInfo(string friendName, string fileLen, string fileName, string ClientName)

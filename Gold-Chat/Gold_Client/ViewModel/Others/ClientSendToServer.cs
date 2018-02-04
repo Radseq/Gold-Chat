@@ -73,7 +73,7 @@ namespace Gold_Client.ViewModel
             msgToSend.strMessage4 = strMessage4;
             msgToSend.strFileMsg = fileByte;
 
-            byte[] toSendByteData = new byte[1024];
+            byte[] toSendByteData = new byte[1048576];
             toSendByteData = msgToSend.ToByte();
 
             if (!User.cSocket.Connected && msgToSend.cmdCommand != Command.Logout)

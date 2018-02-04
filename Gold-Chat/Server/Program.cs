@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Server.Controllers.Lists;
-using Server.Interfaces;
 using Server.Interfaces.ClientLists;
+using Server.Interfaces.Server;
 using Server.Modules.ListsToUserModule;
 using Server.Utilies;
 using System;
@@ -19,14 +19,12 @@ namespace Server
 
         private bool runServer = true;
 
-        byte[] byteData = new byte[1024];
-
         public const int max_users = 50;
 
         static string dateFile = DateTime.Now.ToString("dd_MM_yyyy");
 
         static LoggerToFile servLogg = LoggerToFile.Instance;
-        ServerManager sm = new ServerManager();
+        //ServerManager sm = new ServerManager();
 
         public static IContainer _container;
 
@@ -47,9 +45,9 @@ namespace Server
                     .AsSelf()
                     .AsImplementedInterfaces();
 
-                builder.RegisterType<DataBaseManager>()
+                /*builder.RegisterType<DataBaseManager>()
                     .As<IDataBase>()
-                    .SingleInstance();
+                    .SingleInstance();*/
 
                 // this 3 classes have same implementation, there we chooise implementation class
                 builder.RegisterType<GetJoinedChannelsList>()
@@ -62,6 +60,9 @@ namespace Server
                     .As<IClientLists>()
                     .AsSelf();
 
+                builder.RegisterType<ServerManager>()
+                    .As<IServerGetConnection>()
+                    .SingleInstance();
                 builder.Register(ctx => new ClientJoinedChannelsListModule(ctx.Resolve<GetJoinedChannelsList>(), ctx.Resolve<ListOfStringToStringWithSeparators>()));
                 builder.Register(ctx => new ClientFriendsListModule(ctx.Resolve<GetFriendsList>(), ctx.Resolve<ListOfStringToStringWithSeparators>()));
                 builder.Register(ctx => new ClientIgnoredUsersListModule(ctx.Resolve<GetIgnoredUsersList>()));
@@ -77,6 +78,7 @@ namespace Server
 
                 Console.WriteLine(" >> Server Started");
                 servLogg.Log(" >> Server Started"); /*on Adress:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Address.ToString() + " Port:" + ((IPEndPoint)ServerSocket.RemoteEndPoint).Port.ToString());*/
+
 
                 //sm.ClientLogin += OnClientLogin;
                 //sm.ClientLogin += servLogg.OnClientLoginLogger;
@@ -98,7 +100,11 @@ namespace Server
 
                 while (runServer)
                 {
-                    sm.getConnection(ServerSocket);
+                    using (var scope = _container.BeginLifetimeScope())
+                    {
+                        var controller = scope.Resolve<IServerGetConnection>();
+                        controller.getConnection(ServerSocket);
+                    }
                 }
 
             }

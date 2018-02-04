@@ -302,7 +302,7 @@ namespace Gold_Client.ViewModel
         {
             string friendName = selectedFriendlyUser;
 
-            if (friendlyUsersConnected.Contains(friendName) && usersConnected.Contains(friendName)) // Now if friend is in our friend list + his online(exists in clientList) 
+            if (friendlyUsersConnected.Contains(friendName) && usersConnected.Contains(friendName) && friendName != App.Client.strName) // Now if friend is in our friend list + his online(exists in clientList) 
                 PrivateMessage(friendName);
             else MessageBox.Show($"Your Friend {friendName} is offline", $"Gold Chat: {App.Client.strName}", MessageBoxButton.OK, MessageBoxImage.Error);
         });
@@ -323,7 +323,7 @@ namespace Gold_Client.ViewModel
         public ICommand DeleteIgnoredUserCommand => new DelegateCommand(() =>
         {
             string ignoredUserName = selectedIgnoredUser;
-            if (ignoredUsers.Contains(ignoredUserName))
+            if (ignoredUsers.Contains(ignoredUserName) && ignoredUserName != App.Client.strName)
                 clientSendToServer.SendToServer(Command.ignoreUser, "DeleteIgnore", ignoredUserName);
         });
 

@@ -2,13 +2,16 @@
 {
     public class ClientReceivedFromServer
     {
-        //public event EventHandler<ClientEventArgs> ReceiveLogExcep;
+        ////public event EventHandler<ClientEventArgs> ReceiveLogExcep;
 
         //public event EventHandler OnDataReceived;
+        //private readonly ManualResetEvent received = new ManualResetEvent(false);
 
         //// Singleton
         //static ClientReceivedFromServer instance = null;
         //static readonly object padlock = new object();
+
+        //public bool IsClientStartReceive { get; set; }
 
         //// Singleton
         //public static ClientReceivedFromServer Instance
@@ -25,93 +28,40 @@
         //    }
         //}
 
-        //public bool IsClientStartReceive { get; set; }
-
-        //public void BeginReceive()
+        //public void Receive()
         //{
+        //    App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, ReceiveCallback, App.Client);
         //    IsClientStartReceive = true;
-
-        //    App.Client.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), App.Client);
-
-        //    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(() =>
-        //    {
-        //        OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //    }));
-        //    //Task<byte[]> t = Task.Run(() => ReceiveAMessage());
-        //    //t.ContinueWith((t1) =>
-        //    //{
-        //    //    t1 = Task.Run(() => ReceiveAMessage());
-        //    //    App.Client.Buffer = t1.Result;
-
-        //    //    OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //    //});
-        //    // t.Start();
-        //    // App.Client.Buffer = t.Result;
-
-        //    //OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //    //receiveDone.WaitOne();
+        //    received.WaitOne();
         //}
 
-        ////private async Task<byte[]> ReceiveAMessage()
-        ////{
-        ////    byte[] message = new byte[App.Client.Buffer.Length];
-        ////    var revcLen = await Task.Factory.FromAsync(
-        ////                           (callback, s) => App.Client.cSocket.BeginReceive(message, 0, message.Length, SocketFlags.None, callback, s),
-        ////                           ias => App.Client.cSocket.EndReceive(ias),
-        ////                           null);
-
-        ////    return message;
-        ////}
-
-        //private void OnReceive(IAsyncResult ar)
+        //private void ReceiveCallback(IAsyncResult result)
         //{
-        //    try
+        //    if (!App.Client.cSocket.Connected) return;
+
+        //    Client user = (Client)result.AsyncState;
+        //    Socket socket = user.cSocket;
+        //    int bytesRead = socket.EndReceive(result);
+
+        //    if (bytesRead > 0)
         //    {
-        //        if (!App.Client.cSocket.Connected) return;
-
-        //        Client user = (Client)ar.AsyncState;
-        //        Socket socket = user.cSocket;
-        //        int bytesRead = socket.EndReceive(ar);
-        //        //working too slow, thats why user must loggin many times
-        //        //Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-        //        //{
-        //        //    OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //        //}));
-        //        //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Send, (Action)(() =>
-        //        //{
-        //        //    OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //        //}));
-
-        //        //var revcLen = await Task.Factory.FromAsync(
-        //        //         (cb, s) => socket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, cb, s),
-        //        //         ias => socket.EndReceive(ias),
-        //        //         null);
-
-        //        //await Task.Factory.FromAsync(ar, _ =>
-        //        // {
-        //        //     Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-        //        //     {
-        //        //         OnDataReceived?.Invoke(this, EventArgs.Empty);
-        //        //     }));
-        //        // });
-        //        //socket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), user);
-        //        //receiveDone.Set();
-        //        BeginReceive();
+        //        user.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, ReceiveCallback, user);
         //    }
-        //    catch (ObjectDisposedException ex)
+
+        //    if (bytesRead == App.Client.Buffer.Length)
         //    {
-        //        OnReceiveLogExcep(ex.Message);
+        //        user.cSocket.BeginReceive(App.Client.Buffer, 0, App.Client.Buffer.Length, SocketFlags.None, ReceiveCallback, user);
         //    }
-        //    catch (Exception ex)
+        //    else
         //    {
-        //        Trace.WriteLine("[Networking]::ClientReceivedFromServer.ReceiveCallback:" + ex);
-        //        OnReceiveLogExcep(ex.Message);
+        //        received.Set();
+        //        OnDataReceived?.Invoke(null, EventArgs.Empty);
         //    }
         //}
 
         //protected virtual void OnReceiveLogExcep(string message)
         //{
-        //    ReceiveLogExcep?.Invoke(this, new ClientEventArgs() { receiveLogExpceMessage = message });
+        //    //ReceiveLogExcep?.Invoke(this, new ClientEventArgs() { receiveLogExpceMessage = message });
         //}
     }
 }

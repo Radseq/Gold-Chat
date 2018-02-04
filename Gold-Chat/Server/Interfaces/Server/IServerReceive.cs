@@ -1,8 +1,8 @@
 ﻿using CommandClient;
 
-namespace Server.Interfaces
+namespace Server.Interfaces.Server
 {
-    interface IServerReceive
+    interface IDataReceive
     {
         Data Received { get; set; }
     }

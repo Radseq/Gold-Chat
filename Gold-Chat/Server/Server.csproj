@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Server</RootNamespace>
     <AssemblyName>Server</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,9 +36,6 @@
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.2\lib\net45\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Moq, Version=4.7.142.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.7.142\lib\net45\Moq.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <HintPath>.\MySql.Data.dll</HintPath>
@@ -64,6 +62,7 @@
     <Compile Include="Interfaces\IGetListOfChannels.cs" />
     <Compile Include="Interfaces\IgnoreUser\IAddIgnoredUser.cs" />
     <Compile Include="Interfaces\IgnoreUser\IDeleteIgnoredUser.cs" />
+    <Compile Include="Interfaces\Server\IServerGetConnection.cs" />
     <Compile Include="Modules\ActiveCodeModule\ActivCodeGetDB.cs" />
     <Compile Include="Modules\ActiveCodeModule\SendActivactionCodeToUserEmail.cs" />
     <Compile Include="Modules\BanFromChannelModule\insertUserBanToDb.cs" />
@@ -123,7 +122,7 @@
     <Compile Include="Controllers\ClientMessagesController.cs" />
     <Compile Include="Controllers\PrivateMessageController.cs" />
     <Compile Include="Controllers\CreateChannelController.cs" />
-    <Compile Include="ClientService\GetListOfChannelsFromDataBase.cs" />
+    <Compile Include="Controllers\GetListOfChannelsController.cs" />
     <Compile Include="Controllers\ManageClientFriendController.cs" />
     <Compile Include="Modules\ClientLoginModule\GetClientPropertiesFromDB.cs" />
     <Compile Include="Controllers\BanController.cs" />
@@ -181,8 +180,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IBuildResponse.cs" />
-    <Compile Include="Interfaces\IServerReceive.cs" />
-    <Compile Include="Interfaces\IServerSend.cs" />
+    <Compile Include="Interfaces\Server\IServerReceive.cs" />
+    <Compile Include="Interfaces\Server\IServerSend.cs" />
     <Compile Include="Modules\ResponseMessagesModule\Respond.cs" />
     <Compile Include="Modules\ResponseMessagesModule\SendMessageToAll.cs" />
     <Compile Include="Modules\ResponseMessagesModule\SendMessageToChannel.cs" />
@@ -209,9 +208,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ClientService\List\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

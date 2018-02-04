@@ -18,6 +18,8 @@ namespace Server.Controllers
         private Client UserToSend;
         private byte[] fileSendByte;
         private bool IsNoError = false;
+        private string FileReadByteLength;
+        LoggerToConsole consoleLog = new LoggerToConsole();
 
         private readonly ISendMessageToNick ToNick;
 
@@ -39,6 +41,9 @@ namespace Server.Controllers
             FriendName = Received.strMessage;
             FileName = Received.strMessage2;
             fileSendByte = Received.strFileMsg;
+            FileReadByteLength = Received.strMessage3;
+
+            consoleLog.Log(FileReadByteLength);
 
             UserToSend = ClientGets.getClinetByName(ListOfClientsOnline, FriendName);
 
@@ -60,6 +65,7 @@ namespace Server.Controllers
                 send.strFileMsg = fileSendByte;
                 send.strMessage = Client.strName;
                 send.strName = FriendName;
+                send.strMessage3 = FileReadByteLength;
                 ToNick.ResponseToNick(ListOfClientsOnline, send);
             }
             else

@@ -1,5 +1,5 @@
 ﻿using Moq;
-using Server.Interfaces;
+using Server.Interfaces.Server;
 
 namespace ServerTests
 {
@@ -7,7 +7,7 @@ namespace ServerTests
     {
         public void TestStrMessage()
         {
-            var mock = new Mock<IServerSend>();
+            var mock = new Mock<IDataSend>();
             mock.Setup(x => x.Send).Returns(new CommandClient.Data());
         }
     }

@@ -37,8 +37,6 @@ namespace Gold_Client.ViewModel.Others
 
             proccesReceiverInformation.ClientReceiveFile += OnClientReceiveFile;
             proccesReceiverInformation.ClientReceiveFileInfo += OnClientReceiveFileInfo;
-
-            MaxValueOfProgress = (int)ReceiveProgress();
         }
 
         public void SetProperies(string friendName, string fileNameToReceive, long fileLen)
@@ -48,6 +46,7 @@ namespace Gold_Client.ViewModel.Others
             FileLen = fileLen;
 
             ReceiveFileMessage = $"{FriendName} want to send you file {FileName}, File size {GetBytesReadable(FileLen)}. Press Reveive to get this file.";
+            MaxValueOfProgress = (int)ReceiveProgress();
         }
 
         private void OnClientReceiveFileInfo(object sender, ClientEventArgs e)
@@ -124,7 +123,8 @@ namespace Gold_Client.ViewModel.Others
             {
                 saveFile.FileSavePath = patchOfSaveFile;
                 saveFile.OpenFile(e.FileName);
-                saveFile.SaveFile(e.FileByte);
+                saveFile.SaveFile(e.FileByte, e.FileLength);
+                System.Console.WriteLine(Command.sendFile + " " + App.Client.strName + " " + e.FileName + " " + e.FileLength);
                 CurrentDownloadProgress += 1;
             }
             else
@@ -133,7 +133,7 @@ namespace Gold_Client.ViewModel.Others
 
         public object ReceiveProgress()
         {
-            int progressLen = checked((int)(FileLen / 980 + 1));
+            int progressLen = checked((int)(FileLen / 1048000 + 1));
             object[] length = new object[1];
             return length[0] = progressLen;
         }

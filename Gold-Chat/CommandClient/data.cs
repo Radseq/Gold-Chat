@@ -66,125 +66,139 @@ namespace CommandClient
         //Converts the bytes into an object of type Data
         public Data(byte[] data)
         {
-            //The first four bytes are for the Command
-            cmdCommand = (Command)BitConverter.ToInt32(data, 0);
+            try
+            {
+                //The first four bytes are for the Command
+                cmdCommand = (Command)BitConverter.ToInt32(data, 0);
 
-            //The next four store the length of the name
-            int nameLen = BitConverter.ToInt32(data, 4);
+                //The next four store the length of the name
+                int nameLen = BitConverter.ToInt32(data, 4);
 
-            //The next four store the length of the strMessage
-            int strMessageLen = BitConverter.ToInt32(data, 8);
+                //The next four store the length of the strMessage
+                int strMessageLen = BitConverter.ToInt32(data, 8);
 
-            //The next four store the length of the strMessage2
-            int strMessage2Len = BitConverter.ToInt32(data, 12);
+                //The next four store the length of the strMessage2
+                int strMessage2Len = BitConverter.ToInt32(data, 12);
 
-            //The next four store the length of the strMessage3
-            int strMessage3Len = BitConverter.ToInt32(data, 16);
+                //The next four store the length of the strMessage3
+                int strMessage3Len = BitConverter.ToInt32(data, 16);
 
-            //The next four store the length of the strMessage4
-            int strMessage4Len = BitConverter.ToInt32(data, 20);
+                //The next four store the length of the strMessage4
+                int strMessage4Len = BitConverter.ToInt32(data, 20);
 
-            int strFileMsgLen = BitConverter.ToInt32(data, 24);
+                int strFileMsgLen = BitConverter.ToInt32(data, 24);
 
-            if (nameLen > 0)
-                strName = Encoding.UTF8.GetString(data, 28, nameLen);
-            else
-                strName = null;
+                if (nameLen > 0)
+                    strName = Encoding.UTF8.GetString(data, 28, nameLen);
+                else
+                    strName = null;
 
-            //This check makes sure that strName has been passed in the array of bytes
-            if (strMessageLen > 0)
-                strMessage = Encoding.UTF8.GetString(data, 28 + nameLen, strMessageLen);
-            else
-                strMessage = null;
+                //This check makes sure that strName has been passed in the array of bytes
+                if (strMessageLen > 0)
+                    strMessage = Encoding.UTF8.GetString(data, 28 + nameLen, strMessageLen);
+                else
+                    strMessage = null;
 
-            //This checks for a null message field
-            if (strMessage2Len > 0)
-                strMessage2 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen, strMessage2Len);
-            else
-                strMessage2 = null;
+                //This checks for a null message field
+                if (strMessage2Len > 0)
+                    strMessage2 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen, strMessage2Len);
+                else
+                    strMessage2 = null;
 
-            if (strMessage3Len > 0)
-                strMessage3 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len, strMessage3Len);
-            else
-                strMessage3 = null;
+                if (strMessage3Len > 0)
+                    strMessage3 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len, strMessage3Len);
+                else
+                    strMessage3 = null;
 
-            if (strMessage4Len > 0)
-                strMessage4 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len, strMessage4Len);
-            else
-                strMessage4 = null;
+                if (strMessage4Len > 0)
+                    strMessage4 = Encoding.UTF8.GetString(data, 28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len, strMessage4Len);
+                else
+                    strMessage4 = null;
 
-            if (strFileMsgLen > 0)
-                strFileMsg = data.Skip(28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len + strMessage4Len).Take(strFileMsgLen).ToArray();
-            else
-                strFileMsg = null;
+                if (strFileMsgLen > 0)
+                    strFileMsg = data.Skip(28 + nameLen + strMessageLen + strMessage2Len + strMessage3Len + strMessage4Len).Take(strFileMsgLen).ToArray();
+                else
+                    strFileMsg = null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         //Converts the Data structure into an array of bytes
         public byte[] ToByte()
         {
             List<byte> result = new List<byte>();
+            try
+            {
+                //First four are for the Command
+                result.AddRange(BitConverter.GetBytes((int)cmdCommand));
 
-            //First four are for the Command
-            result.AddRange(BitConverter.GetBytes((int)cmdCommand));
+                //Add the length of the name
+                if (strName != null)
+                    result.AddRange(BitConverter.GetBytes(strName.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Add the length of the name
-            if (strName != null)
-                result.AddRange(BitConverter.GetBytes(strName.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Length of the message
+                if (strMessage != null)
+                    result.AddRange(BitConverter.GetBytes(strMessage.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the message
-            if (strMessage != null)
-                result.AddRange(BitConverter.GetBytes(strMessage.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Length of the message2
+                if (strMessage2 != null)
+                    result.AddRange(BitConverter.GetBytes(strMessage2.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the message2
-            if (strMessage2 != null)
-                result.AddRange(BitConverter.GetBytes(strMessage2.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Length of the message3
+                if (strMessage3 != null)
+                    result.AddRange(BitConverter.GetBytes(strMessage3.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the message3
-            if (strMessage3 != null)
-                result.AddRange(BitConverter.GetBytes(strMessage3.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Length of the message4
+                if (strMessage4 != null)
+                    result.AddRange(BitConverter.GetBytes(strMessage4.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the message4
-            if (strMessage4 != null)
-                result.AddRange(BitConverter.GetBytes(strMessage4.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Length of the file message
+                if (strFileMsg != null)
+                    result.AddRange(BitConverter.GetBytes(strFileMsg.Length));
+                else
+                    result.AddRange(BitConverter.GetBytes(0));
 
-            //Length of the file message
-            if (strFileMsg != null)
-                result.AddRange(BitConverter.GetBytes(strFileMsg.Length));
-            else
-                result.AddRange(BitConverter.GetBytes(0));
+                //Add the name
+                if (strName != null)
+                    result.AddRange(Encoding.UTF8.GetBytes(strName));
 
-            //Add the name
-            if (strName != null)
-                result.AddRange(Encoding.UTF8.GetBytes(strName));
+                //Add the message
+                if (strMessage != null)
+                    result.AddRange(Encoding.UTF8.GetBytes(strMessage));
 
-            //Add the message
-            if (strMessage != null)
-                result.AddRange(Encoding.UTF8.GetBytes(strMessage));
+                //And, lastly we add the message text to our array of bytes
+                if (strMessage2 != null)
+                    result.AddRange(Encoding.UTF8.GetBytes(strMessage2));
 
-            //And, lastly we add the message text to our array of bytes
-            if (strMessage2 != null)
-                result.AddRange(Encoding.UTF8.GetBytes(strMessage2));
+                if (strMessage3 != null)
+                    result.AddRange(Encoding.UTF8.GetBytes(strMessage3));
 
-            if (strMessage3 != null)
-                result.AddRange(Encoding.UTF8.GetBytes(strMessage3));
+                if (strMessage4 != null)
+                    result.AddRange(Encoding.UTF8.GetBytes(strMessage4));
 
-            if (strMessage4 != null)
-                result.AddRange(Encoding.UTF8.GetBytes(strMessage4));
+                if (strFileMsg != null)
+                    result.AddRange(strFileMsg);
 
-            if (strFileMsg != null)
-                result.AddRange(strFileMsg);
-
-            return result.ToArray();
+                return result.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return result.ToArray();
+            }
         }
     }
 }

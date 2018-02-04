@@ -118,26 +118,33 @@ namespace Gold_Client.ViewModel
 
         public void SendFile()
         {
+            SendFileAsync();
+        }
+
+        private async void SendFileAsync()
+        {
             int readBytes = 0;
-            byte[] buffer = new byte[980];
-            Task task;
-            // Blocking read file and send to the clients asynchronously.
+            byte[] buffer = new byte[1048000];
+            bool result = await Task.Run(() => ProcessFileAsync(buffer, readBytes));
+        }
+
+        private async Task<bool> ProcessFileAsync(byte[] buffer, int readBytes)
+        {
             using (FileStream stream = new FileStream(FileToSend, FileMode.Open))
             {
-                task = new Task(() => // Send every 500ms bytes of file
+                do
                 {
-                    do
-                    {
-                        stream.Flush();
-                        readBytes = stream.Read(buffer, 0, buffer.Length);
+                    stream.Flush();
 
-                        clientSendToServer.SendToServer(Command.sendFile, NameOfUserToSendFile, parseDirIntoFileName(), null, null, buffer);
-                        Task wait = Task.Delay(500);
+                    readBytes = stream.Read(buffer, 0, buffer.Length);
 
-                    }
-                    while (readBytes > 0);
-                });
+                    clientSendToServer.SendToServer(Command.sendFile, NameOfUserToSendFile, parseDirIntoFileName(), readBytes.ToString(), null, buffer);
+                    System.Console.WriteLine(Command.sendFile + " " + NameOfUserToSendFile + " " + parseDirIntoFileName() + " " + readBytes);
+                    await Task.Delay(1000);
+                }
+                while (readBytes > 0);
             }
+            return true;
         }
     }
 }

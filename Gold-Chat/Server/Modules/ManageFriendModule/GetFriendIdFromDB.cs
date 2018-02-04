@@ -13,10 +13,20 @@ namespace Server.Modules.ManageFriendModule
             DataBase = dataBase;
         }
 
-        public long GetFriendId(string FriendName)
+        public Int64 GetFriendId(string FriendName)
         {
             DataBase.bind("FriendName", FriendName);
-            return Int64.Parse(DataBase.singleSelect("SELECT id_user FROM users WHERE login = @FriendName"));
+
+            try
+            {
+                string result = DataBase.singleSelect("SELECT id_user FROM users WHERE login = @FriendName");
+                return Int64.Parse(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return 0;
+            }
         }
     }
 }

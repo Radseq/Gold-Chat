@@ -3,6 +3,6 @@
     interface IFileWriter
     {
         void OpenFile(string fileName);
-        void SaveFile(byte[] fileByte);
+        void SaveFile(byte[] fileByte, int fileLength);
     }
 }

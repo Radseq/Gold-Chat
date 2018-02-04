@@ -30,9 +30,9 @@ namespace Gold_Client
                 writer = new BinaryWriter(File.Open(fileSavePath, FileMode.Append));
         }
 
-        public void SaveFile(byte[] fileByte)
+        public void SaveFile(byte[] fileByte, int fileLength)
         {
-            writer.Write(fileByte, 0, fileByte.Length);
+            writer.Write(fileByte, 0, fileLength);
             writer.Flush();
             writer.Close();
         }

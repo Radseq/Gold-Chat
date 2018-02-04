@@ -39,7 +39,12 @@ namespace Server.Controllers
 
             string UserEmail = DatabaseGetSet.GetEmail();
 
-            if (UserRegisterCode != null) //user want finish registration
+            if (UserEmail == null)
+            {
+                Send.strMessage = "You are not registred";
+            }
+
+            if (UserRegisterCode != null && UserEmail != null) //user want finish registration
             {
                 if (DatabaseGetSet.ComprareCode(UserRegisterCode))
                 {
@@ -54,7 +59,6 @@ namespace Server.Controllers
             else // user want resend activation code to email
             {
                 sendActivatonCodeToUserEmail(UserEmail);
-                Send.strMessage = "You are not registred";
             }
 
         }
@@ -64,9 +68,11 @@ namespace Server.Controllers
             string RegisterCode = DatabaseGetSet.ReturnRegisterCode();
             if (RegisterCode != null)
             {
-                SendActivationCode.Send(UserName, userEmail, RegisterCode);
-                Send.strMessage = "Activation code sended.";
-                OnClientSendAckCode(UserName, userEmail);
+                if (SendActivationCode.Send(UserName, userEmail, RegisterCode))
+                {
+                    Send.strMessage = "Activation code sended.";
+                    OnClientSendAckCode(UserName, userEmail);
+                }
             }
             else
                 Send.strMessage = "Your account is already activate.";

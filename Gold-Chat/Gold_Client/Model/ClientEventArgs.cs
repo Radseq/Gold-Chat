@@ -47,5 +47,6 @@ namespace Gold_Client.Model
         public string FileLen { get; set; }
         public string FileName { get; set; }
         public Byte[] FileByte { get; set; }
+        public int FileLength { get; set; }
     }
 }

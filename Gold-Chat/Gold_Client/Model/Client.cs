@@ -10,7 +10,7 @@ namespace Gold_Client.Model
         public IPEndPoint addr { get; set; }
         public string strName;
 
-        private byte[] buffer = new byte[1024];
+        private byte[] buffer = new byte[1048576];
         public byte[] Buffer
         {
             get

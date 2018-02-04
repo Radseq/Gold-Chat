@@ -19,9 +19,9 @@ namespace Gold_ClientTests
         }
 
         [Fact]
-        public void validateGmailEmailAdress()
+        public void validateLogin()
         {
-            login = "Login";
+            login = "login";
             bool result = execute();
             Assert.True(result);
         }

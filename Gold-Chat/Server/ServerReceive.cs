@@ -4,13 +4,14 @@ using Server.ClientService;
 using Server.Controllers;
 using Server.Controllers.Lists;
 using Server.Interfaces;
+using Server.Interfaces.Server;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 
 namespace Server
 {
-    class ServerReceive : IServerReceive, IChannelList, IClientList, IClient
+    class ServerReceive : IDataReceive, IChannelList, IClientList, IClient
     {
         public Data Received { get; set; }
         public List<Channel> ChannelsList { get; set; }
@@ -26,7 +27,7 @@ namespace Server
 
         DataContext dataContext = new DataContext();
 
-        byte[] byteData = new byte[1024];
+        byte[] byteData = new byte[1048576];
 
         public event EventHandler<ClientEventArgs> ClientReceiMessage;
         LoggerToFile servLogger = LoggerToFile.Instance;
@@ -45,133 +46,131 @@ namespace Server
             //Transform the array of bytes received from the user into an
             //intelligent form of object Data
             Received = new Data(byteData);
+
             using (var scope = server._container.BeginLifetimeScope())
             {
-                try
+                // is client connected
+                // while some client (program/internet etc.) crashed, all commands can execute 2 times, second time is when client got crash
+                // extample: client send command etample: Command.createChannel server execute this command after send this command client got crash, and server executes second time this command.
+                if (Utilies.Utilities.IsConnected(Client.cSocket))
+                    OnClientCrash(client, ListOfClientsOnline, ChannelsList, scope);
+                else
                 {
-                    switch (Received.cmdCommand)
+                    try
                     {
-                        case Command.Login:
-                            dataContext.SetContext(scope.Resolve<LoginController>());
-                            break;
+                        switch (Received.cmdCommand)
+                        {
+                            case Command.Login:
+                                dataContext.SetContext(scope.Resolve<LoginController>());
+                                break;
 
-                        case Command.Registration:
-                            dataContext.SetContext(scope.Resolve<RegistrationController>());
-                            break;
+                            case Command.Registration:
+                                dataContext.SetContext(scope.Resolve<RegistrationController>());
+                                break;
 
-                        case Command.changePassword:
-                            dataContext.SetContext(scope.Resolve<ChangePasswordController>());
-                            break;
+                            case Command.changePassword:
+                                dataContext.SetContext(scope.Resolve<ChangePasswordController>());
+                                break;
 
-                        case Command.lostPassword:
-                            dataContext.SetContext(scope.Resolve<LostPasswordController>());
-                            break;
+                            case Command.lostPassword:
+                                dataContext.SetContext(scope.Resolve<LostPasswordController>());
+                                break;
 
-                        case Command.SendActivationCode:
-                            dataContext.SetContext(scope.Resolve<SendActiveCodeController>());
-                            break;
+                            case Command.SendActivationCode:
+                                dataContext.SetContext(scope.Resolve<SendActiveCodeController>());
+                                break;
 
-                        case Command.Logout:
-                            dataContext.SetContext(scope.Resolve<ClientLogoutController>());
-                            break;
+                            case Command.Logout:
+                                dataContext.SetContext(scope.Resolve<ClientLogoutController>());
+                                break;
 
-                        case Command.Message:
-                            dataContext.SetContext(scope.Resolve<ClientMessagesController>());
-                            break;
+                            case Command.Message:
+                                dataContext.SetContext(scope.Resolve<ClientMessagesController>());
+                                break;
 
-                        case Command.privMessage:
-                            dataContext.SetContext(scope.Resolve<PrivateMessageController>());
-                            break;
+                            case Command.privMessage:
+                                dataContext.SetContext(scope.Resolve<PrivateMessageController>());
+                                break;
 
-                        case Command.createChannel:
-                            dataContext.SetContext(scope.Resolve<CreateChannelController>());
-                            break;
+                            case Command.createChannel:
+                                dataContext.SetContext(scope.Resolve<CreateChannelController>());
+                                break;
 
-                        case Command.joinChannel:
-                            dataContext.SetContext(scope.Resolve<JoinChannelController>());
-                            break;
+                            case Command.joinChannel:
+                                dataContext.SetContext(scope.Resolve<JoinChannelController>());
+                                break;
 
-                        case Command.exitChannel:
-                            dataContext.SetContext(scope.Resolve<ExitChannelController>());
-                            break;
+                            case Command.exitChannel:
+                                dataContext.SetContext(scope.Resolve<ExitChannelController>());
+                                break;
 
-                        case Command.editChannel:
-                            // TODO ALL
-                            break;
+                            case Command.editChannel:
+                                // TODO ALL
+                                break;
 
-                        case Command.deleteChannel:
-                            dataContext.SetContext(scope.Resolve<DeleteChannelController>());
-                            break;
+                            case Command.deleteChannel:
+                                dataContext.SetContext(scope.Resolve<DeleteChannelController>());
+                                break;
 
-                        case Command.enterChannel:
-                            dataContext.SetContext(scope.Resolve<EnterChannelController>());
-                            break;
+                            case Command.enterChannel:
+                                dataContext.SetContext(scope.Resolve<EnterChannelController>());
+                                break;
 
-                        case Command.leaveChannel:
-                            dataContext.SetContext(scope.Resolve<LeaveChannelController>());
-                            break;
+                            case Command.leaveChannel:
+                                dataContext.SetContext(scope.Resolve<LeaveChannelController>());
+                                break;
 
-                        case Command.List:
-                            dataContext.SetContext(ResolveList(scope, Received.strMessage));
-                            break;
+                            case Command.List:
+                                dataContext.SetContext(ResolveList(scope, Received.strMessage));
+                                break;
 
-                        case Command.manageFriend:
-                            dataContext.SetContext(scope.Resolve<ManageClientFriendController>());
-                            break;
+                            case Command.manageFriend:
+                                dataContext.SetContext(scope.Resolve<ManageClientFriendController>());
+                                break;
 
-                        case Command.ignoreUser:
-                            dataContext.SetContext(scope.Resolve<IgnoreUserController>());
-                            break;
+                            case Command.ignoreUser:
+                                dataContext.SetContext(scope.Resolve<IgnoreUserController>());
+                                break;
 
-                        case Command.kick:
-                            dataContext.SetContext(scope.Resolve<ClientKickController>());
-                            break;
+                            case Command.kick:
+                                dataContext.SetContext(scope.Resolve<ClientKickController>());
+                                break;
 
-                        case Command.ban:
-                            dataContext.SetContext(scope.Resolve<BanController>());
-                            break;
+                            case Command.ban:
+                                dataContext.SetContext(scope.Resolve<BanController>());
+                                break;
 
-                        case Command.kickUserChannel:
-                            dataContext.SetContext(scope.Resolve<KickFromChannelController>());
-                            break;
+                            case Command.kickUserChannel:
+                                dataContext.SetContext(scope.Resolve<KickFromChannelController>());
+                                break;
 
-                        case Command.banUserChannel:
-                            dataContext.SetContext(scope.Resolve<BanFromChannelController>());
-                            break;
+                            case Command.banUserChannel:
+                                dataContext.SetContext(scope.Resolve<BanFromChannelController>());
+                                break;
 
-                        case Command.sendFile:
-                            if (Received.strFileMsg != null)
-                                dataContext.SetContext(scope.Resolve<ClientSendFileController>());
-                            else
-                                dataContext.SetContext(scope.Resolve<SendFileInfoController>());
-                            break;
-                        default:
-                            throw new ArgumentException("Wrong Package command from client");
+                            case Command.sendFile:
+                                if (Received.strFileMsg != null)
+                                    dataContext.SetContext(scope.Resolve<ClientSendFileController>());
+                                else
+                                    dataContext.SetContext(scope.Resolve<SendFileInfoController>());
+                                break;
+                            default:
+                                throw new ArgumentException("Wrong Package command from client");
+                        }
+
+                        dataContext.Load(client, Received, ListOfClientsOnline, ChannelsList);
+                        dataContext.Execute();
+                        dataContext.Response();
+                        ReceivedMessage(client, Received, byteData);
                     }
-                    //dataContext.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                    //dataContext.Execute();
-                    //dataContext.Response();
-
-                    //ReceivedMessage(client, Received, byteData);
-
-                }
-                catch (Exception ex)
-                {
-                    // So we make sure that client which got crash or internet close, server will send log out message
-                    dataContext.SetContext(scope.Resolve<ClientLogoutController>());
-
-                    string exMessage = $"client: {client.strName} {ex.Message}";
-                    Console.WriteLine(exMessage);
-                    //Console.WriteLine(ex.StackTrace);
-                    servLogger.Log(exMessage);
-                }
-                finally
-                {
-                    dataContext.Load(client, Received, ListOfClientsOnline, ChannelsList);
-                    dataContext.Execute();
-                    dataContext.Response();
-
-                    ReceivedMessage(client, Received, byteData);
+                    catch (Exception ex)
+                    {
+                        OnClientCrash(client, ListOfClientsOnline, ChannelsList, scope);
+                        string exMessage = $"client: {client.strName} {ex.Message}";
+                        Console.WriteLine(exMessage);
+                        //Console.WriteLine(ex.StackTrace);
+                        servLogger.Log(exMessage);
+                    }
                 }
             }
         }
@@ -190,6 +189,15 @@ namespace Server
                 return scope.Resolve<ChannelUsersListModule>();
             else
                 return scope.Resolve<UsersOnlineListModule>();
+        }
+
+        private void OnClientCrash(Client client, List<Client> clientList, List<Channel> channelList, ILifetimeScope scope)
+        {
+            // So we make sure that client which got crash or internet close, server will send log out message
+            dataContext.SetContext(scope.Resolve<ClientLogoutController>());
+            dataContext.Load(client, Received, ListOfClientsOnline, ChannelsList);
+            dataContext.Execute();
+            dataContext.Response();
         }
 
         private void ReceivedMessage(Client conClient, Data msgReceived, byte[] byteData)

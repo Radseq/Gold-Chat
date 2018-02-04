@@ -1,5 +1,5 @@
-﻿using Server.ClientService;
-using Server.Interfaces;
+﻿using Server.Interfaces;
+using Server.Interfaces.Server;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -10,7 +10,7 @@ namespace Server
 {
 
     //This class represents a client connection to server
-    public class ServerManager : IClient
+    public class ServerManager : IServerGetConnection, IClient
     {
         private static ManualResetEvent allDone = new ManualResetEvent(false);
 
@@ -24,23 +24,23 @@ namespace Server
 
         LoggerToConsole consoleLog = new LoggerToConsole();
 
-        /*
-                 private readonly IGetListOfChannels GetListOfChannels;
+
+        private readonly IGetListOfChannels GetListOfChannels;
 
         public ServerManager(IGetListOfChannels getListOfChannels)
         {
             GetListOfChannels = getListOfChannels;
             channels = GetListOfChannels.Get();
         }
-             */
 
-        public ServerManager()
+
+        /*public ServerManager()
         {
             GetListOfChannelsFromDataBase getListOfChannlsFromDataBase = new GetListOfChannelsFromDataBase();
             channels = getListOfChannlsFromDataBase.Get();
-        }
+        }*/
 
-        internal void acceptCallback(IAsyncResult ar)
+        public void acceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue.  
             allDone.Set();
@@ -63,7 +63,7 @@ namespace Server
             serverReceive.startReceiver();
         }
 
-        internal void getConnection(Socket sock)
+        public void getConnection(Socket sock)
         {
             allDone.Reset();
             sock.BeginAccept(new AsyncCallback(acceptCallback), sock);

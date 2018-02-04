@@ -4,6 +4,7 @@ using Server.Controllers;
 using Server.Interfaces;
 using Server.Interfaces.CreateChannel;
 using Server.Modules.ResponseMessagesController;
+using Server.Utilies;
 using System;
 using System.Collections.Generic;
 
@@ -45,25 +46,21 @@ namespace Server.ClientService
         public void Execute()
         {
             roomName = Received.strMessage;
-
-            string[] getFromDb = SearchForExistingChannel.Search(Client, roomName);
+            // string[] getFromDb = SearchForExistingChannel.Search(Client, roomName);
 
             Send.strName = Received.strName;
             Send.strMessage2 = "NotCreated";
 
-            if (getFromDb != null)
-            {
-                int idOfFounderDB = Int32.Parse(getFromDb[0]);
-                string channelNameDB = getFromDb[1];
+            Channel ClientChannel = ChannelGets.getChannelByFounderId(ChannelsList, Client.id);
 
-                if (channelNameDB == roomName)
+            if (ClientChannel != null)
+                Send.strMessage = $"You are create channel before ({ClientChannel.ChannelName}), you can have only one channel.";
+            else
+            {
+                if (isChannelNameAlreadyInUse())
                     Send.strMessage = "Channel Name is in Use, try other.";
-                else if (idOfFounderDB != 0)
-                    Send.strMessage = "You are create channel before, you can have one channel at time";
-                else // User not have channel and name is free
-                    insertChannelToDb();
+                else insertChannelToDb(); // There is no exists channelName, so we can create channel
             }
-            else insertChannelToDb(); // There is no exists channelName and idfounder, so we can create channel
         }
 
         private void insertChannelToDb()
@@ -77,7 +74,7 @@ namespace Server.ClientService
 
             if (InsertChannel.Insert(Client, roomName, enterPassword, adminPassword, /*Max Users*/5, welcomeMsg) > 0)
             {
-                Send.strMessage = "You are create channel (" + roomName + ")";
+                Send.strMessage = $"You are create channel ({roomName})";
                 Send.strMessage2 = "CreatedChannel";
                 Send.strMessage3 = null;
                 Send.strMessage4 = null;
@@ -101,6 +98,16 @@ namespace Server.ClientService
             obj.Load(Client, Received, ListOfClientsOnline);
             obj.Execute(DataBase.getLastInsertedID(), roomName);
             obj.Response();
+        }
+
+        private bool isChannelNameAlreadyInUse()
+        {
+            foreach (Channel channel in ChannelsList)
+            {
+                if (channel.ChannelName == roomName)
+                    return true;
+            }
+            return false;
         }
 
         protected virtual void OnClientCreateChannel(string channelName, string userName)
