@@ -79,7 +79,7 @@ namespace Gold_Client.ViewModel
 
                 else if (SecurePassword.Length < 6 && SecurePasswordRepeart.Length < 6)
                 {
-                    MessageBox.Show("Your password must be highter than 6 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Your password must be longer than 6 chars", "Error validation", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else if (new System.Net.NetworkCredential(string.Empty, SecurePassword).Password != new System.Net.NetworkCredential(string.Empty, SecurePasswordRepeart).Password)
                 {
